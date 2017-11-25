@@ -7,7 +7,7 @@ use std::f64::consts::PI;
 
 use cairo::Context;
 
-use draw::Drawable;
+use utils::{Drawable, Frame};
 use color;
 
 #[derive(Clone, Debug)]
@@ -59,6 +59,14 @@ impl Point {
             _ => Shape::Circle,
         };
     }
+
+    pub fn x_coord(&self) -> f64 {
+        self.x_coord
+    }
+
+    pub fn y_coord(&self) -> f64 {
+        self.y_coord
+    }
 }
 
 impl Drawable for Point {
@@ -70,6 +78,8 @@ impl Drawable for Point {
         }
         cr.fill()
     }
+
+    fn fit(&mut self, frame: &Frame) {}
 
     fn min_x(&self) -> f64 {
         self.x_coord
@@ -85,5 +95,9 @@ impl Drawable for Point {
 
     fn max_y(&self) -> f64 {
         self.y_coord
+    }
+
+    fn frame(&self) -> Frame {
+        Frame::new(self.x_coord, self.x_coord, self.y_coord, self.x_coord)
     }
 }

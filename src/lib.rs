@@ -19,8 +19,8 @@ extern crate gio;
 extern crate gtk;
 extern crate num;
 
+pub mod utils;
 pub mod figure;
-pub mod draw;
 pub mod plot;
 pub mod scatter;
 pub mod point;

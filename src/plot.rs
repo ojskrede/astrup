@@ -3,10 +3,12 @@
 //! Module that defines the Plot structure.
 //!
 
+use std::f64::{MAX, MIN};
 
 use cairo::Context;
+use cairo::enums::{FontSlant, FontWeight};
 
-use draw::Drawable;
+use utils::{Drawable, Frame};
 use scatter::Scatter;
 //use style::Style;
 
@@ -20,6 +22,7 @@ struct Axis {
     color: [f64; 4],
     lw: f64,
     label: String,
+    range: [f64; 2],
 }
 
 impl Axis {
@@ -32,11 +35,24 @@ impl Axis {
             color: [0.0, 0.0, 0.0, 1.0],
             lw: 0.01,
             label: String::from("Label"),
+            range: [0.0, 1.0],
         }
     }
 
     fn set_label(&mut self, label: &str) {
         self.label = String::from(label);
+    }
+
+    fn set_range(&mut self, min: f64, max: f64) {
+        self.range = [min, max];
+    }
+
+    pub fn min(&self) -> f64 {
+        self.range[0]
+    }
+
+    pub fn max(&self) -> f64 {
+        self.range[1]
     }
 }
 
@@ -56,18 +72,18 @@ pub struct Plot {
 
 impl Plot {
     pub fn new() -> Plot {
-        let x_origin = 0.1;
-        let y_origin = 0.9;
+        let x_origin = 0.2;
+        let y_origin = 0.8;
 
         Plot {
             size: [200, 300],
-            origin: [0.1, 0.9],
+            origin: [x_origin, y_origin],
             title: String::from("Plot"),
             bg_color: [0.9, 0.9, 0.9, 0.9],
             grid: false,
             border: true,
             x_axis: Axis::new(x_origin - 0.05, 0.9, y_origin, y_origin),
-            y_axis: Axis::new(x_origin, x_origin, 0.1, y_origin + 0.05),
+            y_axis: Axis::new(x_origin, x_origin, y_origin + 0.05, 0.1),
             drawables: Vec::<Scatter>::new(),
         }
     }
@@ -92,6 +108,30 @@ impl Plot {
         self.drawables.push(drawable);
     }
 
+    pub fn fit(&mut self) {
+
+        let mut min_x = MAX;
+        let mut max_x = MIN;
+        let mut min_y = MAX;
+        let mut max_y = MIN;
+        for drawable in self.drawables.iter() {
+            let frame = drawable.frame();
+            if drawable.min_x() < min_x { min_x = frame.min_x(); }
+            if drawable.max_x() > max_x { max_x = frame.max_x(); }
+            if drawable.min_y() < min_y { min_y = frame.min_y(); }
+            if drawable.max_y() > max_y { max_y = frame.max_y(); }
+        }
+
+        self.x_axis.set_range(min_x, max_x);
+        self.y_axis.set_range(min_y, max_y);
+
+        let outer_frame = Frame::new(self.x_axis.min(), self.x_axis.max(), self.y_axis.min(), self.y_axis.max());
+        let frame = Frame::new(0.2, 0.9, 0.1, 0.8);
+        for drawable in self.drawables.iter_mut() {
+            drawable.fit(&frame);
+        }
+    }
+
     pub fn draw_fn(&self, cr: &Context) {
 
         //cr.scale(self.size[1] as f64, self.size[0] as f64); // TODO: Why does this ruin things
@@ -113,6 +153,7 @@ impl Plot {
             cr.stroke();
         }
 
+        // TODO: Create draw_fn for axis
         // Horizontal axis
         cr.set_source_rgba(self.x_axis.color[0], self.x_axis.color[1], self.x_axis.color[2],
                            self.x_axis.color[3]);
@@ -121,6 +162,14 @@ impl Plot {
         cr.line_to(self.x_axis.x_end, self.x_axis.y_end);
         cr.stroke();
 
+        cr.select_font_face("Sans", FontSlant::Normal, FontWeight::Normal);
+        cr.set_font_size(0.04);
+
+        cr.move_to(self.origin[0], self.origin[1] + 0.1);
+        cr.show_text(&format!("{}", self.x_axis.min()));
+        cr.move_to(self.x_axis.x_end, self.origin[1] + 0.1);
+        cr.show_text(&format!("{}", self.x_axis.max()));
+
         // Vertical axis
         cr.set_source_rgba(self.y_axis.color[0], self.y_axis.color[1], self.y_axis.color[2],
                            self.y_axis.color[3]);
@@ -128,6 +177,11 @@ impl Plot {
         cr.move_to(self.y_axis.x_start, self.y_axis.y_start);
         cr.line_to(self.y_axis.x_end, self.y_axis.y_end);
         cr.stroke();
+
+        cr.move_to(self.origin[0] - 0.1, self.origin[1]);
+        cr.show_text(&format!("{}", self.y_axis.min()));
+        cr.move_to(self.origin[0] - 0.1, self.y_axis.y_end);
+        cr.show_text(&format!("{}", self.y_axis.max()));
 
         for drawable in self.drawables.iter() {
             drawable.draw_fn(cr);

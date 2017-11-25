@@ -11,7 +11,7 @@ use gtk::prelude::*;
 use gtk::DrawingArea;
 
 use plot::Plot;
-use draw::Drawable;
+use utils::Drawable;
 
 // make moving clones into closures more convenient
 macro_rules! clone {
@@ -65,10 +65,17 @@ impl Figure {
         self.plots.push(plot);
     }
 
+    fn fit(&mut self) {
+        for plot in self.plots.iter_mut() {
+            plot.fit();
+        }
+    }
+
     pub fn show(&self) {
         // In order to move self into the innermost nested closure (the argument of
         // drawing_area.connect_draw() ), we clone self here, and move use it.
-        let fig = self.clone();
+        let mut fig = self.clone();
+        fig.fit();
         self.application.connect_startup(move |app| {
             let window = gtk::ApplicationWindow::new(app);
             let drawing_area = Box::new(DrawingArea::new)();
