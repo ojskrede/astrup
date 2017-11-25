@@ -70,4 +70,20 @@ impl Drawable for Point {
         }
         cr.fill()
     }
+
+    fn min_x(&self) -> f64 {
+        self.x_coord
+    }
+
+    fn max_x(&self) -> f64 {
+        self.x_coord
+    }
+
+    fn min_y(&self) -> f64 {
+        self.y_coord
+    }
+
+    fn max_y(&self) -> f64 {
+        self.y_coord
+    }
 }

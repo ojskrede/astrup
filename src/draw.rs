@@ -21,4 +21,8 @@ pub enum Draw {
 
 pub trait Drawable {
     fn draw_fn(&self, cr: &Context);
+    fn min_x(&self) -> f64;
+    fn max_x(&self) -> f64;
+    fn min_y(&self) -> f64;
+    fn max_y(&self) -> f64;
 }

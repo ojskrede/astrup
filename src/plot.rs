@@ -10,6 +10,7 @@ use draw::Drawable;
 use scatter::Scatter;
 //use style::Style;
 
+
 #[derive(Clone, Debug)]
 struct Axis {
     x_start: f64,

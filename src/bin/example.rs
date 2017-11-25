@@ -9,7 +9,7 @@ use astrup::scatter::Scatter;
 
 fn main() {
     let data_x = vec![1.0, 2.0, 4.0, 8.0];
-    let data_y = vec![8.0, 4.0, 2.0, 1.0];
+    let data_y = vec![1.0, 2.0, 3.0, 4.0];
 
     let scatter = Scatter::new(&data_x, &data_y);
 
