@@ -7,6 +7,7 @@ use std::f64::consts::PI;
 
 use cairo::Context;
 
+use utils;
 use utils::{Drawable, Frame};
 use color;
 
@@ -67,6 +68,15 @@ impl Point {
     pub fn y_coord(&self) -> f64 {
         self.y_coord
     }
+
+    pub fn change_domain(&mut self, old_frame: &Frame, new_frame: &Frame) {
+        self.x_coord = utils::change_domain(self.x_coord,
+                                            old_frame.x_min(), old_frame.x_max(),
+                                            new_frame.x_min(), new_frame.x_max());
+        self.y_coord = utils::change_domain(self.y_coord,
+                                            old_frame.y_min(), old_frame.y_max(),
+                                            new_frame.y_min(), new_frame.y_max());
+    }
 }
 
 impl Drawable for Point {
@@ -81,23 +91,7 @@ impl Drawable for Point {
 
     fn fit(&mut self, frame: &Frame) {}
 
-    fn min_x(&self) -> f64 {
-        self.x_coord
-    }
-
-    fn max_x(&self) -> f64 {
-        self.x_coord
-    }
-
-    fn min_y(&self) -> f64 {
-        self.y_coord
-    }
-
-    fn max_y(&self) -> f64 {
-        self.y_coord
-    }
-
-    fn frame(&self) -> Frame {
+    fn data_frame(&self) -> Frame {
         Frame::new(self.x_coord, self.x_coord, self.y_coord, self.x_coord)
     }
 }

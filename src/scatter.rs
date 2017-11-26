@@ -6,72 +6,54 @@
 use cairo::Context;
 
 use point::Point;
-use utils::{Frame, Drawable, vec_range};
+use utils;
+use utils::{Frame, Drawable};
 
 #[derive(Clone, Debug)]
 pub struct Scatter {
-    points: Vec<Point>,
-    frame: Frame,
+    data_points: Vec<Point>,
+    data_frame: Frame,
 }
 
 impl Scatter {
-    pub fn new(x_coords: &Vec<f64>, y_coords: &Vec<f64>) -> Scatter {
-        let (min_x, max_x) = vec_range(&x_coords);
-        let (min_y, max_y) = vec_range(&y_coords);
+    pub fn new(x_data_coords: &Vec<f64>, y_data_coords: &Vec<f64>) -> Scatter {
+        let (x_data_min, x_data_max) = utils::vec_range(&x_data_coords);
+        let (y_data_min, y_data_max) = utils::vec_range(&y_data_coords);
 
-        let mut points = Vec::<Point>::new();
-        for (&x, &y) in x_coords.iter().zip(y_coords.iter()) {
-            points.push(Point::new(x, y));
+        let mut data_points = Vec::<Point>::new();
+        for (&x, &y) in x_data_coords.iter().zip(y_data_coords.iter()) {
+            data_points.push(Point::new(x, y));
         }
         Scatter {
-            points: points,
-            frame: Frame::new(min_x, max_x, min_y, max_y),
+            data_points: data_points,
+            data_frame: Frame::new(x_data_min, x_data_max, y_data_min, y_data_max),
         }
     }
 }
 
 impl Drawable for Scatter {
     fn draw_fn(&self, cr: &Context) {
-        for point in self.points.iter() {
-            point.draw_fn(cr)
+        for data_point in self.data_points.iter() {
+            data_point.draw_fn(cr)
         }
     }
 
-    fn fit(&mut self, frame: &Frame) {
-        let mut fitted_points = Vec::<Point>::new();
-        for point in self.points.iter() {
-            let mut scaled_x = 0.5;
-            if self.frame.max_x() != self.frame.min_x() {
-                scaled_x = (point.x_coord() - self.frame.min_x()) / (self.frame.max_x() - self.frame.min_x()) * frame.max_x() +
-                           (self.frame.max_x() - point.x_coord()) / (self.frame.max_x() - self.frame.min_x()) * frame.min_x();
-            }
-            let mut scaled_y = 0.5;
-            if self.frame.max_y() != self.frame.min_y() {
-                scaled_y = (point.y_coord() - self.frame.min_y()) / (self.frame.max_y() - self.frame.min_y()) * frame.max_y() +
-                           (self.frame.max_y() - point.y_coord()) / (self.frame.max_y() - self.frame.min_y()) * frame.min_y();
-            }
-            fitted_points.push(Point::new(scaled_x, scaled_y));
+    fn fit(&mut self, plot_frame: &Frame) {
+        let mut plot_points = Vec::<Point>::new();
+        for data_point in self.data_points.iter() {
+            let plot_x = utils::change_domain(data_point.x_coord(),
+                                              self.data_frame.x_min(), self.data_frame.x_max(),
+                                              plot_frame.x_min(), plot_frame.x_max());
+            let plot_y = utils::change_domain(data_point.y_coord(),
+                                              self.data_frame.y_min(), self.data_frame.y_max(),
+                                              plot_frame.y_min(), plot_frame.y_max());
+            plot_points.push(Point::new(plot_x, plot_y));
         }
-        self.points = fitted_points;
+        // FIXME: Do automatic fit in draw point, and only compute plot domain coordinates then
+        self.data_points = plot_points;
     }
 
-    fn min_x(&self) -> f64 {
-        self.frame.min_x()
-    }
-
-    fn max_x(&self) -> f64 {
-        self.frame.max_x()
-    }
-
-    fn min_y(&self) -> f64 {
-        self.frame.min_y()
-    }
-
-    fn max_y(&self) -> f64 {
-        self.frame.max_y()
-    }
-
-    fn frame(&self) -> Frame {
-        self.frame.clone()
+    fn data_frame(&self) -> Frame {
+        self.data_frame.clone()
     }
 }

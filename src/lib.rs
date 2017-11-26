@@ -2,17 +2,29 @@
 //!
 //! A rust plotting library.
 //!
-//! Plans:
-//! - Plotting Vec<Num> and ndarray Array* types
+//! ## Gloals:
+//! - Input Vec<Num> and ndarray Array* types
+//! - It should be intuitive to build plots, but not as "easy as possible". It will probably be
+//! quite verbose.
+//! - Very modular.
 //!
 //!
-//! Structurs
+//! ## Structurs
 //!
-//! Figure: The main image. Can contain multiple plots.
-//! Plot: An area defined by an x and y axis. Can contain multiple draw methods.
-//! Draw: line, scatter, hist, image. These methods draw whatever they specify onto its plot. It
+//! ### Figure
+//!
+//! The main image window. Can contain multiple plots.
+//!
+//! ### Plot
+//!
+//! An area defined by an x and y axis. Can contain multiple drawable objects
+//!
+//! ### Drawable objects
+//!
+//! One of {line, scatter, hist, matrix}. These methods draw whatever they specify onto its plot. It
 //! should be possible to combine as many as you want of any combination.
 //!
+//! ## TODO:
 
 extern crate cairo;
 extern crate gio;
@@ -22,6 +34,7 @@ extern crate num;
 pub mod utils;
 pub mod figure;
 pub mod plot;
+pub mod axis;
 pub mod scatter;
 pub mod point;
 pub mod color;

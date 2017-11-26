@@ -6,55 +6,11 @@
 use std::f64::{MAX, MIN};
 
 use cairo::Context;
-use cairo::enums::{FontSlant, FontWeight};
 
 use utils::{Drawable, Frame};
 use scatter::Scatter;
+use axis::{Orientation, Axis};
 //use style::Style;
-
-
-#[derive(Clone, Debug)]
-struct Axis {
-    x_start: f64,
-    x_end: f64,
-    y_start: f64,
-    y_end: f64,
-    color: [f64; 4],
-    lw: f64,
-    label: String,
-    range: [f64; 2],
-}
-
-impl Axis {
-    fn new(x_start: f64, x_end: f64, y_start: f64, y_end: f64) -> Axis {
-        Axis {
-            x_start: x_start,
-            x_end: x_end,
-            y_start: y_start,
-            y_end: y_end,
-            color: [0.0, 0.0, 0.0, 1.0],
-            lw: 0.01,
-            label: String::from("Label"),
-            range: [0.0, 1.0],
-        }
-    }
-
-    fn set_label(&mut self, label: &str) {
-        self.label = String::from(label);
-    }
-
-    fn set_range(&mut self, min: f64, max: f64) {
-        self.range = [min, max];
-    }
-
-    pub fn min(&self) -> f64 {
-        self.range[0]
-    }
-
-    pub fn max(&self) -> f64 {
-        self.range[1]
-    }
-}
 
 #[derive(Clone, Debug)]
 pub struct Plot {
@@ -68,22 +24,36 @@ pub struct Plot {
     x_axis: Axis,
     y_axis: Axis,
     drawables: Vec<Scatter>,
+    x_axis_plot_start: f64,
+    x_axis_plot_end: f64,
+    y_axis_plot_start: f64,
+    y_axis_plot_end: f64,
 }
 
 impl Plot {
     pub fn new() -> Plot {
-        let x_origin = 0.2;
-        let y_origin = 0.8;
+        let x_axis_plot_start = 0.2;
+        let x_axis_plot_end = 0.9;
+        let y_axis_plot_start = 0.8;
+        let y_axis_plot_end = 0.1;
 
         Plot {
             size: [200, 300],
-            origin: [x_origin, y_origin],
+            origin: [x_axis_plot_start, y_axis_plot_start],
             title: String::from("Plot"),
             bg_color: [0.9, 0.9, 0.9, 0.9],
             grid: false,
             border: true,
-            x_axis: Axis::new(x_origin - 0.05, 0.9, y_origin, y_origin),
-            y_axis: Axis::new(x_origin, x_origin, y_origin + 0.05, 0.1),
+            x_axis_plot_start: x_axis_plot_start,
+            x_axis_plot_end: x_axis_plot_end,
+            y_axis_plot_start: y_axis_plot_start,
+            y_axis_plot_end: y_axis_plot_end,
+            x_axis: Axis::new(Orientation::Horizontal,
+                              x_axis_plot_start, x_axis_plot_end,
+                              y_axis_plot_start, y_axis_plot_start),
+            y_axis: Axis::new(Orientation::Vertical,
+                              x_axis_plot_start, x_axis_plot_start,
+                              y_axis_plot_start, y_axis_plot_end),
             drawables: Vec::<Scatter>::new(),
         }
     }
@@ -110,22 +80,26 @@ impl Plot {
 
     pub fn fit(&mut self) {
 
-        let mut min_x = MAX;
-        let mut max_x = MIN;
-        let mut min_y = MAX;
-        let mut max_y = MIN;
+        let mut largest_data_frame = Frame::new(MAX, MIN, MAX, MIN);
         for drawable in self.drawables.iter() {
-            let frame = drawable.frame();
-            if drawable.min_x() < min_x { min_x = frame.min_x(); }
-            if drawable.max_x() > max_x { max_x = frame.max_x(); }
-            if drawable.min_y() < min_y { min_y = frame.min_y(); }
-            if drawable.max_y() > max_y { max_y = frame.max_y(); }
+            // TODO: Every call to data_frame() clones it. Make *_min()/*_max() a part of Drawable
+            if drawable.data_frame().x_min() < largest_data_frame.x_min() {
+                largest_data_frame.set_x_min(drawable.data_frame().x_min());
+            }
+            if drawable.data_frame().x_max() > largest_data_frame.x_max() {
+                largest_data_frame.set_x_max(drawable.data_frame().x_max());
+            }
+            if drawable.data_frame().y_min() < largest_data_frame.y_min() {
+                largest_data_frame.set_y_min(drawable.data_frame().y_min());
+            }
+            if drawable.data_frame().y_max() > largest_data_frame.y_max() {
+                largest_data_frame.set_y_max(drawable.data_frame().y_max());
+            }
         }
 
-        self.x_axis.set_range(min_x, max_x);
-        self.y_axis.set_range(min_y, max_y);
+        self.x_axis.set_data_range(largest_data_frame.x_min(), largest_data_frame.x_max());
+        self.y_axis.set_data_range(largest_data_frame.y_min(), largest_data_frame.y_max());
 
-        let outer_frame = Frame::new(self.x_axis.min(), self.x_axis.max(), self.y_axis.min(), self.y_axis.max());
         let frame = Frame::new(0.2, 0.9, 0.1, 0.8);
         for drawable in self.drawables.iter_mut() {
             drawable.fit(&frame);
@@ -153,35 +127,9 @@ impl Plot {
             cr.stroke();
         }
 
-        // TODO: Create draw_fn for axis
         // Horizontal axis
-        cr.set_source_rgba(self.x_axis.color[0], self.x_axis.color[1], self.x_axis.color[2],
-                           self.x_axis.color[3]);
-        cr.set_line_width(self.x_axis.lw);
-        cr.move_to(self.x_axis.x_start, self.x_axis.y_start);
-        cr.line_to(self.x_axis.x_end, self.x_axis.y_end);
-        cr.stroke();
-
-        cr.select_font_face("Sans", FontSlant::Normal, FontWeight::Normal);
-        cr.set_font_size(0.04);
-
-        cr.move_to(self.origin[0], self.origin[1] + 0.1);
-        cr.show_text(&format!("{}", self.x_axis.min()));
-        cr.move_to(self.x_axis.x_end, self.origin[1] + 0.1);
-        cr.show_text(&format!("{}", self.x_axis.max()));
-
-        // Vertical axis
-        cr.set_source_rgba(self.y_axis.color[0], self.y_axis.color[1], self.y_axis.color[2],
-                           self.y_axis.color[3]);
-        cr.set_line_width(self.y_axis.lw);
-        cr.move_to(self.y_axis.x_start, self.y_axis.y_start);
-        cr.line_to(self.y_axis.x_end, self.y_axis.y_end);
-        cr.stroke();
-
-        cr.move_to(self.origin[0] - 0.1, self.origin[1]);
-        cr.show_text(&format!("{}", self.y_axis.min()));
-        cr.move_to(self.origin[0] - 0.1, self.y_axis.y_end);
-        cr.show_text(&format!("{}", self.y_axis.max()));
+        self.x_axis.draw_fn(cr);
+        self.y_axis.draw_fn(cr);
 
         for drawable in self.drawables.iter() {
             drawable.draw_fn(cr);

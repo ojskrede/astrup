@@ -14,6 +14,8 @@ fn main() {
     let scatter = Scatter::new(&data_x, &data_y);
 
     let mut plot = Plot::new();
+    plot.x_label("x");
+    plot.y_label("y");
     plot.draw(scatter);
 
     let mut fig = Figure::new();
