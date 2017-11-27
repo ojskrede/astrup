@@ -9,7 +9,6 @@ use cairo::Context;
 
 use utils::{Drawable, Frame};
 use axis::{Orientation, Axis};
-use point::Point;
 use scatter::Scatter;
 use line::Line;
 //use style::Style;

@@ -3,7 +3,7 @@
 //! A rust plotting library.
 //!
 //! ## Gloals:
-//! - Input Vec<Num> and ndarray Array* types
+//! - Input `Vec<Num>` and `ndarray Array*` types
 //! - It should be intuitive to build plots, but not as "easy as possible". It will probably be
 //! quite verbose.
 //! - Very modular.
@@ -21,8 +21,19 @@
 //!
 //! ### Drawable objects
 //!
-//! One of {line, scatter, hist, matrix}. These methods draw whatever they specify onto its plot. It
+//! These methods draw whatever they specify onto its plot. It
 //! should be possible to combine as many as you want of any combination.
+//!
+//! The variants currently intended are
+//!
+//! | Variant       | Supported |
+//! | ------------- | --------- |
+//! | Scatter       | Partially |
+//! | Line          | Parially  |
+//! | Histogram     | No        |
+//! | BoxPlot       | No        |
+//! | MatrixHeatmap | No        |
+//! | Image         | No        |
 //!
 //! ## TODO:
 

@@ -11,7 +11,6 @@ use gtk::prelude::*;
 use gtk::DrawingArea;
 
 use plot::Plot;
-use utils::Drawable;
 
 // make moving clones into closures more convenient
 macro_rules! clone {
