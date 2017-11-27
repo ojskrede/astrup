@@ -110,6 +110,8 @@ impl Drawable for Point {
         Frame::new(self.x_coord, self.x_coord, self.y_coord, self.y_coord)
     }
 
+    fn set_data_frame(&mut self, new_data_frame: Frame) {}
+
     fn data_x_min(&self) -> f64 {
         self.x_coord
     }

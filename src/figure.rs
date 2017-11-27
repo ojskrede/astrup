@@ -32,20 +32,20 @@ macro_rules! clone {
 }
 
 #[derive(Clone)]
-pub struct Figure<T> {
-    plots: Vec<Plot<T>>,
+pub struct Figure {
+    plots: Vec<Plot>,
     title: String,
     size: [usize; 2],
     bg_color: [f64; 4],
     application: gtk::Application,
 }
 
-impl<T: Drawable + Clone + 'static> Figure<T> {
-    pub fn new() -> Figure<T> {
+impl Figure {
+    pub fn new() -> Figure {
         let app = gtk::Application::new("com.astrup.application", gio::ApplicationFlags::empty())
                                    .expect("Failed to initialize application");
         Figure {
-            plots: Vec::<Plot<T>>::new(),
+            plots: Vec::<Plot>::new(),
             title: String::from("Figure"),
             size: [512, 512],
             bg_color: [1.0, 1.0, 1.0, 1.0],
@@ -61,7 +61,7 @@ impl<T: Drawable + Clone + 'static> Figure<T> {
         self.size = size;
     }
 
-    pub fn draw(&mut self, plot: Plot<T>) {
+    pub fn draw(&mut self, plot: Plot) {
         self.plots.push(plot);
     }
 
@@ -88,7 +88,7 @@ impl<T: Drawable + Clone + 'static> Figure<T> {
     //fn save(path: PathBuf) {}
 }
 
-fn build_ui<T: Drawable + Clone + 'static>(fig: &Figure<T>, app: &gtk::Application) {
+fn build_ui(fig: &Figure, app: &gtk::Application) {
     let window = gtk::ApplicationWindow::new(app);
     let drawing_area = Box::new(DrawingArea::new)();
     drawing_area.connect_draw(clone!(fig => move |_, cr| {

@@ -9,10 +9,89 @@ use cairo::Context;
 
 use utils::{Drawable, Frame};
 use axis::{Orientation, Axis};
+use point::Point;
+use scatter::Scatter;
+use line::Line;
 //use style::Style;
 
 #[derive(Clone, Debug)]
-pub struct Plot<T> {
+pub enum PlotType {
+    Scatter(Scatter),
+    Line(Line),
+}
+
+/*
+impl PlotType {
+    fn new(&self) -> PlotType {
+        match *self {
+            PlotType::Point(ref p) => p.new(),
+            PlotType::Scatter(ref s) => s.new(),
+            PlotType::Line(ref l) => l.new(),
+        }
+    }
+}
+*/
+
+impl Drawable for PlotType {
+    fn draw_fn(&self, cr: &Context) {
+        match *self {
+            PlotType::Scatter(ref s) => s.draw_fn(cr),
+            PlotType::Line(ref l) => l.draw_fn(cr),
+        }
+    }
+
+    fn fit(&mut self, plot_frame: &Frame) {
+        match *self {
+            PlotType::Scatter(ref mut s) => s.fit(plot_frame),
+            PlotType::Line(ref mut l) => l.fit(plot_frame),
+        }
+    }
+
+    fn data_frame(&self) -> Frame {
+        match *self {
+            PlotType::Scatter(ref s) => s.data_frame(),
+            PlotType::Line(ref l) => l.data_frame(),
+        }
+    }
+
+    fn set_data_frame(&mut self, new_data_frame: Frame) {
+        match *self {
+            PlotType::Scatter(ref mut s) => s.set_data_frame(new_data_frame),
+            PlotType::Line(ref mut l) => l.set_data_frame(new_data_frame),
+        }
+    }
+
+    fn data_x_min(&self) -> f64 {
+        match *self {
+            PlotType::Scatter(ref s) => s.data_x_min(),
+            PlotType::Line(ref l) => l.data_x_min(),
+        }
+    }
+
+    fn data_x_max(&self) -> f64 {
+        match *self {
+            PlotType::Scatter(ref s) => s.data_x_max(),
+            PlotType::Line(ref l) => l.data_x_max(),
+        }
+    }
+
+    fn data_y_min(&self) -> f64 {
+        match *self {
+            PlotType::Scatter(ref s) => s.data_y_min(),
+            PlotType::Line(ref l) => l.data_y_min(),
+        }
+    }
+
+    fn data_y_max(&self) -> f64 {
+        match *self {
+            PlotType::Scatter(ref s) => s.data_y_max(),
+            PlotType::Line(ref l) => l.data_y_max(),
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct Plot {
     size: [usize; 2],
     //style: Style,
     title: String,
@@ -22,15 +101,15 @@ pub struct Plot<T> {
     origin: [f64; 2],
     x_axis: Axis,
     y_axis: Axis,
-    drawables: Vec<T>,
+    drawables: Vec<PlotType>,
     x_axis_plot_start: f64,
     x_axis_plot_end: f64,
     y_axis_plot_start: f64,
     y_axis_plot_end: f64,
 }
 
-impl<T: Drawable> Plot<T> {
-    pub fn new() -> Plot<T> {
+impl Plot {
+    pub fn new() -> Plot {
         let x_axis_plot_start = 0.2;
         let x_axis_plot_end = 0.9;
         let y_axis_plot_start = 0.8;
@@ -53,7 +132,7 @@ impl<T: Drawable> Plot<T> {
             y_axis: Axis::new(Orientation::Vertical,
                               x_axis_plot_start, x_axis_plot_start,
                               y_axis_plot_start, y_axis_plot_end),
-            drawables: Vec::<T>::new(),
+            drawables: Vec::<PlotType>::new(),
         }
     }
 
@@ -73,7 +152,7 @@ impl<T: Drawable> Plot<T> {
         self.y_axis.set_label(label);
     }
 
-    pub fn draw(&mut self, drawable: T) {
+    pub fn draw(&mut self, drawable: PlotType) {
         self.drawables.push(drawable);
     }
 
@@ -100,6 +179,7 @@ impl<T: Drawable> Plot<T> {
 
         //let frame = Frame::new(0.2, 0.9, 0.1, 0.8);
         for drawable in self.drawables.iter_mut() {
+            drawable.set_data_frame(largest_data_frame.clone());
             drawable.fit(&Frame::new(self.x_axis_plot_start, self.x_axis_plot_end,
                                      self.y_axis_plot_start, self.y_axis_plot_end));
         }

@@ -4,7 +4,7 @@
 extern crate astrup;
 
 use astrup::figure::Figure;
-use astrup::plot::Plot;
+use astrup::plot::{Plot, PlotType};
 use astrup::scatter::Scatter;
 use astrup::line::Line;
 
@@ -26,9 +26,9 @@ fn collatz(init_val: u64) -> Vec<f64> {
 }
 
 fn main() {
-    //let x_data = vec![1.0, 2.0, 4.0, 8.0];
-    //let y_data = vec![1.0, 2.0, 3.0, 4.0];
-    //let scatter = Scatter::new(&data_x, &data_y);
+    let x_data = vec![40.0, 41.0, 36.0, 40.0];
+    let y_data = vec![490.0, 510.0, 500.0, 450.0];
+    let scatter = Scatter::new(&x_data, &y_data);
 
     //let init_val: u64 = 837799; // Produces longest sequence of init values < 1 000 000
     let init_val: u64 = 123;
@@ -39,7 +39,8 @@ fn main() {
     let mut plot = Plot::new();
     plot.x_label("x");
     plot.y_label("y");
-    plot.draw(line);
+    plot.draw(PlotType::Line(line));
+    plot.draw(PlotType::Scatter(scatter));
 
     let mut fig = Figure::new();
     fig.draw(plot);

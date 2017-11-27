@@ -77,6 +77,7 @@ pub trait Drawable {
     fn draw_fn(&self, cr: &Context);
     fn fit(&mut self, frame: &Frame);
     fn data_frame(&self) -> Frame;
+    fn set_data_frame(&mut self, new_data_frame: Frame);
     fn data_x_min(&self) -> f64;
     fn data_x_max(&self) -> f64;
     fn data_y_min(&self) -> f64;
