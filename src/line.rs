@@ -32,7 +32,7 @@ impl Line {
         Line {
             data_points: data_points,
             data_frame: Frame::new(x_data_min, x_data_max, y_data_min, y_data_max),
-            color: [0.1, 0.1, 0.1, 1.0],
+            color: [0.1, 0.2, 0.5, 0.9],
             line_width: 0.005,
         }
     }

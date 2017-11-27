@@ -42,6 +42,14 @@ impl Tick {
         self.label = String::from(label);
     }
 
+    fn x_center(&self) -> f64 {
+        self.x_center
+    }
+
+    fn y_center(&self) -> f64 {
+        self.y_center
+    }
+
     fn draw_fn(&self, cr: &Context) {
         cr.set_source_rgba(self.color[0], self.color[1], self.color[2], self.color[3]);
         cr.set_line_width(self.line_width);
@@ -75,6 +83,40 @@ impl Tick {
     }
 }
 
+/// ## GridLine
+///
+/// Indicator used by axis to serve as a reference for the displayed data
+#[derive(Clone, Debug)]
+struct GridLine {
+    plot_x_start: f64,
+    plot_x_end: f64,
+    plot_y_start: f64,
+    plot_y_end: f64,
+    color: [f64; 4],
+    line_width: f64,
+}
+
+impl GridLine {
+    fn new(x_start: f64, y_start: f64, x_end: f64, y_end: f64) -> GridLine {
+        GridLine {
+            plot_x_start: x_start,
+            plot_x_end: x_end,
+            plot_y_start: y_start,
+            plot_y_end: y_end,
+            color: [1.0, 1.0, 1.0, 1.0],
+            line_width: 0.005,
+        }
+    }
+
+    fn draw_fn(&self, cr: &Context) {
+        cr.set_source_rgba(self.color[0], self.color[1], self.color[2], self.color[3]);
+        cr.set_line_width(self.line_width);
+        cr.move_to(self.plot_x_start, self.plot_y_start);
+        cr.line_to(self.plot_x_end, self.plot_y_end);
+        cr.stroke();
+    }
+}
+
 /// ## Axis
 ///
 /// An axis is a reference source for the plot. It is often displayed as a line with evenly spaced
@@ -88,6 +130,7 @@ pub struct Axis {
     label: String,
     data_range: [f64; 2],
     ref_num_ticks: usize,
+    grid: bool,
 }
 
 impl Axis {
@@ -100,6 +143,7 @@ impl Axis {
             label: String::from(""),
             data_range: [0.0, 1.0],
             ref_num_ticks: 5,
+            grid: true,
         }
     }
 
@@ -222,9 +266,24 @@ impl Axis {
             },
         }
 
-        // Ticks and tick labels
+        // Gridlines
         let ticks = self.compute_ticks();
-        for tick in ticks {
+        if self.grid {
+            for tick in ticks.iter() {
+                // FIXME: Provide information about the plot height the x-axis and plot width for
+                // the y axis.
+                let gridline = match self.orientation {
+                    Orientation::Horizontal => GridLine::new(tick.x_center(), tick.y_center(),
+                                                             tick.x_center(), 0.1),
+                    Orientation::Vertical => GridLine::new(tick.x_center(), tick.y_center(),
+                                                           0.9, tick.y_center()),
+                };
+                gridline.draw_fn(cr);
+            }
+        }
+
+        // Ticks and tick labels
+        for tick in ticks.iter() {
             tick.draw_fn(cr);
         }
     }
