@@ -8,13 +8,11 @@ use std::f64::{MAX, MIN};
 use cairo::Context;
 
 use utils::{Drawable, Frame};
-use scatter::Scatter;
-use line::Line;
 use axis::{Orientation, Axis};
 //use style::Style;
 
 #[derive(Clone, Debug)]
-pub struct Plot {
+pub struct Plot<T> {
     size: [usize; 2],
     //style: Style,
     title: String,
@@ -24,15 +22,15 @@ pub struct Plot {
     origin: [f64; 2],
     x_axis: Axis,
     y_axis: Axis,
-    drawables: Vec<Line>,
+    drawables: Vec<T>,
     x_axis_plot_start: f64,
     x_axis_plot_end: f64,
     y_axis_plot_start: f64,
     y_axis_plot_end: f64,
 }
 
-impl Plot {
-    pub fn new() -> Plot {
+impl<T: Drawable> Plot<T> {
+    pub fn new() -> Plot<T> {
         let x_axis_plot_start = 0.2;
         let x_axis_plot_end = 0.9;
         let y_axis_plot_start = 0.8;
@@ -55,7 +53,7 @@ impl Plot {
             y_axis: Axis::new(Orientation::Vertical,
                               x_axis_plot_start, x_axis_plot_start,
                               y_axis_plot_start, y_axis_plot_end),
-            drawables: Vec::<Line>::new(),
+            drawables: Vec::<T>::new(),
         }
     }
 
@@ -75,7 +73,7 @@ impl Plot {
         self.y_axis.set_label(label);
     }
 
-    pub fn draw(&mut self, drawable: Line) {
+    pub fn draw(&mut self, drawable: T) {
         self.drawables.push(drawable);
     }
 
@@ -83,27 +81,27 @@ impl Plot {
 
         let mut largest_data_frame = Frame::new(MAX, MIN, MAX, MIN);
         for drawable in self.drawables.iter() {
-            // TODO: Every call to data_frame() clones it. Make *_min()/*_max() a part of Drawable
-            if drawable.data_frame().x_min() < largest_data_frame.x_min() {
-                largest_data_frame.set_x_min(drawable.data_frame().x_min());
+            if drawable.data_x_min() < largest_data_frame.x_min() {
+                largest_data_frame.set_x_min(drawable.data_x_min());
             }
-            if drawable.data_frame().x_max() > largest_data_frame.x_max() {
-                largest_data_frame.set_x_max(drawable.data_frame().x_max());
+            if drawable.data_x_max() > largest_data_frame.x_max() {
+                largest_data_frame.set_x_max(drawable.data_x_max());
             }
-            if drawable.data_frame().y_min() < largest_data_frame.y_min() {
-                largest_data_frame.set_y_min(drawable.data_frame().y_min());
+            if drawable.data_y_min() < largest_data_frame.y_min() {
+                largest_data_frame.set_y_min(drawable.data_y_min());
             }
-            if drawable.data_frame().y_max() > largest_data_frame.y_max() {
-                largest_data_frame.set_y_max(drawable.data_frame().y_max());
+            if drawable.data_y_max() > largest_data_frame.y_max() {
+                largest_data_frame.set_y_max(drawable.data_y_max());
             }
         }
 
         self.x_axis.set_data_range(largest_data_frame.x_min(), largest_data_frame.x_max());
         self.y_axis.set_data_range(largest_data_frame.y_min(), largest_data_frame.y_max());
 
-        let frame = Frame::new(0.2, 0.9, 0.1, 0.8);
+        //let frame = Frame::new(0.2, 0.9, 0.1, 0.8);
         for drawable in self.drawables.iter_mut() {
-            drawable.fit(&frame);
+            drawable.fit(&Frame::new(self.x_axis_plot_start, self.x_axis_plot_end,
+                                     self.y_axis_plot_start, self.y_axis_plot_end));
         }
     }
 

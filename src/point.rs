@@ -61,6 +61,10 @@ impl Point {
         };
     }
 
+    pub fn set_size(&mut self, size: f64) {
+        self.size = size;
+    }
+
     pub fn x_coord(&self) -> f64 {
         self.x_coord
     }
@@ -99,7 +103,26 @@ impl Drawable for Point {
 
     fn fit(&mut self, frame: &Frame) {}
 
+    // TODO: The following does not really make sense for this struct, and only really for
+    // the plot variants (line, scatter, etc.).
+    // Consider splitting the Drawable trait into a Drawable and a PlotVariant trait.
     fn data_frame(&self) -> Frame {
-        Frame::new(self.x_coord, self.x_coord, self.y_coord, self.x_coord)
+        Frame::new(self.x_coord, self.x_coord, self.y_coord, self.y_coord)
+    }
+
+    fn data_x_min(&self) -> f64 {
+        self.x_coord
+    }
+
+    fn data_x_max(&self) -> f64 {
+        self.x_coord
+    }
+
+    fn data_y_min(&self) -> f64 {
+        self.y_coord
+    }
+
+    fn data_y_max(&self) -> f64 {
+        self.y_coord
     }
 }

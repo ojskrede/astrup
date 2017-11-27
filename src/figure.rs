@@ -32,20 +32,20 @@ macro_rules! clone {
 }
 
 #[derive(Clone)]
-pub struct Figure {
-    plots: Vec<Plot>,
+pub struct Figure<T> {
+    plots: Vec<Plot<T>>,
     title: String,
     size: [usize; 2],
     bg_color: [f64; 4],
     application: gtk::Application,
 }
 
-impl Figure {
-    pub fn new() -> Figure {
+impl<T: Drawable + Clone + 'static> Figure<T> {
+    pub fn new() -> Figure<T> {
         let app = gtk::Application::new("com.astrup.application", gio::ApplicationFlags::empty())
                                    .expect("Failed to initialize application");
         Figure {
-            plots: Vec::<Plot>::new(),
+            plots: Vec::<Plot<T>>::new(),
             title: String::from("Figure"),
             size: [512, 512],
             bg_color: [1.0, 1.0, 1.0, 1.0],
@@ -61,7 +61,7 @@ impl Figure {
         self.size = size;
     }
 
-    pub fn draw(&mut self, plot: Plot) {
+    pub fn draw(&mut self, plot: Plot<T>) {
         self.plots.push(plot);
     }
 
@@ -71,7 +71,7 @@ impl Figure {
         }
     }
 
-    pub fn show(&self) {
+    pub fn show(self) {
         // In order to move self into the innermost nested closure (the argument of
         // drawing_area.connect_draw() ), we clone self here, and move use it.
         let mut fig = self.clone();
@@ -88,7 +88,7 @@ impl Figure {
     //fn save(path: PathBuf) {}
 }
 
-fn build_ui(fig: &Figure, app: &gtk::Application) {
+fn build_ui<T: Drawable + Clone + 'static>(fig: &Figure<T>, app: &gtk::Application) {
     let window = gtk::ApplicationWindow::new(app);
     let drawing_area = Box::new(DrawingArea::new)();
     drawing_area.connect_draw(clone!(fig => move |_, cr| {
@@ -97,10 +97,10 @@ fn build_ui(fig: &Figure, app: &gtk::Application) {
         cr.set_source_rgb(fig.bg_color[0], fig.bg_color[1], fig.bg_color[2]);
         cr.paint();
 
+        // TODO: Place them in grid
         for plot in fig.plots.iter() {
             plot.draw_fn(cr);
         }
-        //draw_circle(cr);
 
         Inhibit(false)
     }));

@@ -173,8 +173,7 @@ impl Axis {
         };
         let mut data_loc_k = actual_min_point;
         let mut plot_ticks = Vec::<Tick>::new();
-        while data_loc_k < self.data_max() {
-            data_loc_k += tick_distance;
+        while data_loc_k < ref_max_point {
             let plot_loc_k = utils::change_domain(data_loc_k, self.data_min(), self.data_max(),
                                                   plot_min, plot_max);
             let mut plot_tick = match self.orientation {
@@ -182,8 +181,13 @@ impl Axis {
                 Orientation::Vertical => Tick::new(self.orientation.clone(), self.plot_frame.x_min(), plot_loc_k),
             };
             // FIXME: Tick label format
-            plot_tick.set_label(&format!("{0:.1}", data_loc_k));
+            if omagn > 0.0 {
+                plot_tick.set_label(&format!("{0:.0}", data_loc_k));
+            } else {
+                plot_tick.set_label(&format!("{0:.1$}", data_loc_k, omagn.abs() as usize - 1));
+            };
             plot_ticks.push(plot_tick);
+            data_loc_k += tick_distance;
         }
         plot_ticks
     }

@@ -77,11 +77,10 @@ pub trait Drawable {
     fn draw_fn(&self, cr: &Context);
     fn fit(&mut self, frame: &Frame);
     fn data_frame(&self) -> Frame;
-    // TODO:
-    //fn x_min(&self) -> f64;
-    //fn x_max(&self) -> f64;
-    //fn y_min(&self) -> f64;
-    //fn y_max(&self) -> f64;
+    fn data_x_min(&self) -> f64;
+    fn data_x_max(&self) -> f64;
+    fn data_y_min(&self) -> f64;
+    fn data_y_max(&self) -> f64;
 }
 
 /// Return a list of [vec.min(), vec.max()]
@@ -134,6 +133,16 @@ pub fn round_nearest(number: f64, omagn: f64) -> f64 {
     } else {
         round_down
     }
+}
+
+pub fn round_down(number: f64, omagn: f64) -> f64 {
+    let below = 10.0_f64.powi(omagn as i32 - 2);
+    number - number % below
+}
+
+pub fn round_up(number: f64, omagn: f64) -> f64 {
+    let below = 10.0_f64.powi(omagn as i32 - 2);
+    number - number % below + below
 }
 
 /// Map a number in one reference system to another

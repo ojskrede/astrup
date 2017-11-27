@@ -56,4 +56,20 @@ impl Drawable for Scatter {
     fn data_frame(&self) -> Frame {
         self.data_frame.clone()
     }
+
+    fn data_x_min(&self) -> f64 {
+        self.data_frame.x_min()
+    }
+
+    fn data_x_max(&self) -> f64 {
+        self.data_frame.x_max()
+    }
+
+    fn data_y_min(&self) -> f64 {
+        self.data_frame.y_min()
+    }
+
+    fn data_y_max(&self) -> f64 {
+        self.data_frame.y_max()
+    }
 }

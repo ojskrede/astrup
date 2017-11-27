@@ -24,7 +24,8 @@ impl Line {
         let mut data_points = Vec::<Point>::new();
         for (&x, &y) in x_data_coords.iter().zip(y_data_coords.iter()) {
             let mut point = Point::new(x, y);
-            point.set_color("r", 0.8);
+            //point.set_color("r", 0.8);
+            point.set_size(0.0);
             data_points.push(point);
         }
         Line {
@@ -69,5 +70,21 @@ impl Drawable for Line {
 
     fn data_frame(&self) -> Frame {
         self.data_frame.clone()
+    }
+
+    fn data_x_min(&self) -> f64 {
+        self.data_frame.x_min()
+    }
+
+    fn data_x_max(&self) -> f64 {
+        self.data_frame.x_max()
+    }
+
+    fn data_y_min(&self) -> f64 {
+        self.data_frame.y_min()
+    }
+
+    fn data_y_max(&self) -> f64 {
+        self.data_frame.y_max()
     }
 }
