@@ -14,6 +14,7 @@ pub struct Line {
     data_points: Vec<Point>,
     data_frame: Frame,
     color: [f64; 4],
+    line_width: f64,
 }
 
 impl Line {
@@ -31,7 +32,8 @@ impl Line {
         Line {
             data_points: data_points,
             data_frame: Frame::new(x_data_min, x_data_max, y_data_min, y_data_max),
-            color: [0.5, 0.5, 0.5, 0.9],
+            color: [0.1, 0.1, 0.1, 1.0],
+            line_width: 0.005,
         }
     }
 }
@@ -42,6 +44,7 @@ impl Drawable for Line {
         for data_point in self.data_points.iter() {
             if !first_point {
                 cr.set_source_rgba(self.color[0], self.color[1], self.color[2], self.color[3]);
+                cr.set_line_width(self.line_width);
                 cr.line_to(data_point.x_coord(), data_point.y_coord());
                 cr.stroke();
             }

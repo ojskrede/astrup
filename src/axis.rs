@@ -49,26 +49,26 @@ impl Tick {
         match self.orientation {
             Orientation::Horizontal => {
                 cr.move_to(self.x_center, self.y_center - 0.01);
-                cr.line_to(self.x_center, self.y_center + 0.01);
+                cr.line_to(self.x_center, self.y_center);
                 cr.stroke();
             },
             Orientation::Vertical => {
-                cr.move_to(self.x_center - 0.01, self.y_center);
+                cr.move_to(self.x_center, self.y_center);
                 cr.line_to(self.x_center + 0.01, self.y_center);
                 cr.stroke();
             },
         }
 
         // Label
-        cr.select_font_face("Sans", FontSlant::Normal, FontWeight::Normal);
-        cr.set_font_size(0.04);
+        cr.select_font_face("Serif", FontSlant::Normal, FontWeight::Normal);
+        cr.set_font_size(0.03);
         match self.orientation {
             Orientation::Horizontal => {
-                cr.move_to(self.x_center - 0.03, self.y_center + 0.05);
+                cr.move_to(self.x_center - 0.02, self.y_center + 0.04);
                 cr.show_text(&self.label);
             },
             Orientation::Vertical => {
-                cr.move_to(self.x_center - 0.1, self.y_center + 0.01);
+                cr.move_to(self.x_center - 0.08, self.y_center + 0.01);
                 cr.show_text(&self.label);
             },
         }
@@ -96,7 +96,7 @@ impl Axis {
             orientation: orientation,
             plot_frame: Frame::new(x_start, x_end, y_start, y_end),
             color: [0.0, 0.0, 0.0, 1.0],
-            line_width: 0.01,
+            line_width: 0.005,
             label: String::from(""),
             data_range: [0.0, 1.0],
             ref_num_ticks: 5,
@@ -181,8 +181,12 @@ impl Axis {
                 Orientation::Vertical => Tick::new(self.orientation.clone(), self.plot_frame.x_min(), plot_loc_k),
             };
             // FIXME: Tick label format
-            if omagn > 0.0 {
+            if omagn > 1.0e5 {
                 plot_tick.set_label(&format!("{0:.0}", data_loc_k));
+            } else if omagn > 0.0 {
+                plot_tick.set_label(&format!("{0:.0}", data_loc_k));
+            } else if omagn < 1.0e-5 {
+                plot_tick.set_label(&format!("{0:.1$}", data_loc_k, omagn.abs() as usize - 1));
             } else {
                 plot_tick.set_label(&format!("{0:.1$}", data_loc_k, omagn.abs() as usize - 1));
             };
@@ -202,8 +206,8 @@ impl Axis {
         cr.stroke();
 
         // Label
-        cr.select_font_face("Sans", FontSlant::Italic, FontWeight::Normal);
-        cr.set_font_size(0.04);
+        cr.select_font_face("Serif", FontSlant::Italic, FontWeight::Normal);
+        cr.set_font_size(0.03);
         match self.orientation {
             Orientation::Horizontal => {
                 cr.move_to((self.plot_frame.x_min() + self.plot_frame.x_max()) / 2.0,

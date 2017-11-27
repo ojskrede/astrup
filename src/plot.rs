@@ -197,7 +197,7 @@ impl Plot {
 
         if self.border {
             cr.set_source_rgb(0.0, 0.0, 0.0);
-            cr.set_line_width(0.01);
+            cr.set_line_width(0.005);
             cr.move_to(0.0, 0.0);
             cr.line_to(0.0, 1.0);
             cr.line_to(1.0, 1.0);

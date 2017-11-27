@@ -26,8 +26,8 @@ fn collatz(init_val: u64) -> Vec<f64> {
 }
 
 fn main() {
-    let x_data = vec![40.0, 41.0, 36.0, 40.0];
-    let y_data = vec![490.0, 510.0, 500.0, 450.0];
+    let x_data = vec![50.0, 51.0, 46.0, 40.0];
+    let y_data = vec![590.0, 510.0, 600.0, 450.0];
     let scatter = Scatter::new(&x_data, &y_data);
 
     //let init_val: u64 = 837799; // Produces longest sequence of init values < 1 000 000
