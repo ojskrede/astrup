@@ -36,6 +36,7 @@ pub mod figure;
 pub mod plot;
 pub mod axis;
 pub mod scatter;
+pub mod line;
 pub mod point;
 pub mod color;
 

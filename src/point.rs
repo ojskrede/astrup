@@ -46,8 +46,8 @@ impl Point {
             "Green" | "green" | "G" | "g" => color::green(alpha),
             "Blue" | "blue" | "B" | "b" => color::blue(alpha),
             "Black" | "black" | "K" | "k" => color::black(alpha),
-            "Gray" | "gray" | "O" | "o" => color::black(alpha),
-            "White" | "white" | "W" | "w" => color::black(alpha),
+            "Gray" | "gray" | "O" | "o" => color::gray(alpha),
+            "White" | "white" | "W" | "w" => color::white(alpha),
             _ => color::red(alpha),
         };
     }
@@ -67,6 +67,14 @@ impl Point {
 
     pub fn y_coord(&self) -> f64 {
         self.y_coord
+    }
+
+    pub fn set_x_coord(&mut self, val: f64) {
+        self.x_coord = val;
+    }
+
+    pub fn set_y_coord(&mut self, val: f64) {
+        self.y_coord = val;
     }
 
     pub fn change_domain(&mut self, old_frame: &Frame, new_frame: &Frame) {

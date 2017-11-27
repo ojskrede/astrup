@@ -77,31 +77,7 @@ impl Figure {
         let mut fig = self.clone();
         fig.fit();
         self.application.connect_startup(move |app| {
-            let window = gtk::ApplicationWindow::new(app);
-            let drawing_area = Box::new(DrawingArea::new)();
-            drawing_area.connect_draw(clone!(fig => move |_, cr| {
-                cr.scale(fig.size[1] as f64, fig.size[0] as f64);
-
-                cr.set_source_rgb(fig.bg_color[0], fig.bg_color[1], fig.bg_color[2]);
-                cr.paint();
-
-                for plot in fig.plots.iter() {
-                    plot.draw_fn(cr);
-                }
-                //draw_circle(cr);
-
-                Inhibit(false)
-            }));
-
-            window.set_default_size(fig.size[1] as i32, fig.size[0] as i32);
-
-            window.connect_delete_event(clone!(window => move |_, _| {
-                window.destroy();
-                Inhibit(false)
-            }));
-
-            window.add(&drawing_area);
-            window.show_all();
+            build_ui(&fig, app);
         });
 
         self.application.connect_activate(|_| {});
@@ -110,4 +86,33 @@ impl Figure {
     }
 
     //fn save(path: PathBuf) {}
+}
+
+fn build_ui(fig: &Figure, app: &gtk::Application) {
+    let window = gtk::ApplicationWindow::new(app);
+    let drawing_area = Box::new(DrawingArea::new)();
+    drawing_area.connect_draw(clone!(fig => move |_, cr| {
+        cr.scale(fig.size[1] as f64, fig.size[0] as f64);
+
+        cr.set_source_rgb(fig.bg_color[0], fig.bg_color[1], fig.bg_color[2]);
+        cr.paint();
+
+        for plot in fig.plots.iter() {
+            plot.draw_fn(cr);
+        }
+        //draw_circle(cr);
+
+        Inhibit(false)
+    }));
+
+    window.set_default_size(fig.size[1] as i32, fig.size[0] as i32);
+
+    window.connect_delete_event(clone!(window => move |_, _| {
+        window.destroy();
+        Inhibit(false)
+    }));
+
+    window.add(&drawing_area);
+    window.show_all();
+
 }

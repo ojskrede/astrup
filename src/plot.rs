@@ -9,6 +9,7 @@ use cairo::Context;
 
 use utils::{Drawable, Frame};
 use scatter::Scatter;
+use line::Line;
 use axis::{Orientation, Axis};
 //use style::Style;
 
@@ -23,7 +24,7 @@ pub struct Plot {
     origin: [f64; 2],
     x_axis: Axis,
     y_axis: Axis,
-    drawables: Vec<Scatter>,
+    drawables: Vec<Line>,
     x_axis_plot_start: f64,
     x_axis_plot_end: f64,
     y_axis_plot_start: f64,
@@ -54,7 +55,7 @@ impl Plot {
             y_axis: Axis::new(Orientation::Vertical,
                               x_axis_plot_start, x_axis_plot_start,
                               y_axis_plot_start, y_axis_plot_end),
-            drawables: Vec::<Scatter>::new(),
+            drawables: Vec::<Line>::new(),
         }
     }
 
@@ -74,7 +75,7 @@ impl Plot {
         self.y_axis.set_label(label);
     }
 
-    pub fn draw(&mut self, drawable: Scatter) {
+    pub fn draw(&mut self, drawable: Line) {
         self.drawables.push(drawable);
     }
 
