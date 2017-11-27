@@ -124,6 +124,7 @@ impl GridLine {
 #[derive(Clone, Debug)]
 pub struct Axis {
     orientation: Orientation,
+    plot_coords: Frame,
     plot_frame: Frame,
     color: [f64; 4],
     line_width: f64,
@@ -137,7 +138,8 @@ impl Axis {
     pub fn new(orientation: Orientation, x_start: f64, x_end: f64, y_start: f64, y_end: f64) -> Axis {
         Axis {
             orientation: orientation,
-            plot_frame: Frame::new(x_start, x_end, y_start, y_end),
+            plot_coords: Frame::new(x_start, x_end, y_start, y_end),
+            plot_frame: Frame::new(0.0, 1.0, 0.0, 1.0),
             color: [0.0, 0.0, 0.0, 1.0],
             line_width: 0.005,
             label: String::from(""),
@@ -164,23 +166,27 @@ impl Axis {
     }
 
     pub fn plot_x_start(&self) -> f64 {
-        self.plot_frame.x_min()
+        self.plot_coords.x_min()
     }
 
     pub fn plot_x_end(&self) -> f64 {
-        self.plot_frame.x_max()
+        self.plot_coords.x_max()
     }
 
     pub fn plot_y_start(&self) -> f64 {
-        self.plot_frame.y_min()
+        self.plot_coords.y_min()
     }
 
     pub fn plot_y_end(&self) -> f64 {
-        self.plot_frame.y_min()
+        self.plot_coords.y_min()
     }
 
     pub fn line_width(&self) -> f64 {
         self.line_width
+    }
+
+    pub fn set_plot_frame(&mut self, frame: Frame) {
+        self.plot_frame = frame;
     }
 
     /// ## Compute ticks
@@ -208,12 +214,12 @@ impl Axis {
         let tick_distance = utils::round_nearest((ref_max_point - actual_min_point) / self.ref_num_ticks as f64, omagn);
 
         let plot_min = match self.orientation {
-            Orientation::Horizontal => self.plot_frame.x_min(),
-            Orientation::Vertical => self.plot_frame.y_min(),
+            Orientation::Horizontal => self.plot_coords.x_min(),
+            Orientation::Vertical => self.plot_coords.y_min(),
         };
         let plot_max = match self.orientation {
-            Orientation::Horizontal => self.plot_frame.x_max(),
-            Orientation::Vertical => self.plot_frame.y_max(),
+            Orientation::Horizontal => self.plot_coords.x_max(),
+            Orientation::Vertical => self.plot_coords.y_max(),
         };
         let mut data_loc_k = actual_min_point;
         let mut plot_ticks = Vec::<Tick>::new();
@@ -221,8 +227,8 @@ impl Axis {
             let plot_loc_k = utils::change_domain(data_loc_k, self.data_min(), self.data_max(),
                                                   plot_min, plot_max);
             let mut plot_tick = match self.orientation {
-                Orientation::Horizontal => Tick::new(self.orientation.clone(), plot_loc_k, self.plot_frame.y_min()),
-                Orientation::Vertical => Tick::new(self.orientation.clone(), self.plot_frame.x_min(), plot_loc_k),
+                Orientation::Horizontal => Tick::new(self.orientation.clone(), plot_loc_k, self.plot_coords.y_min()),
+                Orientation::Vertical => Tick::new(self.orientation.clone(), self.plot_coords.x_min(), plot_loc_k),
             };
             // FIXME: Tick label format
             if omagn > 1.0e5 {
@@ -245,8 +251,8 @@ impl Axis {
         // Axis line
         cr.set_source_rgba(self.color[0], self.color[1], self.color[2], self.color[3]);
         cr.set_line_width(self.line_width);
-        cr.move_to(self.plot_frame.x_min(), self.plot_frame.y_min());
-        cr.line_to(self.plot_frame.x_max(), self.plot_frame.y_max());
+        cr.move_to(self.plot_coords.x_min(), self.plot_coords.y_min());
+        cr.line_to(self.plot_coords.x_max(), self.plot_coords.y_max());
         cr.stroke();
 
         // Label
@@ -254,14 +260,14 @@ impl Axis {
         cr.set_font_size(0.03);
         match self.orientation {
             Orientation::Horizontal => {
-                cr.move_to((self.plot_frame.x_min() + self.plot_frame.x_max()) / 2.0,
-                           self.plot_frame.y_min() + 0.1);
+                cr.move_to((self.plot_coords.x_min() + self.plot_coords.x_max()) / 2.0,
+                           self.plot_coords.y_min() + 0.1);
                 cr.show_text(&self.label);
             },
             Orientation::Vertical => {
                 // TODO: Rotate label so that it is vertical
-                cr.move_to(self.plot_frame.x_min() - 0.15,
-                           (self.plot_frame.y_min() + self.plot_frame.y_max()) / 2.0);
+                cr.move_to(self.plot_coords.x_min() - 0.15,
+                           (self.plot_coords.y_min() + self.plot_coords.y_max()) / 2.0);
                 cr.show_text(&self.label);
             },
         }
@@ -274,9 +280,9 @@ impl Axis {
                 // the y axis.
                 let gridline = match self.orientation {
                     Orientation::Horizontal => GridLine::new(tick.x_center(), tick.y_center(),
-                                                             tick.x_center(), 0.1),
+                                                             tick.x_center(), self.plot_frame.y_min()),
                     Orientation::Vertical => GridLine::new(tick.x_center(), tick.y_center(),
-                                                           0.9, tick.y_center()),
+                                                           self.plot_frame.x_max(), tick.y_center()),
                 };
                 gridline.draw_fn(cr);
             }

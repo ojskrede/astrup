@@ -36,6 +36,10 @@
 //! | Image         | No        |
 //!
 //! ## TODO:
+//!
+//! - One window for each figure
+//! - Multiple plots (arranged in a grid) in one figure
+//! - Implement the above plot variants
 
 extern crate cairo;
 extern crate gio;

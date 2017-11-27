@@ -46,7 +46,7 @@ impl Figure {
         Figure {
             plots: Vec::<Plot>::new(),
             title: String::from("Figure"),
-            size: [512, 512],
+            size: [800, 800],
             bg_color: [1.0, 1.0, 1.0, 1.0],
             application: app,
         }
@@ -65,6 +65,7 @@ impl Figure {
     }
 
     fn fit(&mut self) {
+        // TODO: Adjust plot fig_frame automatically here, into a grid or something.
         for plot in self.plots.iter_mut() {
             plot.fit();
         }

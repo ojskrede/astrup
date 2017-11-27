@@ -97,7 +97,6 @@ pub struct Plot {
     bg_color: [f64; 4],
     grid: bool,
     border: bool,
-    origin: [f64; 2],
     x_axis: Axis,
     y_axis: Axis,
     drawables: Vec<PlotType>,
@@ -105,6 +104,7 @@ pub struct Plot {
     x_axis_plot_end: f64,
     y_axis_plot_start: f64,
     y_axis_plot_end: f64,
+    fig_frame: Frame, // Frame in figure coordinates
 }
 
 impl Plot {
@@ -116,7 +116,6 @@ impl Plot {
 
         Plot {
             size: [200, 300],
-            origin: [x_axis_plot_start, y_axis_plot_start],
             title: String::from("Plot"),
             bg_color: [0.9, 0.9, 0.9, 0.9],
             grid: false,
@@ -132,11 +131,40 @@ impl Plot {
                               x_axis_plot_start, x_axis_plot_start,
                               y_axis_plot_start, y_axis_plot_end),
             drawables: Vec::<PlotType>::new(),
+            fig_frame: Frame::new(0.0, 1.0, 0.0, 1.0),
         }
     }
 
     pub fn grid(&mut self) {
         self.grid = true;
+    }
+
+    /// This method specifies this plot's location in the (0, 1) x (0, 1) figure's coordinate
+    /// system
+    pub fn set_fig_frame(&mut self, x_min: f64, x_max: f64, y_min: f64, y_max: f64) {
+        self.fig_frame = Frame::new(x_min, x_max, y_min, y_max);
+        self.update_axes();
+    }
+
+    fn update_axes(&mut self) {
+
+        self.x_axis_plot_start = self.fig_frame.x_min() + 0.2*(self.fig_frame.x_max() - self.fig_frame.x_min());
+        self.x_axis_plot_end = self.fig_frame.x_max() - 0.1*(self.fig_frame.x_max() - self.fig_frame.x_min());
+        self.y_axis_plot_start = self.fig_frame.y_max() - 0.2*(self.fig_frame.y_max() - self.fig_frame.y_min());
+        self.y_axis_plot_end = self.fig_frame.y_min() + 0.1*(self.fig_frame.y_max() - self.fig_frame.y_min());
+
+        self.x_axis = Axis::new(Orientation::Horizontal,
+                                self.x_axis_plot_start, self.x_axis_plot_end,
+                                self.y_axis_plot_start, self.y_axis_plot_start);
+        self.x_axis.set_plot_frame(Frame::new(self.x_axis_plot_start, self.x_axis_plot_end,
+                                              self.y_axis_plot_end, self.y_axis_plot_start));
+
+        self.y_axis = Axis::new(Orientation::Vertical,
+                               self.x_axis_plot_start, self.x_axis_plot_start,
+                               self.y_axis_plot_start, self.y_axis_plot_end);
+        self.y_axis.set_plot_frame(Frame::new(self.x_axis_plot_start, self.x_axis_plot_end,
+                                              self.y_axis_plot_end, self.y_axis_plot_start));
+
     }
 
     pub fn bg_color(&mut self, bg_color: &[f64; 4]) {
@@ -190,18 +218,19 @@ impl Plot {
 
         // Background
         cr.set_source_rgba(self.bg_color[0], self.bg_color[1], self.bg_color[2], self.bg_color[3]);
-        cr.paint();
-
-        // if self.grid {}
+        cr.rectangle(self.fig_frame.x_min(), self.fig_frame.y_min(),
+                     self.fig_frame.x_max() - self.fig_frame.x_min(),
+                     self.fig_frame.y_max() - self.fig_frame.y_min());
+        cr.fill();
 
         if self.border {
             cr.set_source_rgb(0.0, 0.0, 0.0);
             cr.set_line_width(0.005);
-            cr.move_to(0.0, 0.0);
-            cr.line_to(0.0, 1.0);
-            cr.line_to(1.0, 1.0);
-            cr.line_to(1.0, 0.0);
-            cr.line_to(0.0, 0.0);
+            cr.move_to(self.fig_frame.x_min(), self.fig_frame.y_min());
+            cr.line_to(self.fig_frame.x_min(), self.fig_frame.y_max());
+            cr.line_to(self.fig_frame.x_max(), self.fig_frame.y_max());
+            cr.line_to(self.fig_frame.x_max(), self.fig_frame.y_min());
+            cr.line_to(self.fig_frame.x_min(), self.fig_frame.y_min());
             cr.stroke();
         }
 

@@ -36,13 +36,31 @@ fn main() {
     let x_data: Vec<f64> = (0u64..y_data.len() as u64).map(|x| x as f64).collect();
     let line = Line::new(&x_data, &y_data);
 
-    let mut plot = Plot::new();
-    plot.x_label("x");
-    plot.y_label("y");
-    plot.draw(PlotType::Line(line));
-    plot.draw(PlotType::Scatter(scatter));
+    let mut plot1 = Plot::new();
+    plot1.x_label("x");
+    plot1.y_label("y");
+    plot1.set_fig_frame(0.0, 0.49, 0.0, 0.49);
+    plot1.draw(PlotType::Line(line));
+    plot1.draw(PlotType::Scatter(scatter));
+
+
+    let init_val: u64 = 237;
+    let y_data: Vec<f64> = collatz(init_val);
+    let x_data: Vec<f64> = (0u64..y_data.len() as u64).map(|x| x as f64).collect();
+    let line = Line::new(&x_data, &y_data);
+
+    let mut plot2 = Plot::new();
+    plot2.x_label("x");
+    plot2.y_label("y");
+    plot2.set_fig_frame(0.5, 0.99, 0.5, 0.99);
+    plot2.draw(PlotType::Line(line));
 
     let mut fig = Figure::new();
-    fig.draw(plot);
+    fig.draw(plot1);
+    fig.draw(plot2);
     fig.show();
+
+    //let mut fig2 = Figure::new();
+    //fig2.draw(plot);
+    //fig2.show();
 }
