@@ -51,6 +51,10 @@ impl Drawable for Scatter {
         }
         // FIXME: Do automatic fit in draw point, and only compute plot domain coordinates then
         self.data_points = plot_points;
+
+        let x_scale_factor = plot_frame.x_max() - plot_frame.x_min();
+        let y_scale_factor = plot_frame.y_max() - plot_frame.y_min();
+        self.scale_size(x_scale_factor.max(y_scale_factor));
     }
 
     fn data_frame(&self) -> Frame {
@@ -75,5 +79,11 @@ impl Drawable for Scatter {
 
     fn data_y_max(&self) -> f64 {
         self.data_frame.y_max()
+    }
+
+    fn scale_size(&mut self, factor: f64) {
+        for data_point in self.data_points.iter_mut() {
+            data_point.scale_size(factor);
+        }
     }
 }

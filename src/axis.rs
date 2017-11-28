@@ -5,7 +5,7 @@ use cairo::Context;
 use cairo::enums::{FontSlant, FontWeight};
 
 use utils;
-use utils::{Frame};
+use utils::{Frame, Text};
 
 #[derive(Clone, Debug)]
 pub enum Orientation {
@@ -23,7 +23,8 @@ struct Tick {
     y_center: f64,
     color: [f64; 4],
     line_width: f64,
-    label: String,
+    label: Text,
+    label_offset: f64,
 }
 
 impl Tick {
@@ -34,12 +35,21 @@ impl Tick {
             y_center: y_center,
             color: [0.0, 0.0, 0.0, 1.0],
             line_width: 0.005,
-            label: String::from(""),
+            label: Text::new(""),
+            label_offset: 0.05,
         }
     }
 
-    fn set_label(&mut self, label: &str) {
-        self.label = String::from(label);
+    fn set_label(&mut self, content: &str) {
+        self.label.set_content(content);
+    }
+
+    fn set_label_size(&mut self, size: f64) {
+        self.label.set_font_size(size);
+    }
+
+    fn label_size(&self) -> f64 {
+        self.label.font_size()
     }
 
     fn x_center(&self) -> f64 {
@@ -48,6 +58,12 @@ impl Tick {
 
     fn y_center(&self) -> f64 {
         self.y_center
+    }
+
+    fn scale_size(&mut self, factor: f64) {
+        self.label_offset *= factor;
+        self.line_width *= factor;
+        self.label.scale_size(factor);
     }
 
     fn draw_fn(&self, cr: &Context) {
@@ -69,15 +85,15 @@ impl Tick {
 
         // Label
         cr.select_font_face("Serif", FontSlant::Normal, FontWeight::Normal);
-        cr.set_font_size(0.03);
+        cr.set_font_size(self.label.font_size());
         match self.orientation {
             Orientation::Horizontal => {
-                cr.move_to(self.x_center - 0.02, self.y_center + 0.04);
-                cr.show_text(&self.label);
+                cr.move_to(self.x_center - 0.5 * self.label_offset, self.y_center + self.label_offset);
+                cr.show_text(&self.label.content());
             },
             Orientation::Vertical => {
-                cr.move_to(self.x_center - 0.08, self.y_center + 0.01);
-                cr.show_text(&self.label);
+                cr.move_to(self.x_center - 2.0 * self.label_offset, self.y_center + 0.6 * self.label_offset);
+                cr.show_text(&self.label.content());
             },
         }
     }
@@ -108,6 +124,10 @@ impl GridLine {
         }
     }
 
+    fn scale_size(&mut self, factor: f64) {
+        self.line_width *= factor;
+    }
+
     fn draw_fn(&self, cr: &Context) {
         cr.set_source_rgba(self.color[0], self.color[1], self.color[2], self.color[3]);
         cr.set_line_width(self.line_width);
@@ -128,7 +148,8 @@ pub struct Axis {
     plot_frame: Frame,
     color: [f64; 4],
     line_width: f64,
-    label: String,
+    label: Text,
+    label_offset: f64,
     data_range: [f64; 2],
     ref_num_ticks: usize,
     grid: bool,
@@ -142,7 +163,8 @@ impl Axis {
             plot_frame: Frame::new(0.0, 1.0, 0.0, 1.0),
             color: [0.0, 0.0, 0.0, 1.0],
             line_width: 0.005,
-            label: String::from(""),
+            label: Text::new(""),
+            label_offset: 0.12,
             data_range: [0.0, 1.0],
             ref_num_ticks: 5,
             grid: true,
@@ -150,7 +172,7 @@ impl Axis {
     }
 
     pub fn set_label(&mut self, label: &str) {
-        self.label = String::from(label);
+        self.label.set_content(label)
     }
 
     pub fn set_data_range(&mut self, min: f64, max: f64) {
@@ -183,6 +205,16 @@ impl Axis {
 
     pub fn line_width(&self) -> f64 {
         self.line_width
+    }
+
+    pub fn scale_size(&mut self, factor: f64) {
+        self.label_offset *= factor;
+        self.line_width *= factor;
+        self.label.scale_size(factor);
+    }
+
+    pub fn set_plot_coords(&mut self, frame: Frame) {
+        self.plot_coords = frame;
     }
 
     pub fn set_plot_frame(&mut self, frame: Frame) {
@@ -257,39 +289,54 @@ impl Axis {
 
         // Label
         cr.select_font_face("Serif", FontSlant::Italic, FontWeight::Normal);
-        cr.set_font_size(0.03);
+        cr.set_font_size(self.label.font_size());
         match self.orientation {
             Orientation::Horizontal => {
                 cr.move_to((self.plot_coords.x_min() + self.plot_coords.x_max()) / 2.0,
-                           self.plot_coords.y_min() + 0.1);
-                cr.show_text(&self.label);
+                           self.plot_coords.y_min() + self.label_offset);
+                cr.show_text(&self.label.content());
             },
             Orientation::Vertical => {
                 // TODO: Rotate label so that it is vertical
-                cr.move_to(self.plot_coords.x_min() - 0.15,
+                cr.move_to(self.plot_coords.x_min() - self.label_offset,
                            (self.plot_coords.y_min() + self.plot_coords.y_max()) / 2.0);
-                cr.show_text(&self.label);
+                cr.show_text(&self.label.content());
             },
         }
 
+        // FIXME: Move size scaling to a different place
+
+        let x_scale_factor = self.plot_frame.x_max() - self.plot_frame.x_min();
+        let y_scale_factor = self.plot_frame.y_max() - self.plot_frame.y_min();
+        let scale_factor = x_scale_factor.max(y_scale_factor);
+
+
         // Gridlines
-        let ticks = self.compute_ticks();
+        let mut ticks = self.compute_ticks();
         if self.grid {
-            for tick in ticks.iter() {
+            for tick in ticks.iter_mut() {
                 // FIXME: Provide information about the plot height the x-axis and plot width for
                 // the y axis.
-                let gridline = match self.orientation {
-                    Orientation::Horizontal => GridLine::new(tick.x_center(), tick.y_center(),
-                                                             tick.x_center(), self.plot_frame.y_min()),
-                    Orientation::Vertical => GridLine::new(tick.x_center(), tick.y_center(),
-                                                           self.plot_frame.x_max(), tick.y_center()),
+                match self.orientation {
+                    Orientation::Horizontal => {
+                        let mut gridline = GridLine::new(tick.x_center(), tick.y_center(),
+                                                         tick.x_center(), self.plot_frame.y_min());
+                        gridline.scale_size(scale_factor);
+                        gridline.draw_fn(cr);
+                    }
+                    Orientation::Vertical => {
+                        let mut gridline = GridLine::new(tick.x_center(), tick.y_center(),
+                                                         self.plot_frame.x_max(), tick.y_center());
+                        gridline.scale_size(scale_factor);
+                        gridline.draw_fn(cr);
+                    },
                 };
-                gridline.draw_fn(cr);
             }
         }
 
         // Ticks and tick labels
-        for tick in ticks.iter() {
+        for tick in ticks.iter_mut() {
+            tick.scale_size(scale_factor);
             tick.draw_fn(cr);
         }
     }

@@ -20,6 +20,41 @@ pub enum Draw {
 */
 
 #[derive(Clone, Debug)]
+pub struct Text {
+    content: String,
+    font_size: f64,
+}
+
+impl Text {
+    pub fn new(content: &str) -> Text {
+        Text {
+            content: String::from(content),
+            font_size: 0.04,
+        }
+    }
+
+    pub fn content(&self) -> String {
+        self.content.clone()
+    }
+
+    pub fn font_size(&self) -> f64 {
+        self.font_size
+    }
+
+    pub fn set_content(&mut self, content: &str) {
+        self.content = String::from(content);
+    }
+
+    pub fn set_font_size(&mut self, size: f64) {
+        self.font_size = size;
+    }
+
+    pub fn scale_size(&mut self, factor: f64) {
+        self.font_size *= factor;
+    }
+}
+
+#[derive(Clone, Debug)]
 pub struct Frame {
     x_min: f64,
     x_max: f64,
@@ -82,6 +117,7 @@ pub trait Drawable {
     fn data_x_max(&self) -> f64;
     fn data_y_min(&self) -> f64;
     fn data_y_max(&self) -> f64;
+    fn scale_size(&mut self, factor: f64);
 }
 
 /// Return a list of [vec.min(), vec.max()]

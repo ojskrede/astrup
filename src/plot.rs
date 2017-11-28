@@ -87,6 +87,13 @@ impl Drawable for PlotType {
             PlotType::Line(ref l) => l.data_y_max(),
         }
     }
+
+    fn scale_size(&mut self, factor: f64) {
+        match *self {
+            PlotType::Scatter(ref mut s) => s.scale_size(factor),
+            PlotType::Line(ref mut l) => l.scale_size(factor),
+        }
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -140,7 +147,7 @@ impl Plot {
     }
 
     /// This method specifies this plot's location in the (0, 1) x (0, 1) figure's coordinate
-    /// system
+    /// system. If this is called, it should trigger a lot of resizing and moving.
     pub fn set_fig_frame(&mut self, x_min: f64, x_max: f64, y_min: f64, y_max: f64) {
         self.fig_frame = Frame::new(x_min, x_max, y_min, y_max);
         self.update_axes();
@@ -153,17 +160,29 @@ impl Plot {
         self.y_axis_plot_start = self.fig_frame.y_max() - 0.2*(self.fig_frame.y_max() - self.fig_frame.y_min());
         self.y_axis_plot_end = self.fig_frame.y_min() + 0.1*(self.fig_frame.y_max() - self.fig_frame.y_min());
 
-        self.x_axis = Axis::new(Orientation::Horizontal,
-                                self.x_axis_plot_start, self.x_axis_plot_end,
-                                self.y_axis_plot_start, self.y_axis_plot_start);
+        //self.x_axis = Axis::new(Orientation::Horizontal,
+        //                        self.x_axis_plot_start, self.x_axis_plot_end,
+        //                        self.y_axis_plot_start, self.y_axis_plot_start);
+        self.x_axis.set_plot_coords(Frame::new(self.x_axis_plot_start, self.x_axis_plot_end,
+                                               self.y_axis_plot_start, self.y_axis_plot_start));
         self.x_axis.set_plot_frame(Frame::new(self.x_axis_plot_start, self.x_axis_plot_end,
                                               self.y_axis_plot_end, self.y_axis_plot_start));
 
-        self.y_axis = Axis::new(Orientation::Vertical,
-                               self.x_axis_plot_start, self.x_axis_plot_start,
-                               self.y_axis_plot_start, self.y_axis_plot_end);
+        //self.y_axis = Axis::new(Orientation::Vertical,
+        //                        self.x_axis_plot_start, self.x_axis_plot_start,
+        //                        self.y_axis_plot_start, self.y_axis_plot_end);
+        self.y_axis.set_plot_coords(Frame::new(self.x_axis_plot_start, self.x_axis_plot_start,
+                                               self.y_axis_plot_start, self.y_axis_plot_end));
         self.y_axis.set_plot_frame(Frame::new(self.x_axis_plot_start, self.x_axis_plot_end,
                                               self.y_axis_plot_end, self.y_axis_plot_start));
+
+
+        let x_scale_factor = self.fig_frame.x_max() - self.fig_frame.x_min();
+        let y_scale_factor = self.fig_frame.y_max() - self.fig_frame.y_min();
+        let scale_factor = x_scale_factor.max(y_scale_factor);
+
+        self.x_axis.scale_size(scale_factor);
+        self.y_axis.scale_size(scale_factor);
 
     }
 
@@ -204,17 +223,23 @@ impl Plot {
         self.x_axis.set_data_range(largest_data_frame.x_min(), largest_data_frame.x_max());
         self.y_axis.set_data_range(largest_data_frame.y_min(), largest_data_frame.y_max());
 
+        let x_scale_factor = self.fig_frame.x_max() - self.fig_frame.x_min();
+        let y_scale_factor = self.fig_frame.y_max() - self.fig_frame.y_min();
+
         //let frame = Frame::new(0.2, 0.9, 0.1, 0.8);
         for drawable in self.drawables.iter_mut() {
             drawable.set_data_frame(largest_data_frame.clone());
+            drawable.scale_size(x_scale_factor.max(y_scale_factor));
             drawable.fit(&Frame::new(self.x_axis_plot_start, self.x_axis_plot_end,
                                      self.y_axis_plot_start, self.y_axis_plot_end));
         }
+
+        // FIXME: For some reason, this function needs to be called explicitly in order to make gridlines
+        // behave as expected when set_fig_frame(...) is not called.
+        self.update_axes();
     }
 
     pub fn draw_fn(&self, cr: &Context) {
-
-        //cr.scale(self.size[1] as f64, self.size[0] as f64); // TODO: Why does this ruin things
 
         // Background
         cr.set_source_rgba(self.bg_color[0], self.bg_color[1], self.bg_color[2], self.bg_color[3]);
@@ -223,13 +248,19 @@ impl Plot {
                      self.fig_frame.y_max() - self.fig_frame.y_min());
         cr.fill();
 
+        let x_scale_factor = self.fig_frame.x_max() - self.fig_frame.x_min();
+        let y_scale_factor = self.fig_frame.y_max() - self.fig_frame.y_min();
+
         if self.border {
             cr.set_source_rgb(0.0, 0.0, 0.0);
-            cr.set_line_width(0.005);
             cr.move_to(self.fig_frame.x_min(), self.fig_frame.y_min());
+            cr.set_line_width(0.005 * y_scale_factor);
             cr.line_to(self.fig_frame.x_min(), self.fig_frame.y_max());
+            cr.set_line_width(0.005 * x_scale_factor);
             cr.line_to(self.fig_frame.x_max(), self.fig_frame.y_max());
+            cr.set_line_width(0.005 * y_scale_factor);
             cr.line_to(self.fig_frame.x_max(), self.fig_frame.y_min());
+            cr.set_line_width(0.005 * x_scale_factor);
             cr.line_to(self.fig_frame.x_min(), self.fig_frame.y_min());
             cr.stroke();
         }
@@ -244,45 +275,3 @@ impl Plot {
     }
 
 }
-
-/*
-impl Drawable for Plot {
-    fn draw_fn(&self, cr: &Context) {
-
-        //cr.scale(self.size[1] as f64, self.size[0] as f64); // TODO: Why does this ruin things
-
-        // Background
-        cr.set_source_rgba(self.bg_color[0], self.bg_color[1], self.bg_color[2], self.bg_color[3]);
-        cr.paint();
-
-        // if self.grid {}
-
-        if self.border {
-            cr.set_source_rgb(0.0, 0.0, 0.0);
-            cr.set_line_width(0.01);
-            cr.move_to(0.0, 0.0);
-            cr.line_to(0.0, 1.0);
-            cr.line_to(1.0, 1.0);
-            cr.line_to(1.0, 0.0);
-            cr.line_to(0.0, 0.0);
-            cr.stroke();
-        }
-
-        // Horizontal axis
-        cr.set_source_rgba(self.x_axis.color[0], self.x_axis.color[1], self.x_axis.color[2],
-                           self.x_axis.color[3]);
-        cr.set_line_width(self.x_axis.lw);
-        cr.move_to(self.x_axis.x_start, self.x_axis.y_start);
-        cr.line_to(self.x_axis.x_end, self.x_axis.y_end);
-        cr.stroke();
-
-        // Vertical axis
-        cr.set_source_rgba(self.y_axis.color[0], self.y_axis.color[1], self.y_axis.color[2],
-                           self.y_axis.color[3]);
-        cr.set_line_width(self.y_axis.lw);
-        cr.move_to(self.y_axis.x_start, self.y_axis.y_start);
-        cr.line_to(self.y_axis.x_end, self.y_axis.y_end);
-        cr.stroke();
-    }
-}
-*/

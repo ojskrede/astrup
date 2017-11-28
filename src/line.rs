@@ -94,4 +94,11 @@ impl Drawable for Line {
     fn data_y_max(&self) -> f64 {
         self.data_frame.y_max()
     }
+
+    fn scale_size(&mut self, factor: f64) {
+        for data_point in self.data_points.iter_mut() {
+            data_point.scale_size(factor);
+        }
+        self.line_width *= factor;
+    }
 }

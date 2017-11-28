@@ -34,7 +34,7 @@ impl Point {
             x_coord: x_coord,
             y_coord: y_coord,
             color: [0.1, 0.2, 0.5, 0.9],
-            size: 0.005,
+            size: 0.01,
             shape: Shape::Circle,
         }
     }
@@ -126,5 +126,9 @@ impl Drawable for Point {
 
     fn data_y_max(&self) -> f64 {
         self.y_coord
+    }
+
+    fn scale_size(&mut self, factor: f64) {
+        self.size *= factor;
     }
 }

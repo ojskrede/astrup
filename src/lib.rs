@@ -37,9 +37,14 @@
 //!
 //! ## TODO:
 //!
+//! ### Major
 //! - One window for each figure
 //! - Multiple plots (arranged in a grid) in one figure
 //! - Implement the above plot variants
+//!
+//! ### Minor
+//! - Refactor fit and scaling functions
+//! - Axis label and tick label sizes seems to scale differently
 
 extern crate cairo;
 extern crate gio;
