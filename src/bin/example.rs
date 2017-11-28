@@ -58,6 +58,7 @@ fn main() {
     let mut fig = Figure::new();
     fig.draw(plot1);
     fig.draw(plot2);
+    fig.save("example.png");
     fig.show();
 
     //let mut fig2 = Figure::new();

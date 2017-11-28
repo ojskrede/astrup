@@ -3,12 +3,14 @@
 //! Definition of the Figure struct
 //!
 
+use std::fs::File;
 
 use gio;
 use gio::prelude::*;
 use gtk;
 use gtk::prelude::*;
 use gtk::DrawingArea;
+use cairo::{Context, Format, ImageSurface};
 
 use plot::Plot;
 
@@ -71,6 +73,31 @@ impl Figure {
         }
     }
 
+    // TODO: Return Result<(), Error>
+    pub fn save(&mut self, filename: &str) {
+        let surface = ImageSurface::create(Format::ARgb32, self.size[1] as i32, self.size[0] as i32)
+                                   .expect("Can't create surface");
+        let cr = Context::new(&surface);
+
+        self.fit();
+        cr.scale(self.size[1] as f64, self.size[0] as f64);
+
+        cr.set_source_rgba(self.bg_color[0], self.bg_color[1], self.bg_color[2], self.bg_color[3]);
+        cr.paint();
+
+        // TODO: Place them in grid
+        for plot in self.plots.iter() {
+            plot.draw_fn(&cr);
+        }
+
+        let mut file = File::create(filename).expect("Couldn't create 'file.png'");
+        match surface.write_to_png(&mut file) {
+            Ok(_) => println!("file.png created"),
+            Err(_) => println!("Error create file.png"),
+        }
+
+    }
+
     pub fn show(self) {
         // In order to move self into the innermost nested closure (the argument of
         // drawing_area.connect_draw() ), we clone self here, and move use it.
@@ -94,7 +121,7 @@ fn build_ui(fig: &Figure, app: &gtk::Application) {
     drawing_area.connect_draw(clone!(fig => move |_, cr| {
         cr.scale(fig.size[1] as f64, fig.size[0] as f64);
 
-        cr.set_source_rgb(fig.bg_color[0], fig.bg_color[1], fig.bg_color[2]);
+        cr.set_source_rgba(fig.bg_color[0], fig.bg_color[1], fig.bg_color[2], fig.bg_color[3]);
         cr.paint();
 
         // TODO: Place them in grid

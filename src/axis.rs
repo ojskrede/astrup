@@ -263,14 +263,16 @@ impl Axis {
                 Orientation::Vertical => Tick::new(self.orientation.clone(), self.plot_coords.x_min(), plot_loc_k),
             };
             // FIXME: Tick label format
-            if omagn > 1.0e5 {
+            if omagn > 5.0 {
                 plot_tick.set_label(&format!("{0:.0}", data_loc_k));
             } else if omagn > 0.0 {
+                // TODO: Scientific notation
                 plot_tick.set_label(&format!("{0:.0}", data_loc_k));
-            } else if omagn < 1.0e-5 {
-                plot_tick.set_label(&format!("{0:.1$}", data_loc_k, omagn.abs() as usize - 1));
+            } else if omagn < -5.0 {
+                // TODO: Scientific notation
+                plot_tick.set_label(&format!("{0:.1$}", data_loc_k, omagn.abs() as usize));
             } else {
-                plot_tick.set_label(&format!("{0:.1$}", data_loc_k, omagn.abs() as usize - 1));
+                plot_tick.set_label(&format!("{0:.1$}", data_loc_k, omagn.abs() as usize));
             };
             plot_ticks.push(plot_tick);
             data_loc_k += tick_distance;
