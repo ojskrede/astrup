@@ -53,6 +53,8 @@ fn main() {
     plot2.x_label("x");
     plot2.y_label("y");
     plot2.set_fig_frame(0.5, 0.99, 0.3, 0.99);
+    plot2.x_range(-10.0, 60.0);
+    plot2.y_range(0.0, 600.0);
     plot2.add(PlotType::Line(line));
 
     let mut fig = Figure::new();

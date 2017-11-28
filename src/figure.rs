@@ -67,26 +67,29 @@ impl Figure {
     }
 
     fn fit(&mut self) {
-        // TODO: Adjust plot fig_frame automatically here, into a grid or something.
         for plot in self.plots.iter_mut() {
             plot.fit();
         }
     }
 
     // TODO: Return Result<(), Error>
-    pub fn save(&mut self, filename: &str) {
-        let surface = ImageSurface::create(Format::ARgb32, self.size[1] as i32, self.size[0] as i32)
+    pub fn save(&self, filename: &str) {
+        // Since both save() and show() can be called, and since all drawing is happening in both,
+        // multiple calls to fit() will be made, and this can mess up things if we call it on self.
+        // The simplest solution is to clone self. But one should perhaps make fit() idempotent?.
+        let mut fig = self.clone();
+        fig.fit();
+        let surface = ImageSurface::create(Format::ARgb32, fig.size[1] as i32, fig.size[0] as i32)
                                    .expect("Can't create surface");
         let cr = Context::new(&surface);
 
-        self.fit();
-        cr.scale(self.size[1] as f64, self.size[0] as f64);
+        cr.scale(fig.size[1] as f64, fig.size[0] as f64);
 
-        cr.set_source_rgba(self.bg_color[0], self.bg_color[1], self.bg_color[2], self.bg_color[3]);
+        cr.set_source_rgba(fig.bg_color[0], fig.bg_color[1], fig.bg_color[2], fig.bg_color[3]);
         cr.paint();
 
         // TODO: Place them in grid
-        for plot in self.plots.iter() {
+        for plot in fig.plots.iter() {
             plot.draw(&cr);
         }
 

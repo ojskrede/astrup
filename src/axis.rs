@@ -104,10 +104,10 @@ impl Tick {
 /// Indicator used by axis to serve as a reference for the displayed data
 #[derive(Clone, Debug)]
 struct GridLine {
-    plot_x_start: f64,
-    plot_x_end: f64,
-    plot_y_start: f64,
-    plot_y_end: f64,
+    x_start: f64,
+    x_end: f64,
+    y_start: f64,
+    y_end: f64,
     color: [f64; 4],
     line_width: f64,
 }
@@ -115,10 +115,10 @@ struct GridLine {
 impl GridLine {
     fn new(x_start: f64, y_start: f64, x_end: f64, y_end: f64) -> GridLine {
         GridLine {
-            plot_x_start: x_start,
-            plot_x_end: x_end,
-            plot_y_start: y_start,
-            plot_y_end: y_end,
+            x_start: x_start,
+            x_end: x_end,
+            y_start: y_start,
+            y_end: y_end,
             color: [1.0, 1.0, 1.0, 1.0],
             line_width: 0.005,
         }
@@ -131,8 +131,8 @@ impl GridLine {
     fn draw(&self, cr: &Context) {
         cr.set_source_rgba(self.color[0], self.color[1], self.color[2], self.color[3]);
         cr.set_line_width(self.line_width);
-        cr.move_to(self.plot_x_start, self.plot_y_start);
-        cr.line_to(self.plot_x_end, self.plot_y_end);
+        cr.move_to(self.x_start, self.y_start);
+        cr.line_to(self.x_end, self.y_end);
         cr.stroke();
     }
 }
@@ -238,6 +238,16 @@ impl Axis {
     ///    equal to max(data).
     /// 5. Transform between labels in the data framework (the above) and positions in the drawing
     ///    framework using the data range and axis frame.
+    ///
+    ///
+    /// TODO:
+    ///  - Add a feature that only accepts ticks at locations 10^k * {1, 2, 5} for integer k.
+    ///  - Compute the tick data location based on largest data frame. Then update the axis' data
+    ///  range to be cover (be the same as) its tick data range. Then adjust the plot location of
+    ///  its ticks, data, gridlines, etc. Currently the axis range is determined by the range of
+    ///  the data, and not the range of its ticks. Also, the user should be able to set the data
+    ///  range, this should then determine the tick range, which in turn should determine the axis
+    ///  range.
     fn compute_ticks(&self) -> Vec<Tick> {
         let data_diff = self.data_max() - self.data_min();
         let omagn = data_diff.log10().ceil();
@@ -255,7 +265,8 @@ impl Axis {
         };
         let mut data_loc_k = actual_min_point;
         let mut plot_ticks = Vec::<Tick>::new();
-        while data_loc_k < ref_max_point {
+        let mut add_next = true;
+        while add_next {
             let plot_loc_k = utils::change_domain(data_loc_k, self.data_min(), self.data_max(),
                                                   plot_min, plot_max);
             let mut plot_tick = match self.orientation {
@@ -276,6 +287,13 @@ impl Axis {
             };
             plot_ticks.push(plot_tick);
             data_loc_k += tick_distance;
+
+            // FIXME: If we put this in the start of the while loop, we will have ticks that cover
+            // the data. The problem is that the axis is not long enough since it just fits the
+            // range of the data.
+            if data_loc_k > ref_max_point {
+                add_next = false;
+            }
         }
         plot_ticks
     }

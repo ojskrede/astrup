@@ -101,7 +101,6 @@ impl Plottable for PlotType {
 
 #[derive(Clone, Debug)]
 pub struct Plot {
-    size: [usize; 2],
     //style: Style,
     title: String,
     bg_color: [f64; 4],
@@ -115,6 +114,8 @@ pub struct Plot {
     y_axis_plot_start: f64,
     y_axis_plot_end: f64,
     fig_frame: Frame, // Frame in figure coordinates
+    x_data_range: Option<[f64; 2]>,
+    y_data_range: Option<[f64; 2]>,
 }
 
 impl Plot {
@@ -125,7 +126,6 @@ impl Plot {
         let y_axis_plot_end = 0.1;
 
         Plot {
-            size: [200, 300],
             title: String::from("Plot"),
             bg_color: [0.9, 0.9, 0.9, 0.9],
             grid: false,
@@ -142,6 +142,8 @@ impl Plot {
                               y_axis_plot_start, y_axis_plot_end),
             drawables: Vec::<PlotType>::new(),
             fig_frame: Frame::new(0.0, 1.0, 0.0, 1.0),
+            x_data_range: None,
+            y_data_range: None,
         }
     }
 
@@ -201,12 +203,25 @@ impl Plot {
         self.y_axis.set_label(label);
     }
 
+    pub fn x_range(&mut self, min: f64, max: f64) {
+        self.x_data_range = Some([min, max]);
+    }
+
+    pub fn y_range(&mut self, min: f64, max: f64) {
+        self.y_data_range = Some([min, max]);
+    }
+
     pub fn add(&mut self, drawable: PlotType) {
         self.drawables.push(drawable);
     }
 
+    /// This method is called by figure after all plots are added, and all plot adjustment is made.
+    /// This happend right before the plot is drawn on the figure.
     pub fn fit(&mut self) {
 
+        // Find largest data frame based on all data in the plot
+        //
+        // This will only be used if x_range or y_range is not specified by the user.
         let mut largest_data_frame = Frame::new(MAX, MIN, MAX, MIN);
         for drawable in self.drawables.iter() {
             if drawable.data_x_min() < largest_data_frame.x_min() {
@@ -223,15 +238,27 @@ impl Plot {
             }
         }
 
-        self.x_axis.set_data_range(largest_data_frame.x_min(), largest_data_frame.x_max());
-        self.y_axis.set_data_range(largest_data_frame.y_min(), largest_data_frame.y_max());
+        // TODO: Compute tick locations here based on data ranges and / or largest_data_frame.
+        // Then set x/y axis data range based on the tick range.
+
+        match self.x_data_range {
+            Some(val) => self.x_axis.set_data_range(val[0], val[1]),
+            None => self.x_axis.set_data_range(largest_data_frame.x_min(), largest_data_frame.x_max()),
+        }
+
+        match self.y_data_range {
+            Some(val) => self.y_axis.set_data_range(val[0], val[1]),
+            None => self.y_axis.set_data_range(largest_data_frame.y_min(), largest_data_frame.y_max()),
+        }
 
         let x_scale_factor = self.fig_frame.x_max() - self.fig_frame.x_min();
         let y_scale_factor = self.fig_frame.y_max() - self.fig_frame.y_min();
 
         //let frame = Frame::new(0.2, 0.9, 0.1, 0.8);
         for drawable in self.drawables.iter_mut() {
-            drawable.set_data_frame(largest_data_frame.clone());
+            drawable.set_data_frame(Frame::new(self.x_axis.data_min(), self.x_axis.data_max(),
+                                               self.y_axis.data_min(), self.y_axis.data_max()));
+            //drawable.set_data_frame(largest_data_frame.clone());
             drawable.scale_size(x_scale_factor.max(y_scale_factor));
             drawable.fit(&Frame::new(self.x_axis_plot_start, self.x_axis_plot_end,
                                      self.y_axis_plot_start, self.y_axis_plot_end));
