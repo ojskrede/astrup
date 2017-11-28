@@ -40,8 +40,8 @@ fn main() {
     plot1.x_label("x");
     plot1.y_label("y");
     plot1.set_fig_frame(0.0, 0.49, 0.0, 0.69);
-    plot1.draw(PlotType::Line(line));
-    plot1.draw(PlotType::Scatter(scatter));
+    plot1.add(PlotType::Line(line));
+    plot1.add(PlotType::Scatter(scatter));
 
 
     let init_val: u64 = 237;
@@ -53,11 +53,11 @@ fn main() {
     plot2.x_label("x");
     plot2.y_label("y");
     plot2.set_fig_frame(0.5, 0.99, 0.3, 0.99);
-    plot2.draw(PlotType::Line(line));
+    plot2.add(PlotType::Line(line));
 
     let mut fig = Figure::new();
-    fig.draw(plot1);
-    fig.draw(plot2);
+    fig.add(plot1);
+    fig.add(plot2);
     fig.save("example.png");
     fig.show();
 

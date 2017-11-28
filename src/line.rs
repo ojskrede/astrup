@@ -7,7 +7,7 @@ use cairo::Context;
 
 use point::Point;
 use utils;
-use utils::{Frame, Drawable};
+use utils::{Frame, Drawable, Plottable};
 
 #[derive(Clone, Debug)]
 pub struct Line {
@@ -39,7 +39,7 @@ impl Line {
 }
 
 impl Drawable for Line {
-    fn draw_fn(&self, cr: &Context) {
+    fn draw(&self, cr: &Context) {
         let mut first_point = true;
         for data_point in self.data_points.iter() {
             if !first_point {
@@ -48,7 +48,7 @@ impl Drawable for Line {
                 cr.line_to(data_point.x_coord(), data_point.y_coord());
                 cr.stroke();
             }
-            data_point.draw_fn(cr);
+            data_point.draw(cr);
             cr.move_to(data_point.x_coord(), data_point.y_coord());
             first_point = false;
         }
@@ -71,12 +71,17 @@ impl Drawable for Line {
         //self.data_points = plot_points;
     }
 
+    fn scale_size(&mut self, factor: f64) {
+        for data_point in self.data_points.iter_mut() {
+            data_point.scale_size(factor);
+        }
+        self.line_width *= factor;
+    }
+}
+
+impl Plottable for Line {
     fn data_frame(&self) -> Frame {
         self.data_frame.clone()
-    }
-
-    fn set_data_frame(&mut self, new_data_frame: Frame) {
-        self.data_frame = new_data_frame;
     }
 
     fn data_x_min(&self) -> f64 {
@@ -95,10 +100,7 @@ impl Drawable for Line {
         self.data_frame.y_max()
     }
 
-    fn scale_size(&mut self, factor: f64) {
-        for data_point in self.data_points.iter_mut() {
-            data_point.scale_size(factor);
-        }
-        self.line_width *= factor;
+    fn set_data_frame(&mut self, new_data_frame: Frame) {
+        self.data_frame = new_data_frame;
     }
 }

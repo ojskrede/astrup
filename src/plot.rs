@@ -7,7 +7,7 @@ use std::f64::{MAX, MIN};
 
 use cairo::Context;
 
-use utils::{Drawable, Frame};
+use utils::{Plottable, Drawable, Frame};
 use axis::{Orientation, Axis};
 use scatter::Scatter;
 use line::Line;
@@ -32,10 +32,10 @@ impl PlotType {
 */
 
 impl Drawable for PlotType {
-    fn draw_fn(&self, cr: &Context) {
+    fn draw(&self, cr: &Context) {
         match *self {
-            PlotType::Scatter(ref s) => s.draw_fn(cr),
-            PlotType::Line(ref l) => l.draw_fn(cr),
+            PlotType::Scatter(ref s) => s.draw(cr),
+            PlotType::Line(ref l) => l.draw(cr),
         }
     }
 
@@ -46,17 +46,20 @@ impl Drawable for PlotType {
         }
     }
 
+    fn scale_size(&mut self, factor: f64) {
+        match *self {
+            PlotType::Scatter(ref mut s) => s.scale_size(factor),
+            PlotType::Line(ref mut l) => l.scale_size(factor),
+        }
+    }
+}
+
+impl Plottable for PlotType {
+
     fn data_frame(&self) -> Frame {
         match *self {
             PlotType::Scatter(ref s) => s.data_frame(),
             PlotType::Line(ref l) => l.data_frame(),
-        }
-    }
-
-    fn set_data_frame(&mut self, new_data_frame: Frame) {
-        match *self {
-            PlotType::Scatter(ref mut s) => s.set_data_frame(new_data_frame),
-            PlotType::Line(ref mut l) => l.set_data_frame(new_data_frame),
         }
     }
 
@@ -88,10 +91,10 @@ impl Drawable for PlotType {
         }
     }
 
-    fn scale_size(&mut self, factor: f64) {
+    fn set_data_frame(&mut self, new_data_frame: Frame) {
         match *self {
-            PlotType::Scatter(ref mut s) => s.scale_size(factor),
-            PlotType::Line(ref mut l) => l.scale_size(factor),
+            PlotType::Scatter(ref mut s) => s.set_data_frame(new_data_frame),
+            PlotType::Line(ref mut l) => l.set_data_frame(new_data_frame),
         }
     }
 }
@@ -198,7 +201,7 @@ impl Plot {
         self.y_axis.set_label(label);
     }
 
-    pub fn draw(&mut self, drawable: PlotType) {
+    pub fn add(&mut self, drawable: PlotType) {
         self.drawables.push(drawable);
     }
 
@@ -239,7 +242,7 @@ impl Plot {
         self.update_axes();
     }
 
-    pub fn draw_fn(&self, cr: &Context) {
+    pub fn draw(&self, cr: &Context) {
 
         // Background
         cr.set_source_rgba(self.bg_color[0], self.bg_color[1], self.bg_color[2], self.bg_color[3]);
@@ -266,11 +269,11 @@ impl Plot {
         }
 
         // Horizontal axis
-        self.x_axis.draw_fn(cr);
-        self.y_axis.draw_fn(cr);
+        self.x_axis.draw(cr);
+        self.y_axis.draw(cr);
 
         for drawable in self.drawables.iter() {
-            drawable.draw_fn(cr);
+            drawable.draw(cr);
         }
     }
 

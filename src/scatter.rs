@@ -7,7 +7,7 @@ use cairo::Context;
 
 use point::Point;
 use utils;
-use utils::{Frame, Drawable};
+use utils::{Frame, Drawable, Plottable};
 
 #[derive(Clone, Debug)]
 pub struct Scatter {
@@ -32,9 +32,9 @@ impl Scatter {
 }
 
 impl Drawable for Scatter {
-    fn draw_fn(&self, cr: &Context) {
+    fn draw(&self, cr: &Context) {
         for data_point in self.data_points.iter() {
-            data_point.draw_fn(cr)
+            data_point.draw(cr)
         }
     }
 
@@ -57,12 +57,16 @@ impl Drawable for Scatter {
         self.scale_size(x_scale_factor.max(y_scale_factor));
     }
 
+    fn scale_size(&mut self, factor: f64) {
+        for data_point in self.data_points.iter_mut() {
+            data_point.scale_size(factor);
+        }
+    }
+}
+
+impl Plottable for Scatter {
     fn data_frame(&self) -> Frame {
         self.data_frame.clone()
-    }
-
-    fn set_data_frame(&mut self, new_data_frame: Frame) {
-        self.data_frame = new_data_frame;
     }
 
     fn data_x_min(&self) -> f64 {
@@ -81,9 +85,7 @@ impl Drawable for Scatter {
         self.data_frame.y_max()
     }
 
-    fn scale_size(&mut self, factor: f64) {
-        for data_point in self.data_points.iter_mut() {
-            data_point.scale_size(factor);
-        }
+    fn set_data_frame(&mut self, new_data_frame: Frame) {
+        self.data_frame = new_data_frame;
     }
 }

@@ -66,7 +66,7 @@ impl Tick {
         self.label.scale_size(factor);
     }
 
-    fn draw_fn(&self, cr: &Context) {
+    fn draw(&self, cr: &Context) {
         cr.set_source_rgba(self.color[0], self.color[1], self.color[2], self.color[3]);
         cr.set_line_width(self.line_width);
 
@@ -128,7 +128,7 @@ impl GridLine {
         self.line_width *= factor;
     }
 
-    fn draw_fn(&self, cr: &Context) {
+    fn draw(&self, cr: &Context) {
         cr.set_source_rgba(self.color[0], self.color[1], self.color[2], self.color[3]);
         cr.set_line_width(self.line_width);
         cr.move_to(self.plot_x_start, self.plot_y_start);
@@ -280,7 +280,7 @@ impl Axis {
         plot_ticks
     }
 
-    pub fn draw_fn(&self, cr: &Context) {
+    pub fn draw(&self, cr: &Context) {
 
         // Axis line
         cr.set_source_rgba(self.color[0], self.color[1], self.color[2], self.color[3]);
@@ -324,13 +324,13 @@ impl Axis {
                         let mut gridline = GridLine::new(tick.x_center(), tick.y_center(),
                                                          tick.x_center(), self.plot_frame.y_min());
                         gridline.scale_size(scale_factor);
-                        gridline.draw_fn(cr);
+                        gridline.draw(cr);
                     }
                     Orientation::Vertical => {
                         let mut gridline = GridLine::new(tick.x_center(), tick.y_center(),
                                                          self.plot_frame.x_max(), tick.y_center());
                         gridline.scale_size(scale_factor);
-                        gridline.draw_fn(cr);
+                        gridline.draw(cr);
                     },
                 };
             }
@@ -339,7 +339,7 @@ impl Axis {
         // Ticks and tick labels
         for tick in ticks.iter_mut() {
             tick.scale_size(scale_factor);
-            tick.draw_fn(cr);
+            tick.draw(cr);
         }
     }
 }

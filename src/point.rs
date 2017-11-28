@@ -53,7 +53,7 @@ impl Point {
     }
 
     pub fn set_shape(&mut self, shape_id: &str) {
-        // TODO: Move this to draw_fn and get rid of enum??
+        // TODO: Move this to draw and get rid of enum??
         self.shape = match shape_id {
             "Circle" | "circle" | "c" | "o" => Shape::Circle,
             "Square" | "square" | "s" => Shape::Square,
@@ -92,7 +92,7 @@ impl Point {
 }
 
 impl Drawable for Point {
-    fn draw_fn(&self, cr: &Context) {
+    fn draw(&self, cr: &Context) {
         cr.set_source_rgba(self.color[0], self.color[1], self.color[2], self.color[3]);
         match self.shape {
             Shape::Circle => cr.arc(self.x_coord, self.y_coord, self.size, 0., 2.0*PI),
@@ -102,31 +102,6 @@ impl Drawable for Point {
     }
 
     fn fit(&mut self, _frame: &Frame) {}
-
-    // TODO: The following does not really make sense for this struct, and only really for
-    // the plot variants (line, scatter, etc.).
-    // Consider splitting the Drawable trait into a Drawable and a PlotVariant trait.
-    fn data_frame(&self) -> Frame {
-        Frame::new(self.x_coord, self.x_coord, self.y_coord, self.y_coord)
-    }
-
-    fn set_data_frame(&mut self, _new_data_frame: Frame) {}
-
-    fn data_x_min(&self) -> f64 {
-        self.x_coord
-    }
-
-    fn data_x_max(&self) -> f64 {
-        self.x_coord
-    }
-
-    fn data_y_min(&self) -> f64 {
-        self.y_coord
-    }
-
-    fn data_y_max(&self) -> f64 {
-        self.y_coord
-    }
 
     fn scale_size(&mut self, factor: f64) {
         self.size *= factor;

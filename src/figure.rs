@@ -62,7 +62,7 @@ impl Figure {
         self.size = size;
     }
 
-    pub fn draw(&mut self, plot: Plot) {
+    pub fn add(&mut self, plot: Plot) {
         self.plots.push(plot);
     }
 
@@ -87,7 +87,7 @@ impl Figure {
 
         // TODO: Place them in grid
         for plot in self.plots.iter() {
-            plot.draw_fn(&cr);
+            plot.draw(&cr);
         }
 
         let mut file = File::create(filename).expect("Couldn't create 'file.png'");
@@ -126,7 +126,7 @@ fn build_ui(fig: &Figure, app: &gtk::Application) {
 
         // TODO: Place them in grid
         for plot in fig.plots.iter() {
-            plot.draw_fn(cr);
+            plot.draw(cr);
         }
 
         Inhibit(false)

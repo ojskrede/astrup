@@ -109,15 +109,21 @@ impl Frame {
 ///
 /// All objects that can be drawn should implement this trait.
 pub trait Drawable {
-    fn draw_fn(&self, cr: &Context);
+    fn draw(&self, cr: &Context);
     fn fit(&mut self, frame: &Frame);
+    fn scale_size(&mut self, factor: f64);
+}
+
+/// ## Plottable
+///
+/// All objects that can be used to plot things (e.g. represent data) should implement this.
+pub trait Plottable {
     fn data_frame(&self) -> Frame;
-    fn set_data_frame(&mut self, new_data_frame: Frame);
     fn data_x_min(&self) -> f64;
     fn data_x_max(&self) -> f64;
     fn data_y_min(&self) -> f64;
     fn data_y_max(&self) -> f64;
-    fn scale_size(&mut self, factor: f64);
+    fn set_data_frame(&mut self, new_data_frame: Frame);
 }
 
 /// Return a list of [vec.min(), vec.max()]

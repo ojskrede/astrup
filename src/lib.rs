@@ -39,12 +39,18 @@
 //!
 //! ### Major
 //! - One window for each figure
-//! - Multiple plots (arranged in a grid) in one figure
 //! - Implement the above plot variants
+//! - Fix the use of PlotType in the api, hide it somehow.
+//! - Implement minor ticks and grid lines
 //!
 //! ### Minor
-//! - Refactor fit and scaling functions
+//! - Refactor fit and scaling functions, e.g. one fit_fig, and fit_plot for all drawables
 //! - Axis label and tick label sizes seems to scale differently
+//! - Use palette crate
+//! - Reorganize, organize existing modules into smalle set of collections. E.g. a plottype module.
+//! - Make gridlines a part of tick struct. This is because a gridline is just an extension of a tick.
+//! - Also have a flag or something to indicate major / minor ticks.
+//! - Only display ticks that are 10^k * {1, 2, 5}
 
 extern crate cairo;
 extern crate gio;
