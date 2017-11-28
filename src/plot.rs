@@ -158,39 +158,6 @@ impl Plot {
         self.update_axes();
     }
 
-    fn update_axes(&mut self) {
-
-        self.x_axis_plot_start = self.fig_frame.x_min() + 0.2*(self.fig_frame.x_max() - self.fig_frame.x_min());
-        self.x_axis_plot_end = self.fig_frame.x_max() - 0.1*(self.fig_frame.x_max() - self.fig_frame.x_min());
-        self.y_axis_plot_start = self.fig_frame.y_max() - 0.2*(self.fig_frame.y_max() - self.fig_frame.y_min());
-        self.y_axis_plot_end = self.fig_frame.y_min() + 0.1*(self.fig_frame.y_max() - self.fig_frame.y_min());
-
-        //self.x_axis = Axis::new(Orientation::Horizontal,
-        //                        self.x_axis_plot_start, self.x_axis_plot_end,
-        //                        self.y_axis_plot_start, self.y_axis_plot_start);
-        self.x_axis.set_plot_coords(Frame::new(self.x_axis_plot_start, self.x_axis_plot_end,
-                                               self.y_axis_plot_start, self.y_axis_plot_start));
-        self.x_axis.set_plot_frame(Frame::new(self.x_axis_plot_start, self.x_axis_plot_end,
-                                              self.y_axis_plot_end, self.y_axis_plot_start));
-
-        //self.y_axis = Axis::new(Orientation::Vertical,
-        //                        self.x_axis_plot_start, self.x_axis_plot_start,
-        //                        self.y_axis_plot_start, self.y_axis_plot_end);
-        self.y_axis.set_plot_coords(Frame::new(self.x_axis_plot_start, self.x_axis_plot_start,
-                                               self.y_axis_plot_start, self.y_axis_plot_end));
-        self.y_axis.set_plot_frame(Frame::new(self.x_axis_plot_start, self.x_axis_plot_end,
-                                              self.y_axis_plot_end, self.y_axis_plot_start));
-
-
-        let x_scale_factor = self.fig_frame.x_max() - self.fig_frame.x_min();
-        let y_scale_factor = self.fig_frame.y_max() - self.fig_frame.y_min();
-        let scale_factor = x_scale_factor.max(y_scale_factor);
-
-        self.x_axis.scale_size(scale_factor);
-        self.y_axis.scale_size(scale_factor);
-
-    }
-
     pub fn bg_color(&mut self, bg_color: &[f64; 4]) {
         self.bg_color = bg_color.to_owned();
     }
@@ -213,6 +180,33 @@ impl Plot {
 
     pub fn add(&mut self, drawable: PlotType) {
         self.drawables.push(drawable);
+    }
+
+    fn update_axes(&mut self) {
+
+        self.x_axis_plot_start = self.fig_frame.x_min() + 0.2*(self.fig_frame.x_max() - self.fig_frame.x_min());
+        self.x_axis_plot_end = self.fig_frame.x_max() - 0.1*(self.fig_frame.x_max() - self.fig_frame.x_min());
+        self.y_axis_plot_start = self.fig_frame.y_max() - 0.2*(self.fig_frame.y_max() - self.fig_frame.y_min());
+        self.y_axis_plot_end = self.fig_frame.y_min() + 0.1*(self.fig_frame.y_max() - self.fig_frame.y_min());
+
+        self.x_axis.set_plot_coords(Frame::new(self.x_axis_plot_start, self.x_axis_plot_end,
+                                               self.y_axis_plot_start, self.y_axis_plot_start));
+        self.x_axis.set_plot_frame(Frame::new(self.x_axis_plot_start, self.x_axis_plot_end,
+                                              self.y_axis_plot_end, self.y_axis_plot_start));
+
+        self.y_axis.set_plot_coords(Frame::new(self.x_axis_plot_start, self.x_axis_plot_start,
+                                               self.y_axis_plot_start, self.y_axis_plot_end));
+        self.y_axis.set_plot_frame(Frame::new(self.x_axis_plot_start, self.x_axis_plot_end,
+                                              self.y_axis_plot_end, self.y_axis_plot_start));
+
+
+        let x_scale_factor = self.fig_frame.x_max() - self.fig_frame.x_min();
+        let y_scale_factor = self.fig_frame.y_max() - self.fig_frame.y_min();
+        let scale_factor = x_scale_factor.max(y_scale_factor);
+
+        self.x_axis.scale_size(scale_factor);
+        self.y_axis.scale_size(scale_factor);
+
     }
 
     /// This method is called by figure after all plots are added, and all plot adjustment is made.

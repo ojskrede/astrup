@@ -42,6 +42,8 @@
 //! - Implement the above plot variants
 //! - Fix the use of PlotType in the api, hide it somehow.
 //! - Implement minor ticks and grid lines
+//! - Add legend.
+//! - Add dashed lines.
 //!
 //! ### Minor
 //! - Refactor fit and scaling functions, e.g. one fit_fig, and fit_plot for all drawables
@@ -51,6 +53,11 @@
 //! - Make gridlines a part of tick struct. This is because a gridline is just an extension of a tick.
 //! - Also have a flag or something to indicate major / minor ticks.
 //! - Only display ticks that are 10^k * {1, 2, 5}
+//! - For each plot, include a canvas which is a smaller frame within the plot (determined by
+//! fig_frame) that can display data. The default would be to attach axes around this frame, and a
+//! grid inside it, but only labels, ticks and legends should be visible outside. That is, no data
+//! or gridlines. With this, the user can add multiple axes wherever inside this draw frame.
+//! Set plot_frame (in fig coords) => set canvas (in fig coords) => draw elements.
 
 extern crate cairo;
 extern crate gio;
