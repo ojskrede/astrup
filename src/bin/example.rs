@@ -63,6 +63,9 @@ fn main() {
     fig.save("example.png");
     fig.show();
 
+    // TODO: Add support for this kind of short-hand thing
+    //Figure::new().add(Plot::new().add(PlotType::Line(Line::new(&x_data, &y_data))));
+
     //let mut fig2 = Figure::new();
     //fig2.draw(plot);
     //fig2.show();
