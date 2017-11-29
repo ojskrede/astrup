@@ -5,7 +5,7 @@
 
 use cairo::Context;
 
-use point::Point;
+use chart::point::Point;
 use utils;
 use utils::{Frame, Drawable, Plottable};
 

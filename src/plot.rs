@@ -9,95 +9,8 @@ use cairo::Context;
 
 use utils::{Plottable, Drawable, Frame};
 use axis::{Orientation, Axis};
-use scatter::Scatter;
-use line::Line;
+use chart::Chart;
 //use style::Style;
-
-#[derive(Clone, Debug)]
-pub enum PlotType {
-    Scatter(Scatter),
-    Line(Line),
-}
-
-/*
-impl PlotType {
-    fn new(&self) -> PlotType {
-        match *self {
-            PlotType::Point(ref p) => p.new(),
-            PlotType::Scatter(ref s) => s.new(),
-            PlotType::Line(ref l) => l.new(),
-        }
-    }
-}
-*/
-
-impl Drawable for PlotType {
-    fn draw(&self, cr: &Context) {
-        match *self {
-            PlotType::Scatter(ref s) => s.draw(cr),
-            PlotType::Line(ref l) => l.draw(cr),
-        }
-    }
-
-    fn fit(&mut self, plot_frame: &Frame) {
-        match *self {
-            PlotType::Scatter(ref mut s) => s.fit(plot_frame),
-            PlotType::Line(ref mut l) => l.fit(plot_frame),
-        }
-    }
-
-    fn scale_size(&mut self, factor: f64) {
-        match *self {
-            PlotType::Scatter(ref mut s) => s.scale_size(factor),
-            PlotType::Line(ref mut l) => l.scale_size(factor),
-        }
-    }
-}
-
-impl Plottable for PlotType {
-
-    fn data_frame(&self) -> Frame {
-        match *self {
-            PlotType::Scatter(ref s) => s.data_frame(),
-            PlotType::Line(ref l) => l.data_frame(),
-        }
-    }
-
-    fn data_x_min(&self) -> f64 {
-        match *self {
-            PlotType::Scatter(ref s) => s.data_x_min(),
-            PlotType::Line(ref l) => l.data_x_min(),
-        }
-    }
-
-    fn data_x_max(&self) -> f64 {
-        match *self {
-            PlotType::Scatter(ref s) => s.data_x_max(),
-            PlotType::Line(ref l) => l.data_x_max(),
-        }
-    }
-
-    fn data_y_min(&self) -> f64 {
-        match *self {
-            PlotType::Scatter(ref s) => s.data_y_min(),
-            PlotType::Line(ref l) => l.data_y_min(),
-        }
-    }
-
-    fn data_y_max(&self) -> f64 {
-        match *self {
-            PlotType::Scatter(ref s) => s.data_y_max(),
-            PlotType::Line(ref l) => l.data_y_max(),
-        }
-    }
-
-    fn set_data_frame(&mut self, new_data_frame: Frame) {
-        match *self {
-            PlotType::Scatter(ref mut s) => s.set_data_frame(new_data_frame),
-            PlotType::Line(ref mut l) => l.set_data_frame(new_data_frame),
-        }
-    }
-}
 
 #[derive(Clone, Debug)]
 pub struct Plot {
@@ -108,7 +21,7 @@ pub struct Plot {
     border: bool,
     x_axis: Axis,
     y_axis: Axis,
-    drawables: Vec<PlotType>,
+    charts: Vec<Chart>,
     x_axis_plot_start: f64,
     x_axis_plot_end: f64,
     y_axis_plot_start: f64,
@@ -140,7 +53,7 @@ impl Plot {
             y_axis: Axis::new(Orientation::Vertical,
                               x_axis_plot_start, x_axis_plot_start,
                               y_axis_plot_start, y_axis_plot_end),
-            drawables: Vec::<PlotType>::new(),
+            charts: Vec::<Chart>::new(),
             fig_frame: Frame::new(0.0, 1.0, 0.0, 1.0),
             x_data_range: None,
             y_data_range: None,
@@ -178,8 +91,8 @@ impl Plot {
         self.y_data_range = Some([min, max]);
     }
 
-    pub fn add(&mut self, drawable: PlotType) {
-        self.drawables.push(drawable);
+    pub fn add(&mut self, chart: Chart) {
+        self.charts.push(chart);
     }
 
     fn update_axes(&mut self) {
@@ -217,18 +130,18 @@ impl Plot {
         //
         // This will only be used if x_range or y_range is not specified by the user.
         let mut largest_data_frame = Frame::new(MAX, MIN, MAX, MIN);
-        for drawable in self.drawables.iter() {
-            if drawable.data_x_min() < largest_data_frame.x_min() {
-                largest_data_frame.set_x_min(drawable.data_x_min());
+        for chart in self.charts.iter() {
+            if chart.data_x_min() < largest_data_frame.x_min() {
+                largest_data_frame.set_x_min(chart.data_x_min());
             }
-            if drawable.data_x_max() > largest_data_frame.x_max() {
-                largest_data_frame.set_x_max(drawable.data_x_max());
+            if chart.data_x_max() > largest_data_frame.x_max() {
+                largest_data_frame.set_x_max(chart.data_x_max());
             }
-            if drawable.data_y_min() < largest_data_frame.y_min() {
-                largest_data_frame.set_y_min(drawable.data_y_min());
+            if chart.data_y_min() < largest_data_frame.y_min() {
+                largest_data_frame.set_y_min(chart.data_y_min());
             }
-            if drawable.data_y_max() > largest_data_frame.y_max() {
-                largest_data_frame.set_y_max(drawable.data_y_max());
+            if chart.data_y_max() > largest_data_frame.y_max() {
+                largest_data_frame.set_y_max(chart.data_y_max());
             }
         }
 
@@ -249,12 +162,12 @@ impl Plot {
         let y_scale_factor = self.fig_frame.y_max() - self.fig_frame.y_min();
 
         //let frame = Frame::new(0.2, 0.9, 0.1, 0.8);
-        for drawable in self.drawables.iter_mut() {
-            drawable.set_data_frame(Frame::new(self.x_axis.data_min(), self.x_axis.data_max(),
-                                               self.y_axis.data_min(), self.y_axis.data_max()));
-            //drawable.set_data_frame(largest_data_frame.clone());
-            drawable.scale_size(x_scale_factor.max(y_scale_factor));
-            drawable.fit(&Frame::new(self.x_axis_plot_start, self.x_axis_plot_end,
+        for chart in self.charts.iter_mut() {
+            chart.set_data_frame(Frame::new(self.x_axis.data_min(), self.x_axis.data_max(),
+                                            self.y_axis.data_min(), self.y_axis.data_max()));
+            //chart.set_data_frame(largest_data_frame.clone());
+            chart.scale_size(x_scale_factor.max(y_scale_factor));
+            chart.fit(&Frame::new(self.x_axis_plot_start, self.x_axis_plot_end,
                                      self.y_axis_plot_start, self.y_axis_plot_end));
         }
 
@@ -293,8 +206,8 @@ impl Plot {
         self.x_axis.draw(cr);
         self.y_axis.draw(cr);
 
-        for drawable in self.drawables.iter() {
-            drawable.draw(cr);
+        for chart in self.charts.iter() {
+            chart.draw(cr);
         }
     }
 
