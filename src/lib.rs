@@ -63,6 +63,7 @@ extern crate cairo;
 extern crate gio;
 extern crate gtk;
 extern crate num;
+extern crate failure;
 
 pub mod utils;
 pub mod figure;

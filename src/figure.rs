@@ -4,6 +4,7 @@
 //!
 
 use std::fs::File;
+use failure::{Error, err_msg};
 
 use gio;
 use gio::prelude::*;
@@ -36,7 +37,8 @@ macro_rules! clone {
 pub struct Figure {
     plots: Vec<Plot>,
     title: String,
-    size: [usize; 2],
+    height: usize,
+    width: usize,
     bg_color: [f64; 4],
     application: gtk::Application,
 }
@@ -48,7 +50,8 @@ impl Figure {
         Figure {
             plots: Vec::<Plot>::new(),
             title: String::from("Figure"),
-            size: [800, 800],
+            height: 800,
+            width: 800,
             bg_color: [1.0, 1.0, 1.0, 1.0],
             application: app,
         }
@@ -58,8 +61,12 @@ impl Figure {
         self.title = String::from(title);
     }
 
-    pub fn set_size(&mut self, size: [usize; 2]) {
-        self.size = size;
+    pub fn set_height(&mut self, val: usize) {
+        self.height = val;
+    }
+
+    pub fn set_width(&mut self, val: usize) {
+        self.width = val;
     }
 
     pub fn add(&mut self, plot: Plot) {
@@ -72,18 +79,19 @@ impl Figure {
         }
     }
 
-    // TODO: Return Result<(), Error>
-    pub fn save(&self, filename: &str) {
+    pub fn save(&self, filename: &str) -> Result<(), Error> {
         // Since both save() and show() can be called, and since all drawing is happening in both,
         // multiple calls to fit() will be made, and this can mess up things if we call it on self.
         // The simplest solution is to clone self. But one should perhaps make fit() idempotent?.
         let mut fig = self.clone();
         fig.fit();
-        let surface = ImageSurface::create(Format::ARgb32, fig.size[1] as i32, fig.size[0] as i32)
-                                   .expect("Can't create surface");
+        let surface = match ImageSurface::create(Format::ARgb32, fig.width as i32, fig.height as i32) {
+            Ok(val) => val,
+            Err(msg) => return Err(err_msg(format!("{:?}", msg))),
+        };
         let cr = Context::new(&surface);
 
-        cr.scale(fig.size[1] as f64, fig.size[0] as f64);
+        cr.scale(fig.width as f64, fig.height as f64);
 
         cr.set_source_rgba(fig.bg_color[0], fig.bg_color[1], fig.bg_color[2], fig.bg_color[3]);
         cr.paint();
@@ -93,12 +101,10 @@ impl Figure {
             plot.draw(&cr);
         }
 
-        let mut file = File::create(filename).expect("Couldn't create 'file.png'");
-        match surface.write_to_png(&mut file) {
-            Ok(_) => println!("file.png created"),
-            Err(_) => println!("Error create file.png"),
-        }
+        let mut file = File::create(filename)?;
+        surface.write_to_png(&mut file)?;
 
+        Ok(())
     }
 
     pub fn show(self) {
@@ -122,7 +128,7 @@ fn build_ui(fig: &Figure, app: &gtk::Application) {
     let window = gtk::ApplicationWindow::new(app);
     let drawing_area = Box::new(DrawingArea::new)();
     drawing_area.connect_draw(clone!(fig => move |_, cr| {
-        cr.scale(fig.size[1] as f64, fig.size[0] as f64);
+        cr.scale(fig.width as f64, fig.height as f64);
 
         cr.set_source_rgba(fig.bg_color[0], fig.bg_color[1], fig.bg_color[2], fig.bg_color[3]);
         cr.paint();
@@ -135,7 +141,7 @@ fn build_ui(fig: &Figure, app: &gtk::Application) {
         Inhibit(false)
     }));
 
-    window.set_default_size(fig.size[1] as i32, fig.size[0] as i32);
+    window.set_default_size(fig.width as i32, fig.height as i32);
 
     window.connect_delete_event(clone!(window => move |_, _| {
         window.destroy();
