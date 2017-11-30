@@ -8,6 +8,9 @@ use chart::scatter::Scatter;
 use chart::line::Line;
 use utils::{Plottable, Drawable, Frame};
 
+/// ## Chart
+///
+/// A chart is a graphical representation of data.
 #[derive(Clone, Debug)]
 pub enum Chart {
     Scatter(Scatter),

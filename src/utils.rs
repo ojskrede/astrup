@@ -54,54 +54,71 @@ impl Text {
     }
 }
 
+/// A frame defined by its boundaries.
 #[derive(Clone, Debug)]
 pub struct Frame {
-    x_min: f64,
-    x_max: f64,
-    y_min: f64,
-    y_max: f64,
+    left: f64,
+    right: f64,
+    top: f64,
+    bottom: f64,
 }
 
 impl Frame {
-    pub fn new(x_min: f64, x_max: f64, y_min: f64, y_max: f64) -> Frame {
+    pub fn new() -> Frame {
         Frame {
-            x_min: x_min,
-            x_max: x_max,
-            y_min: y_min,
-            y_max: y_max,
+            left: 0.0,
+            right: 1.0,
+            top: 0.0,
+            bottom: 1.0,
         }
     }
 
-    pub fn x_min(&self) -> f64 {
-        self.x_min
+    pub fn from_corners(left: f64, right: f64, top: f64, bottom: f64) -> Frame {
+        Frame {
+            left: left,
+            right: right,
+            top: top,
+            bottom: bottom,
+        }
     }
 
-    pub fn x_max(&self) -> f64 {
-        self.x_max
+    pub fn set(&mut self, left: f64, right: f64, top: f64, bottom: f64) {
+        self.left = left;
+        self.right = right;
+        self.top = top;
+        self.bottom = bottom;
     }
 
-    pub fn y_min(&self) -> f64 {
-        self.y_min
+    pub fn left(&self) -> f64 {
+        self.left
     }
 
-    pub fn y_max(&self) -> f64 {
-        self.y_max
+    pub fn right(&self) -> f64 {
+        self.right
     }
 
-    pub fn set_x_min(&mut self, val: f64) {
-        self.x_min = val;
+    pub fn top(&self) -> f64 {
+        self.top
     }
 
-    pub fn set_x_max(&mut self, val: f64) {
-        self.x_max = val;
+    pub fn bottom(&self) -> f64 {
+        self.bottom = val;
     }
 
-    pub fn set_y_min(&mut self, val: f64) {
-        self.y_min = val;
+    pub fn set_left(&self, val: f64) {
+        self.left = val;
     }
 
-    pub fn set_y_max(&mut self, val: f64) {
-        self.y_max = val;
+    pub fn set_right(&self, val: f64) {
+        self.right = val;
+    }
+
+    pub fn set_top(&self, val: f64) {
+        self.top = val;
+    }
+
+    pub fn set_bottom(&self, val: f64) {
+        self.bottom = val;
     }
 }
 
@@ -188,13 +205,67 @@ pub fn round_up(number: f64, omagn: f64) -> f64 {
     number - number % below + below
 }
 
-/// Map a number in one reference system to another
-pub fn change_domain(old_number: f64, old_min: f64, old_max: f64,
-                     new_min: f64, new_max: f64) -> f64 {
+/// Map a number linearly from a reference system A to another reference system B.
+pub fn map_range(old_number: f64, old_min: f64, old_max: f64, new_min: f64, new_max: f64) -> f64 {
     if old_min != old_max {
         ((old_number - old_min) / (old_max - old_min) * new_max +
          (old_max - old_number) / (old_max - old_min) * new_min)
     } else {
         (old_min + old_max) / 2.0
     }
+}
+
+
+/// ## Compute marks
+///
+/// Marks are used by axis ticks, and axis gridlines, to determine their location.
+///
+/// This method will return a list of evenly spaced marks according to the following method.
+/// This assumes that the data range is known, and that know how many marks we want. The latter
+/// is determined by a variable, and will be used more of a guide than as the actual number of
+/// marks we get in the end.
+///
+/// ### Method
+///
+/// 1. Find the orider of magnitude of the difference in the data range. Call this omagn.
+/// 2a. Let min_point be min(data) rounded down to nearest 10^(omagn - 2).
+/// 2b. Let max_point be max(data) rounded up to nearest 10^(omagn - 2).
+/// 3. mark_distance = (max_point - min_point) / num_labels rounded to nearest 10^(omagn - 2)
+/// 4. Then, let mark_k = min_point + k*mark_distance, for k = 0 until mark_k is greater or
+///    equal to max(data).
+/// 5. Transform between labels in the data framework (the above) and positions in the drawing
+///    framework using the data range and axis frame.
+///
+///
+/// TODO:
+///  - Add a feature that only accepts marks at locations 10^k * {1, 2, 5} for integer k.
+///  - Compute the martk data location based on largest data frame. Then update the axis' data
+///  range to be cover (be the same as) its mark data range. Then adjust the plot location of
+///  its marks, data, gridlines, etc. Currently the axis range is determined by the range of
+///  the data, and not the range of its marks. Also, the user should be able to set the data
+///  range, this should then determine the mark range, which in turn should determine the axis
+///  range.
+fn compute_marks(&self, ref_num_marks: usize, fig_min: f64, fig_max: f64, data_min: f64, data_max: f64) -> Vec<Mark> {
+    let data_diff = data_max - data_min;
+    let omagn = data_diff.log10().ceil();
+    let actual_min_point = round_out(data_min, omagn);
+    let ref_max_point = round_out(data_max, omagn);
+    let mark_distance = round_nearest((ref_max_point - actual_min_point) / ref_num_marks as f64, omagn);
+
+    let mut data_loc_k = actual_min_point;
+    let mut marks = Vec::<Mark>::new();
+    let mut add_next = true;
+    while add_next {
+        if data_loc_k > ref_max_point {
+            add_next = false;
+        }
+
+        let fig_loc_k = change_domain(data_loc_k, data_min, data_max, fig_min, fig_max);
+        let mark_k = Mark::new();
+        mark_k.set(fig_loc_k, data_loc_k);
+
+        marks.push(mark_k);
+        data_loc_k += mark_distance;
+    }
+    marks
 }

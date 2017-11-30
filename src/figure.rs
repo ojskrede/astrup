@@ -39,7 +39,7 @@ pub struct Figure {
     title: String,
     height: usize,
     width: usize,
-    bg_color: [f64; 4],
+    color: [f64; 4],
     application: gtk::Application,
 }
 
@@ -52,7 +52,7 @@ impl Figure {
             title: String::from("Figure"),
             height: 800,
             width: 800,
-            bg_color: [1.0, 1.0, 1.0, 1.0],
+            color: [1.0, 1.0, 1.0, 1.0],
             application: app,
         }
     }
@@ -93,7 +93,7 @@ impl Figure {
 
         cr.scale(fig.width as f64, fig.height as f64);
 
-        cr.set_source_rgba(fig.bg_color[0], fig.bg_color[1], fig.bg_color[2], fig.bg_color[3]);
+        cr.set_source_rgba(fig.color[0], fig.color[1], fig.color[2], fig.color[3]);
         cr.paint();
 
         // TODO: Place them in grid
@@ -130,7 +130,7 @@ fn build_ui(fig: &Figure, app: &gtk::Application) {
     drawing_area.connect_draw(clone!(fig => move |_, cr| {
         cr.scale(fig.width as f64, fig.height as f64);
 
-        cr.set_source_rgba(fig.bg_color[0], fig.bg_color[1], fig.bg_color[2], fig.bg_color[3]);
+        cr.set_source_rgba(fig.color[0], fig.color[1], fig.color[2], fig.color[3]);
         cr.paint();
 
         // TODO: Place them in grid
