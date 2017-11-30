@@ -12,31 +12,6 @@ pub enum Orientation {
     Horizontal,
     Vertical,
 }
-#[derive(Clone, Debug)]
-pub struct Mark {
-    // Mark in figure coordinate system
-    fig: f64,
-    // Mark in data coordinate system
-    data: f64,
-}
-
-impl Mark {
-    fn new() -> Mark {
-        Mark {
-            fig: 0.0,
-            data: 0.0,
-        }
-    }
-
-    pub fn set(&mut self, fig: f64, data: f64) {
-        self.fig = fig;
-        self.data = data;
-    }
-
-    fn fig_mark(&self) -> f64 { self.fig }
-
-    fn data_mark(&self) -> f64 { self.data }
-}
 
 /// ## Tick
 ///
@@ -71,6 +46,10 @@ impl Tick {
 
     fn set_label_size(&mut self, size: f64) {
         self.label.set_font_size(size);
+    }
+
+    fn orientation(&self) -> Orientation {
+        self.orientation
     }
 
     fn label_size(&self) -> f64 {
@@ -200,6 +179,18 @@ impl Axis {
 
     pub fn set(&mut self, x_start: f64, x_end: f64, y_start: f64, y_end: f64) {
         self.coords.set(x_start, x_end, y_start, y_end);
+    }
+
+    pub fn orientation(&self) -> Orientation {
+        self.orientation
+    }
+
+    pub fn data_min(&self) -> f64 {
+        self.data_range[0]
+    }
+
+    pub fn data_max(&self) -> f64 {
+        self.data_range[1]
     }
 
     /// Fit

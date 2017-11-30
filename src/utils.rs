@@ -73,7 +73,7 @@ impl Frame {
         }
     }
 
-    pub fn from_corners(left: f64, right: f64, top: f64, bottom: f64) -> Frame {
+    pub fn from_sides(left: f64, right: f64, top: f64, bottom: f64) -> Frame {
         Frame {
             left: left,
             right: right,
@@ -102,7 +102,15 @@ impl Frame {
     }
 
     pub fn bottom(&self) -> f64 {
-        self.bottom = val;
+        self.bottom
+    }
+
+    pub fn height(&self) -> f64 {
+        self.top - self.bottom
+    }
+
+    pub fn width(&self) -> f64 {
+        self.right - self.left
     }
 
     pub fn set_left(&self, val: f64) {
@@ -119,6 +127,28 @@ impl Frame {
 
     pub fn set_bottom(&self, val: f64) {
         self.bottom = val;
+    }
+
+    /// Returns this frame mapped to a different `reference_frame`. This is useful when one wants
+    /// to map the local frame (`self`) to a global frame (`reference_frame`).
+    ///
+    /// Each coordinate x on any side S (top, left, bottom, right) is then mapped as
+    ///
+    /// ```
+    ///   x -> ((old_max - x)*new_min + (x - old_min)*new_max) / (old_max - old_min)
+    /// ```
+    ///
+    /// Since the local frame is bounded by (0, 1) on each side, this simplifies to
+    ///
+    /// ```
+    ///   x -> new_min + (new_max - new_min) * x
+    /// ```
+    pub fn relative_to(&self, reference: &Frame) -> Frame {
+        let new_left = reference.left() + reference.width() * self.left();
+        let new_right = reference.left() + reference.width() * self.right();
+        let new_bottom = reference.bottom() + reference.height() * self.bottom();
+        let new_top = reference.bottom() + reference.height() * self.top();
+        Frame::from_sides(new_left, new_right, new_bottom, new_top)
     }
 }
 
@@ -245,27 +275,54 @@ pub fn map_range(old_number: f64, old_min: f64, old_max: f64, new_min: f64, new_
 ///  the data, and not the range of its marks. Also, the user should be able to set the data
 ///  range, this should then determine the mark range, which in turn should determine the axis
 ///  range.
-fn compute_marks(&self, ref_num_marks: usize, fig_min: f64, fig_max: f64, data_min: f64, data_max: f64) -> Vec<Mark> {
+pub fn compute_mark_locations(ca_num_marks: usize, ref_min: f64, ref_max: f64,
+                          data_min: f64, data_max: f64) -> Vec<Mark> {
     let data_diff = data_max - data_min;
     let omagn = data_diff.log10().ceil();
     let actual_min_point = round_out(data_min, omagn);
-    let ref_max_point = round_out(data_max, omagn);
-    let mark_distance = round_nearest((ref_max_point - actual_min_point) / ref_num_marks as f64, omagn);
+    let ca_max_point = round_out(data_max, omagn);
+    let mark_distance = round_nearest((ca_max_point - actual_min_point) / ca_num_marks as f64, omagn);
 
-    let mut data_loc_k = actual_min_point;
+    let mut data_location_k = actual_min_point;
     let mut marks = Vec::<Mark>::new();
     let mut add_next = true;
     while add_next {
-        if data_loc_k > ref_max_point {
+        if data_location_k > ca_max_point {
             add_next = false;
         }
 
-        let fig_loc_k = change_domain(data_loc_k, data_min, data_max, fig_min, fig_max);
+        let ref_location_k = map_range(data_location_k, data_min, data_max, ref_min, ref_max);
         let mark_k = Mark::new();
-        mark_k.set(fig_loc_k, data_loc_k);
+        mark_k.set(ref_location_k, data_location_k);
 
         marks.push(mark_k);
-        data_loc_k += mark_distance;
+        data_location_k += mark_distance;
     }
     marks
+}
+
+#[derive(Clone, Debug)]
+pub struct Mark {
+    // Mark in figure coordinate system
+    fig: f64,
+    // Mark in data coordinate system
+    data: f64,
+}
+
+impl Mark {
+    fn new() -> Mark {
+        Mark {
+            fig: 0.0,
+            data: 0.0,
+        }
+    }
+
+    pub fn set(&mut self, fig: f64, data: f64) {
+        self.fig = fig;
+        self.data = data;
+    }
+
+    pub fn fig_mark(&self) -> f64 { self.fig }
+
+    pub fn data_mark(&self) -> f64 { self.data }
 }
