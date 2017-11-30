@@ -113,19 +113,25 @@ impl Frame {
         self.right - self.left
     }
 
-    pub fn set_left(&self, val: f64) {
+    pub fn diag_len(&self) -> f64 {
+        let delta_x = self.right - self.left;
+        let delta_y = self.top - self.bottom;
+        (delta_x * delta_x + delta_y * delta_y).sqrt()
+    }
+
+    pub fn set_left(&mut self, val: f64) {
         self.left = val;
     }
 
-    pub fn set_right(&self, val: f64) {
+    pub fn set_right(&mut self, val: f64) {
         self.right = val;
     }
 
-    pub fn set_top(&self, val: f64) {
+    pub fn set_top(&mut self, val: f64) {
         self.top = val;
     }
 
-    pub fn set_bottom(&self, val: f64) {
+    pub fn set_bottom(&mut self, val: f64) {
         self.bottom = val;
     }
 
@@ -243,86 +249,4 @@ pub fn map_range(old_number: f64, old_min: f64, old_max: f64, new_min: f64, new_
     } else {
         (old_min + old_max) / 2.0
     }
-}
-
-
-/// ## Compute marks
-///
-/// Marks are used by axis ticks, and axis gridlines, to determine their location.
-///
-/// This method will return a list of evenly spaced marks according to the following method.
-/// This assumes that the data range is known, and that know how many marks we want. The latter
-/// is determined by a variable, and will be used more of a guide than as the actual number of
-/// marks we get in the end.
-///
-/// ### Method
-///
-/// 1. Find the orider of magnitude of the difference in the data range. Call this omagn.
-/// 2a. Let min_point be min(data) rounded down to nearest 10^(omagn - 2).
-/// 2b. Let max_point be max(data) rounded up to nearest 10^(omagn - 2).
-/// 3. mark_distance = (max_point - min_point) / num_labels rounded to nearest 10^(omagn - 2)
-/// 4. Then, let mark_k = min_point + k*mark_distance, for k = 0 until mark_k is greater or
-///    equal to max(data).
-/// 5. Transform between labels in the data framework (the above) and positions in the drawing
-///    framework using the data range and axis frame.
-///
-///
-/// TODO:
-///  - Add a feature that only accepts marks at locations 10^k * {1, 2, 5} for integer k.
-///  - Compute the martk data location based on largest data frame. Then update the axis' data
-///  range to be cover (be the same as) its mark data range. Then adjust the plot location of
-///  its marks, data, gridlines, etc. Currently the axis range is determined by the range of
-///  the data, and not the range of its marks. Also, the user should be able to set the data
-///  range, this should then determine the mark range, which in turn should determine the axis
-///  range.
-pub fn compute_mark_locations(ca_num_marks: usize, ref_min: f64, ref_max: f64,
-                          data_min: f64, data_max: f64) -> Vec<Mark> {
-    let data_diff = data_max - data_min;
-    let omagn = data_diff.log10().ceil();
-    let actual_min_point = round_out(data_min, omagn);
-    let ca_max_point = round_out(data_max, omagn);
-    let mark_distance = round_nearest((ca_max_point - actual_min_point) / ca_num_marks as f64, omagn);
-
-    let mut data_location_k = actual_min_point;
-    let mut marks = Vec::<Mark>::new();
-    let mut add_next = true;
-    while add_next {
-        if data_location_k > ca_max_point {
-            add_next = false;
-        }
-
-        let ref_location_k = map_range(data_location_k, data_min, data_max, ref_min, ref_max);
-        let mark_k = Mark::new();
-        mark_k.set(ref_location_k, data_location_k);
-
-        marks.push(mark_k);
-        data_location_k += mark_distance;
-    }
-    marks
-}
-
-#[derive(Clone, Debug)]
-pub struct Mark {
-    // Mark in figure coordinate system
-    fig: f64,
-    // Mark in data coordinate system
-    data: f64,
-}
-
-impl Mark {
-    fn new() -> Mark {
-        Mark {
-            fig: 0.0,
-            data: 0.0,
-        }
-    }
-
-    pub fn set(&mut self, fig: f64, data: f64) {
-        self.fig = fig;
-        self.data = data;
-    }
-
-    pub fn fig_mark(&self) -> f64 { self.fig }
-
-    pub fn data_mark(&self) -> f64 { self.data }
 }

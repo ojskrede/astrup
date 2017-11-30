@@ -137,6 +137,7 @@ pub mod utils;
 pub mod figure;
 pub mod plot;
 pub mod axis;
+pub mod mark;
 pub mod color;
 pub mod chart;
 

@@ -7,9 +7,9 @@ use std::f64::{MAX, MIN};
 
 use cairo::Context;
 
-use utils;
-use utils::{Plottable, Drawable, Frame, Text, Mark};
+use utils::{Plottable, Drawable, Frame, Text};
 use axis::{Orientation, Axis};
+use mark::{Mark, compute_mark_locations};
 use chart::Chart;
 //use style::Style;
 //
@@ -126,16 +126,12 @@ impl Canvas {
 
         // With this, we compute marks on the vertical and horizontal sides. The boundary marks
         // will define the final data_frame.
-        self.hor_marks = utils::compute_mark_locations(self.ref_num_marks,
-                                                       self.global_frame.left(),
-                                                       self.global_frame.right(),
-                                                       largest_data_frame.left(),
-                                                       largest_data_frame.right());
-        self.ver_marks = utils::compute_mark_locations(self.ref_num_marks,
-                                                       self.global_frame.bottom(),
-                                                       self.global_frame.top(),
-                                                       largest_data_frame.bottom(),
-                                                       largest_data_frame.top());
+        self.hor_marks = compute_mark_locations(self.ref_num_marks,
+                                                self.global_frame.left(), self.global_frame.right(),
+                                                largest_data_frame.left(), largest_data_frame.right());
+        self.ver_marks = compute_mark_locations(self.ref_num_marks,
+                                                self.global_frame.bottom(), self.global_frame.top(),
+                                                largest_data_frame.bottom(), largest_data_frame.top());
 
         // We can now define our updated data_frame.
         // TODO: Ord for f64 equivalent
@@ -151,11 +147,18 @@ impl Canvas {
 
         // Then, we update the axis, and charts based on this updated configuration
         for axis in self.axes.iter_mut() {
-            axis.fit(self.global_frame.clone(), self.data_frame.clone());
+            match axis.orientation() {
+                Orientation::Horizontal => {
+                    axis.fit(self.global_frame.clone(), self.hor_marks.clone());
+                },
+                Orientation::Vertical => {
+                    axis.fit(self.global_frame.clone(), self.ver_marks.clone());
+                },
+            }
         }
 
         for chart in self.charts.iter_mut() {
-            chart.fit(self.global_frame.clone(), self.data_frame.clone());
+            chart.fit(&self.global_frame.clone());
         }
     }
 
@@ -167,11 +170,11 @@ impl Canvas {
                      self.global_frame.width(), self.global_frame.height());
         cr.fill();
 
-        for chart in self.charts {
+        for chart in self.charts.iter() {
             chart.draw(cr);
         }
 
-        for axis in self.axes {
+        for axis in self.axes.iter() {
             axis.draw(cr);
         }
 
@@ -224,7 +227,7 @@ impl Plot {
 
         self.scale_size(scale_factor);
         for canvas in self.canvasses.iter_mut() {
-            canvas.fit(self.local_frame);
+            canvas.fit(self.local_frame.clone());
         }
     }
 

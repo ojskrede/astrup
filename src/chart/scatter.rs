@@ -12,6 +12,7 @@ use utils::{Frame, Drawable, Plottable};
 #[derive(Clone, Debug)]
 pub struct Scatter {
     data_points: Vec<Point>,
+    global_frame: Frame,
     data_frame: Frame,
 }
 
@@ -26,40 +27,39 @@ impl Scatter {
         }
         Scatter {
             data_points: data_points,
-            data_frame: Frame::new(x_data_min, x_data_max, y_data_min, y_data_max),
+            global_frame: Frame::new(),
+            data_frame: Frame::from_sides(x_data_min, x_data_max, y_data_min, y_data_max),
         }
     }
 }
 
 impl Drawable for Scatter {
-    fn draw(&self, cr: &Context) {
-        for data_point in self.data_points.iter() {
-            data_point.draw(cr)
-        }
-    }
-
-    fn fit(&mut self, plot_frame: &Frame) {
-        let mut plot_points = Vec::<Point>::new();
-        for data_point in self.data_points.iter() {
-            let plot_x = utils::change_domain(data_point.x_coord(),
-                                              self.data_frame.x_min(), self.data_frame.x_max(),
-                                              plot_frame.x_min(), plot_frame.x_max());
-            let plot_y = utils::change_domain(data_point.y_coord(),
-                                              self.data_frame.y_min(), self.data_frame.y_max(),
-                                              plot_frame.y_min(), plot_frame.y_max());
-            plot_points.push(Point::new(plot_x, plot_y));
-        }
-        // FIXME: Do automatic fit in draw point, and only compute plot domain coordinates then
-        self.data_points = plot_points;
-
-        let x_scale_factor = plot_frame.x_max() - plot_frame.x_min();
-        let y_scale_factor = plot_frame.y_max() - plot_frame.y_min();
-        self.scale_size(x_scale_factor.max(y_scale_factor));
-    }
-
     fn scale_size(&mut self, factor: f64) {
         for data_point in self.data_points.iter_mut() {
             data_point.scale_size(factor);
+        }
+    }
+
+    fn fit(&mut self, canvas_frame: &Frame) {
+        self.global_frame = canvas_frame.clone();
+        let scale_factor = self.global_frame.diag_len();
+        self.scale_size(scale_factor);
+    }
+
+    fn draw(&self, cr: &Context) {
+        // TODO: If it is not important to keep the original data, we could use
+        // data_point.map_range() here.
+        for data_point in self.data_points.iter() {
+            let canvas_x = utils::map_range(data_point.x_coord(),
+                                            self.data_frame.left(), self.data_frame.right(),
+                                            self.global_frame.left(), self.global_frame.right());
+            let canvas_y = utils::map_range(data_point.y_coord(),
+                                            self.data_frame.bottom(), self.data_frame.top(),
+                                            self.global_frame.bottom(), self.global_frame.top());
+            let mut canvas_point = data_point.clone();
+            canvas_point.set_x_coord(canvas_x);
+            canvas_point.set_y_coord(canvas_y);
+            canvas_point.draw(cr);
         }
     }
 }
@@ -70,19 +70,19 @@ impl Plottable for Scatter {
     }
 
     fn data_x_min(&self) -> f64 {
-        self.data_frame.x_min()
+        self.data_frame.left()
     }
 
     fn data_x_max(&self) -> f64 {
-        self.data_frame.x_max()
+        self.data_frame.right()
     }
 
     fn data_y_min(&self) -> f64 {
-        self.data_frame.y_min()
+        self.data_frame.bottom()
     }
 
     fn data_y_max(&self) -> f64 {
-        self.data_frame.y_max()
+        self.data_frame.top()
     }
 
     fn set_data_frame(&mut self, new_data_frame: Frame) {

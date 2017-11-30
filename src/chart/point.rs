@@ -81,13 +81,13 @@ impl Point {
         self.y_coord = val;
     }
 
-    pub fn change_domain(&mut self, old_frame: &Frame, new_frame: &Frame) {
-        self.x_coord = utils::change_domain(self.x_coord,
-                                            old_frame.x_min(), old_frame.x_max(),
-                                            new_frame.x_min(), new_frame.x_max());
-        self.y_coord = utils::change_domain(self.y_coord,
-                                            old_frame.y_min(), old_frame.y_max(),
-                                            new_frame.y_min(), new_frame.y_max());
+    pub fn map_range(&mut self, old_frame: &Frame, new_frame: &Frame) {
+        self.x_coord = utils::map_range(self.x_coord,
+                                        old_frame.left(), old_frame.right(),
+                                        new_frame.right(), new_frame.right());
+        self.y_coord = utils::map_range(self.y_coord,
+                                        old_frame.bottom(), old_frame.top(),
+                                        new_frame.bottom(), new_frame.top());
     }
 }
 
