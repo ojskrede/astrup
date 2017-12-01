@@ -3,6 +3,9 @@
 //! Definition of the Figure struct
 //!
 
+
+use std::f64::consts::PI;
+
 use std::fs::File;
 use failure::{Error, err_msg};
 
@@ -11,7 +14,7 @@ use gio::prelude::*;
 use gtk;
 use gtk::prelude::*;
 use gtk::DrawingArea;
-use cairo::{Context, Format, ImageSurface};
+use cairo::{Context, Format, ImageSurface, Matrix, MatrixTrait};
 
 use plot::Plot;
 
@@ -96,7 +99,12 @@ impl Figure {
         cr.set_source_rgba(fig.color[0], fig.color[1], fig.color[2], fig.color[3]);
         cr.paint();
 
-        // TODO: Place them in grid
+        // By default, the origin is in the top left corner, x is increasing to the right, and y is
+        // increasing downwards. This transforms the origin to the bottom left, and increasing y
+        // upwards.
+        let flip_matrix = Matrix::new(1.0, 0.0, 0.0, -1.0, 0.0, 1.0);
+        cr.transform(flip_matrix);
+
         for plot in fig.plots.iter() {
             plot.draw(&cr);
         }
@@ -133,7 +141,17 @@ fn build_ui(fig: &Figure, app: &gtk::Application) {
         cr.set_source_rgba(fig.color[0], fig.color[1], fig.color[2], fig.color[3]);
         cr.paint();
 
-        // TODO: Place them in grid
+        cr.set_source_rgba(0.0, 0.0, 0.0, 1.0);
+        cr.set_line_width(0.01);
+        cr.rectangle(0.0, 0.0, 1.0, 1.0);
+        cr.stroke();
+
+        // By default, the origin is in the top left corner, x is increasing to the right, and y is
+        // increasing downwards. This transforms the origin to the bottom left, and increasing y
+        // upwards.
+        let flip_matrix = Matrix::new(1.0, 0.0, 0.0, -1.0, 0.0, 1.0);
+        cr.transform(flip_matrix);
+
         for plot in fig.plots.iter() {
             plot.draw(cr);
         }

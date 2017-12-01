@@ -3,13 +3,14 @@
 //! Module that defines the Plot structure.
 //!
 
-use std::f64::{MAX, MIN};
+use std::f64::{MIN, MAX};
+use std::f64::consts::PI;
 
 use cairo::Context;
 
-use utils::{Plottable, Drawable, Frame, Text};
-use axis::{Orientation, Axis};
-use mark::{Mark, compute_mark_locations};
+use utils::{Plottable, Drawable, Frame, Text, Coord};
+use axis::{Axis};
+use mark::{Mark};
 use chart::Chart;
 //use style::Style;
 //
@@ -34,8 +35,9 @@ pub struct Canvas {
 impl Canvas {
     pub fn new() -> Canvas {
         Canvas {
-            color: [1.0, 1.0, 1.0, 1.0],
-            local_frame: Frame::new(),
+            color: [0.6, 0.6, 0.6, 0.6],
+            //local_frame: Frame::new(),
+            local_frame: Frame::from_sides(0.2, 0.9, 0.2, 0.9),
             global_frame: Frame::new(),
             data_frame: Frame::new(),
             ref_num_marks: 5,
@@ -62,32 +64,8 @@ impl Canvas {
         self.data_frame = frame;
     }
 
-    fn find_largest_axes_data_frame(&self) -> Frame {
-        let mut largest_data_frame = Frame::from_sides(MAX, MIN, MAX, MIN);
-        for axis in self.axes.iter() {
-            match axis.orientation() {
-                Orientation::Horizontal => {
-                    if axis.data_min() < largest_data_frame.left() {
-                        largest_data_frame.set_left(axis.data_min());
-                    }
-                    if axis.data_max() > largest_data_frame.right() {
-                        largest_data_frame.set_right(axis.data_max());
-                    }
-                },
-                Orientation::Vertical => {
-                    if axis.data_min() < largest_data_frame.bottom() {
-                        largest_data_frame.set_bottom(axis.data_min());
-                    }
-                    if axis.data_max() > largest_data_frame.top() {
-                        largest_data_frame.set_top(axis.data_max());
-                    }
-                },
-            }
-        }
-        largest_data_frame
-    }
-
-    fn find_largest_chart_data_frame(&self) -> Frame {
+    fn find_largest_chart_data_frame(&self) -> Option<Frame> {
+        if self.charts.len() == 0 { return None }
         let mut largest_data_frame = Frame::from_sides(MAX, MIN, MAX, MIN);
         for chart in self.charts.iter() {
             if chart.data_frame().left() < largest_data_frame.left() {
@@ -103,7 +81,14 @@ impl Canvas {
                 largest_data_frame.set_top(chart.data_frame().top());
             }
         }
-        largest_data_frame
+        Some(largest_data_frame)
+    }
+
+    fn find_largest_data_frame(&self) -> Frame {
+        match self.find_largest_chart_data_frame() {
+            Some(val) => val,
+            None => self.data_frame.clone(),
+        }
     }
 
     pub fn fit(&mut self, plot_frame: Frame) {
@@ -116,22 +101,18 @@ impl Canvas {
         // We first find a frame that is the union of the largest data frames from our axes
         // and our charts. This takes into account the possible user input (xrange() and yrange()),
         // as this defines the ranges of the axes.
-        let frame_from_axes = self.find_largest_axes_data_frame();
-        let frame_from_charts = self.find_largest_chart_data_frame();
-        let largest_data_frame = Frame::from_sides(
-                                    frame_from_axes.left().min(frame_from_charts.left()),
-                                    frame_from_axes.right().max(frame_from_charts.right()),
-                                    frame_from_axes.bottom().min(frame_from_charts.bottom()),
-                                    frame_from_axes.top().max(frame_from_charts.top()));
+        let largest_data_frame = self.find_largest_data_frame();
 
-        // With this, we compute marks on the vertical and horizontal sides. The boundary marks
-        // will define the final data_frame.
-        self.hor_marks = compute_mark_locations(self.ref_num_marks,
-                                                self.global_frame.left(), self.global_frame.right(),
-                                                largest_data_frame.left(), largest_data_frame.right());
-        self.ver_marks = compute_mark_locations(self.ref_num_marks,
-                                                self.global_frame.bottom(), self.global_frame.top(),
-                                                largest_data_frame.bottom(), largest_data_frame.top());
+        let mut hor_axis = Axis::from_coord(Coord::new(0.0, 0.0), Coord::new(1.0, 0.0));
+        hor_axis.set_data_range(largest_data_frame.left(), largest_data_frame.right());
+        hor_axis.set_label("x");
+        hor_axis.scale_label_offset(-1.0);
+        hor_axis.compute_marks();
+        let mut ver_axis = Axis::from_coord(Coord::new(0.0, 0.0), Coord::new(0.0, 1.0));
+        ver_axis.set_data_range(largest_data_frame.bottom(), largest_data_frame.top());
+        ver_axis.set_label("y");
+        ver_axis.set_label_angle(-PI / 2.0);
+        ver_axis.compute_marks();
 
         // We can now define our updated data_frame.
         // TODO: Ord for f64 equivalent
@@ -139,26 +120,21 @@ impl Canvas {
         //let data_right = self.hor_marks.iter().map(|x| x.data_mark()).max();
         //let data_bottom = self.ver_marks.iter().map(|x| x.data_mark()).min();
         //let data_top = self.ver_marks.iter().map(|x| x.data_mark()).max();
-        let data_left = self.hor_marks[0].data_mark();
-        let data_right = self.hor_marks.last().unwrap().data_mark();
-        let data_bottom = self.ver_marks[0].data_mark();
-        let data_top = self.ver_marks.last().unwrap().data_mark();
+        let data_left = hor_axis.data_min();
+        let data_right = hor_axis.data_max();
+        let data_bottom = ver_axis.data_min();
+        let data_top = ver_axis.data_max();
         self.data_frame = Frame::from_sides(data_left, data_right, data_bottom, data_top);
+
+        self.axes = vec![hor_axis, ver_axis];
 
         // Then, we update the axis, and charts based on this updated configuration
         for axis in self.axes.iter_mut() {
-            match axis.orientation() {
-                Orientation::Horizontal => {
-                    axis.fit(self.global_frame.clone(), self.hor_marks.clone());
-                },
-                Orientation::Vertical => {
-                    axis.fit(self.global_frame.clone(), self.ver_marks.clone());
-                },
-            }
+            axis.fit(&self.global_frame)
         }
 
         for chart in self.charts.iter_mut() {
-            chart.fit(&self.global_frame.clone());
+            chart.fit(&self.global_frame, &self.data_frame);
         }
     }
 
@@ -170,12 +146,12 @@ impl Canvas {
                      self.global_frame.width(), self.global_frame.height());
         cr.fill();
 
-        for chart in self.charts.iter() {
-            chart.draw(cr);
-        }
-
         for axis in self.axes.iter() {
             axis.draw(cr);
+        }
+
+        for chart in self.charts.iter() {
+            chart.draw(cr);
         }
 
     }
@@ -190,24 +166,29 @@ pub struct Plot {
     border: bool,
     border_color: [f64; 4],
     border_width: f64,
-    canvasses: Vec<Canvas>,
+    canvas: Canvas,
 }
 
 impl Plot {
-    pub fn new(&self) -> Plot {
+    pub fn new() -> Plot {
         Plot {
             title: Text::new(""),
             color: [0.9, 0.9, 0.9, 0.9],
-            local_frame: Frame::new(),
+            //local_frame: Frame::new(),
+            local_frame: Frame::from_sides(0.1, 1.0, 0.1, 1.0),
             border: true,
             border_color: [0.0, 0.0, 0.0, 1.0],
             border_width: 0.005,
-            canvasses: Vec::<Canvas>::new(),
+            canvas: Canvas::new(),
         }
     }
 
-    pub fn add(&mut self, canvas: Canvas) {
-        self.canvasses.push(canvas);
+    pub fn add(&mut self, chart: Chart) {
+        self.canvas.add_chart(chart);
+    }
+
+    pub fn set_local_frame(&mut self, left: f64, right: f64, bottom: f64, top: f64) {
+        self.local_frame.set(left, right, bottom, top);
     }
 
     fn scale_size(&mut self, factor: f64) {
@@ -221,14 +202,9 @@ impl Plot {
     /// The function scales various elements within the plot, and calls a similar plot for its
     /// canvasses. Since the figure is its closest parent, no additional global_frame is needed.
     pub fn fit(&mut self) {
-        let delta_x = self.local_frame.right() - self.local_frame.left();
-        let delta_y = self.local_frame.top() - self.local_frame.bottom();
-        let scale_factor = (delta_x * delta_x + delta_y * delta_y).sqrt();
-
+        let scale_factor = self.local_frame.diag_len() / 2f64.sqrt();
         self.scale_size(scale_factor);
-        for canvas in self.canvasses.iter_mut() {
-            canvas.fit(self.local_frame.clone());
-        }
+        self.canvas.fit(self.local_frame.clone());
     }
 
     pub fn draw(&self, cr: &Context) {
@@ -236,27 +212,19 @@ impl Plot {
         // Background
         cr.set_source_rgba(self.color[0], self.color[1], self.color[2], self.color[3]);
         cr.rectangle(self.local_frame.left(), self.local_frame.bottom(),
-                     self.local_frame.height(), self.local_frame.width());
+                     self.local_frame.width(), self.local_frame.height());
         cr.fill();
 
         if self.border {
             cr.set_source_rgba(self.border_color[0], self.border_color[1],
                                self.border_color[2], self.border_color[3]);
-            cr.move_to(self.local_frame.left(), self.local_frame.bottom());
             cr.set_line_width(self.border_width);
-            cr.line_to(self.local_frame.right(), self.local_frame.bottom());
-            cr.set_line_width(self.border_width);
-            cr.line_to(self.local_frame.right(), self.local_frame.top());
-            cr.set_line_width(self.border_width);
-            cr.line_to(self.local_frame.left(), self.local_frame.top());
-            cr.set_line_width(self.border_width);
-            cr.line_to(self.local_frame.left(), self.local_frame.bottom());
+            cr.rectangle(self.local_frame.left(), self.local_frame.bottom(),
+                         self.local_frame.width(), self.local_frame.height());
             cr.stroke();
         }
 
-        for canvas in self.canvasses.iter() {
-            canvas.draw(cr);
-        }
+        self.canvas.draw(cr);
     }
 
 }

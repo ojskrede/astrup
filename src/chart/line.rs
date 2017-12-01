@@ -48,15 +48,14 @@ impl Drawable for Line {
         self.line_width *= factor;
     }
 
-    fn fit(&mut self, canvas_frame: &Frame) {
-        self.global_frame = canvas_frame.clone();
-        let scale_factor = self.global_frame.diag_len();
+    fn fit(&mut self, canvas_global_frame: &Frame, canvas_data_frame: &Frame) {
+        self.global_frame = canvas_global_frame.clone();
+        self.data_frame = canvas_data_frame.clone();
+        let scale_factor = self.global_frame.diag_len() / 2f64.sqrt();
         self.scale_size(scale_factor);
     }
 
     fn draw(&self, cr: &Context) {
-        // TODO: If it is not important to keep the original data, we could use
-        // data_point.map_range() here.
         let mut first_point = true;
         for data_point in self.data_points.iter() {
             let canvas_x = utils::map_range(data_point.x_coord(),

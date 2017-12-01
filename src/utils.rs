@@ -20,16 +20,83 @@ pub enum Draw {
 */
 
 #[derive(Clone, Debug)]
+pub struct Coord {
+    x: f64,
+    y: f64,
+}
+
+impl Coord {
+    pub fn new(x: f64, y: f64) -> Coord {
+        Coord {
+            x: x,
+            y: y,
+        }
+    }
+
+    pub fn set(&mut self, x: f64, y: f64) {
+        self.x = x;
+        self.y = y;
+    }
+
+    pub fn set_x(&mut self, x: f64) {
+        self.x = x;
+    }
+
+    pub fn set_y(&mut self, y: f64) {
+        self.y = y;
+    }
+
+    fn scale(&mut self, factor: f64) {
+        self.x = self.x * factor;
+        self.x = self.x * factor;
+    }
+
+    pub fn x(&self) -> f64 {
+        self.x
+    }
+
+    pub fn y(&self) -> f64 {
+        self.y
+    }
+
+    pub fn len(&self) -> f64 {
+        (self.x * self.x + self.y * self.y).sqrt()
+    }
+
+    /// Maps this coordinate, which is assumed to be relative to a unit square, to a different
+    /// reference system defined by the input frame.
+    pub fn relative_to(&self, frame: &Frame) -> Coord {
+        let x = map_range(self.x, 0.0, 1.0, frame.left(), frame.right());
+        let y = map_range(self.y, 0.0, 1.0, frame.bottom(), frame.top());
+        Coord::new(x, y)
+    }
+
+    /// Returns a coordinate that is in the middle between self and other, and shifted a distance
+    /// to the left of the line going from self to other.
+    pub fn perp_bisector(&self, other: &Coord, scale_factor: f64) -> Coord {
+        let dx = other.x() - self.x();
+        let dy = other.y() - self.y();
+        let mid_x = (other.x() + self.x()) / 2.0;
+        let mid_y = (other.y() + self.y()) / 2.0;
+        //let norm = Coord::new(-dy, dx); A point normal on (start, end)
+        //let mid = Coord::new(mid_x, mid_y); A point in the middle of (start, end)
+        Coord::new(mid_x - dy * scale_factor, mid_y + dx * scale_factor)
+    }
+}
+
+#[derive(Clone, Debug)]
 pub struct Text {
     content: String,
     font_size: f64,
+    angle: f64,
 }
 
 impl Text {
     pub fn new(content: &str) -> Text {
         Text {
             content: String::from(content),
-            font_size: 0.04,
+            font_size: 0.02,
+            angle: 0.0,
         }
     }
 
@@ -41,12 +108,20 @@ impl Text {
         self.font_size
     }
 
+    pub fn angle(&self) -> f64 {
+        self.angle
+    }
+
     pub fn set_content(&mut self, content: &str) {
         self.content = String::from(content);
     }
 
     pub fn set_font_size(&mut self, size: f64) {
         self.font_size = size;
+    }
+
+    pub fn set_angle(&mut self, val: f64) {
+        self.angle = val;
     }
 
     pub fn scale_size(&mut self, factor: f64) {
@@ -68,25 +143,25 @@ impl Frame {
         Frame {
             left: 0.0,
             right: 1.0,
-            top: 0.0,
-            bottom: 1.0,
+            bottom: 0.0,
+            top: 1.0,
         }
     }
 
-    pub fn from_sides(left: f64, right: f64, top: f64, bottom: f64) -> Frame {
+    pub fn from_sides(left: f64, right: f64, bottom: f64, top: f64) -> Frame {
         Frame {
             left: left,
             right: right,
-            top: top,
             bottom: bottom,
+            top: top,
         }
     }
 
-    pub fn set(&mut self, left: f64, right: f64, top: f64, bottom: f64) {
+    pub fn set(&mut self, left: f64, right: f64, bottom: f64, top: f64) {
         self.left = left;
         self.right = right;
-        self.top = top;
         self.bottom = bottom;
+        self.top = top;
     }
 
     pub fn left(&self) -> f64 {
@@ -158,13 +233,64 @@ impl Frame {
     }
 }
 
+/// ## Directional rectangle
+///
+/// Defined by a start coordinate, an end coordinate, and a width, relative to its parent frame.
+/// The start coordinate and end coordinate forms a vector, and the width is the length of a
+/// vector that is perpendicular to the (start, end) vector, pointing to the left relative to the
+/// (start, end) vector. This means that a negative width will point to the right relative to
+/// (start, end).
+///
+/// This is useful when defining axes. An axis is a directional line, but because axes can have
+/// ticks and gridlines that extend normally on the axis direction, it is useful to express an axis
+/// as a directional rectangle.
+///
+/// ```
+///       |                     (s) ----------> (e)
+///       | (w)                       |
+///       |                           | (-w)
+/// (s) ----------> (e)               |
+/// ```
+///
+pub struct DirRect {
+    start: Coord,
+    end: Coord,
+    width: f64,
+}
+
+impl DirRect {
+    fn new() -> DirRect {
+        DirRect {
+            start: Coord::new(0.0, 0.0),
+            end: Coord::new(1.0, 1.0),
+            width: 0.0,
+        }
+    }
+
+    fn set(&mut self, start: Coord, end: Coord, width: f64) {
+        self.start = start;
+        self.end = end;
+        self.width = width;
+    }
+
+    fn scale_size(&mut self, factor: f64) {
+        self.width *= factor;
+    }
+
+    fn fit(&mut self, frame: Frame) {
+        self.start = self.start.relative_to(&frame);
+        self.end = self.end.relative_to(&frame);
+        self.scale_size(frame.diag_len());
+    }
+}
+
 /// ## Drawable
 ///
 /// All objects that can be drawn should implement this trait.
 pub trait Drawable {
-    fn draw(&self, cr: &Context);
-    fn fit(&mut self, frame: &Frame);
     fn scale_size(&mut self, factor: f64);
+    fn fit(&mut self, global_frame: &Frame, data_frame: &Frame);
+    fn draw(&self, cr: &Context);
 }
 
 /// ## Plottable
@@ -190,55 +316,37 @@ pub fn vec_range(vec: &Vec<f64>) -> (f64, f64) {
     (min_val, max_val)
 }
 
-/// Return a number that is the input number rounded out to the nearest number one order of
-/// magnitude below itself. Rounded out means that a positive number will be ceiled and a negative
-/// number will be floored.
+/// Return a number that is the input `number` rounded up to the nearest multiplum of `nearest`
+/// of order of magnitude `omagn`.
 ///
 /// Examples:
-/// assert_eq!(round_out(1234.0), 1300);
-/// assert_eq!(round_out(-1234.0), -1300);
-/// assert_eq!(round_out(1.234.0), 1.3);
-/// assert_eq!(round_out(-1.234.0), -1.3);
-/// assert_eq!(round_out(0.001234.0), 0.0013);
-/// assert_eq!(round_out(-0.001234.0), -0.0013);
-pub fn round_out(number: f64, omagn: f64) -> f64 {
-    let below = 10.0_f64.powi(omagn as i32 - 2);
-    let round_up = number - number % below + below;
-    let round_down = number - number % below;
-    if number < 0.0 {
-        round_down
-    } else {
-        round_up
-    }
+pub fn round_up(number: f64, omagn: f64, nearest: f64) -> f64 {
+    let nearest_pow = nearest * 10.0_f64.powi(omagn as i32);
+    number - number % nearest_pow + nearest_pow
 }
 
-/// Return a number that is the input number rounded to the nearest number one order of
-/// magnitude below itself.
+/// Return a number that is the input `number` rounded down to the nearest multiplum of `nearest`
+/// of order of magnitude `omagn`.
 ///
 /// Examples:
-/// assert_eq!(round_out(1234.0), 1200);
-/// assert_eq!(round_out(-1234.0), -1200);
-/// assert_eq!(round_out(9.876.0), 9.9);
-/// assert_eq!(round_out(-9.876.0), -9.9);
-pub fn round_nearest(number: f64, omagn: f64) -> f64 {
-    let below = 10.0_f64.powi(omagn as i32 - 2);
-    let round_up = number - number % below + below;
-    let round_down = number - number % below;
+pub fn round_down(number: f64, omagn: f64, nearest: f64) -> f64 {
+    let nearest_pow = nearest * 10.0_f64.powi(omagn as i32);
+    number - number % nearest_pow
+}
+
+/// Return a number that is the input `number` rounded to the nearest multiplum of `nearest` of
+/// order of magnitude `omagn`.
+///
+/// Examples:
+pub fn round_nearest(number: f64, omagn: f64, nearest: f64) -> f64 {
+    let nearest_pow = nearest * 10.0_f64.powi(omagn as i32);
+    let round_up = number - number % nearest_pow + nearest_pow;
+    let round_down = number - number % nearest_pow;
     if (round_down - number).abs() > (round_up - number).abs() {
         round_up
     } else {
         round_down
     }
-}
-
-pub fn round_down(number: f64, omagn: f64) -> f64 {
-    let below = 10.0_f64.powi(omagn as i32 - 2);
-    number - number % below
-}
-
-pub fn round_up(number: f64, omagn: f64) -> f64 {
-    let below = 10.0_f64.powi(omagn as i32 - 2);
-    number - number % below + below
 }
 
 /// Map a number linearly from a reference system A to another reference system B.

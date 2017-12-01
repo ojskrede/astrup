@@ -101,7 +101,7 @@ impl Drawable for Point {
         cr.fill()
     }
 
-    fn fit(&mut self, _frame: &Frame) {}
+    fn fit(&mut self, _: &Frame, _: &Frame) {}
 
     fn scale_size(&mut self, factor: f64) {
         self.size *= factor;

@@ -38,9 +38,7 @@ fn main() {
     let line = Line::new(&x_data, &y_data);
 
     let mut plot1 = Plot::new();
-    plot1.x_label("x");
-    plot1.y_label("y");
-    plot1.set_fig_frame(0.0, 0.49, 0.0, 0.69);
+    plot1.set_local_frame(0.0, 0.49, 0.0, 0.69);
     plot1.add(Chart::Line(line));
     plot1.add(Chart::Scatter(scatter));
 
@@ -51,11 +49,7 @@ fn main() {
     let line = Line::new(&x_data, &y_data);
 
     let mut plot2 = Plot::new();
-    plot2.x_label("x");
-    plot2.y_label("y");
-    plot2.set_fig_frame(0.5, 0.99, 0.3, 0.99);
-    plot2.x_range(-10.0, 60.0);
-    plot2.y_range(0.0, 600.0);
+    plot2.set_local_frame(0.5, 0.99, 0.3, 0.99);
     plot2.add(Chart::Line(line));
 
     let mut fig = Figure::new();

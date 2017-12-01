@@ -30,24 +30,24 @@ impl Chart {
 */
 
 impl Drawable for Chart {
-    fn draw(&self, cr: &Context) {
-        match *self {
-            Chart::Scatter(ref s) => s.draw(cr),
-            Chart::Line(ref l) => l.draw(cr),
-        }
-    }
-
-    fn fit(&mut self, plot_frame: &Frame) {
-        match *self {
-            Chart::Scatter(ref mut s) => s.fit(plot_frame),
-            Chart::Line(ref mut l) => l.fit(plot_frame),
-        }
-    }
-
     fn scale_size(&mut self, factor: f64) {
         match *self {
             Chart::Scatter(ref mut s) => s.scale_size(factor),
             Chart::Line(ref mut l) => l.scale_size(factor),
+        }
+    }
+
+    fn fit(&mut self, global_frame: &Frame, data_frame: &Frame) {
+        match *self {
+            Chart::Scatter(ref mut s) => s.fit(global_frame, data_frame),
+            Chart::Line(ref mut l) => l.fit(global_frame, data_frame),
+        }
+    }
+
+    fn draw(&self, cr: &Context) {
+        match *self {
+            Chart::Scatter(ref s) => s.draw(cr),
+            Chart::Line(ref l) => l.draw(cr),
         }
     }
 }
