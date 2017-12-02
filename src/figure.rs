@@ -94,9 +94,18 @@ impl Figure {
         };
         let cr = Context::new(&surface);
 
-        cr.scale(fig.width as f64, fig.height as f64);
+        fig.draw(&cr);
 
-        cr.set_source_rgba(fig.color[0], fig.color[1], fig.color[2], fig.color[3]);
+        let mut file = File::create(filename)?;
+        surface.write_to_png(&mut file)?;
+
+        Ok(())
+    }
+
+    pub fn draw(&self, cr: &Context) {
+        cr.scale(self.width as f64, self.height as f64);
+
+        cr.set_source_rgba(self.color[0], self.color[1], self.color[2], self.color[3]);
         cr.paint();
 
         // By default, the origin is in the top left corner, x is increasing to the right, and y is
@@ -105,14 +114,9 @@ impl Figure {
         let flip_matrix = Matrix::new(1.0, 0.0, 0.0, -1.0, 0.0, 1.0);
         cr.transform(flip_matrix);
 
-        for plot in fig.plots.iter() {
+        for plot in self.plots.iter() {
             plot.draw(&cr);
         }
-
-        let mut file = File::create(filename)?;
-        surface.write_to_png(&mut file)?;
-
-        Ok(())
     }
 
     pub fn show(self) {
@@ -128,8 +132,6 @@ impl Figure {
 
         self.application.run(&Vec::<_>::new());
     }
-
-    //fn save(path: PathBuf) {}
 }
 
 fn build_ui(fig: &Figure, app: &gtk::Application) {
