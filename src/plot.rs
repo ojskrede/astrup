@@ -134,14 +134,17 @@ impl Canvas {
         let mut hor_axis = Axis::from_coord(Coord::new(0.0, 0.0), Coord::new(1.0, 0.0));
         hor_axis.set_data_range(largest_data_frame.left(), largest_data_frame.right());
         hor_axis.set_label("x");
-        hor_axis.scale_label_offset(-1.0);
+        hor_axis.scale_label_offset(-1.5);
         hor_axis.scale_tick_length(-1.0);
         hor_axis.compute_marks();
+        hor_axis.scale_tick_label_offset(-1.2);
         let mut ver_axis = Axis::from_coord(Coord::new(0.0, 0.0), Coord::new(0.0, 1.0));
         ver_axis.set_data_range(largest_data_frame.bottom(), largest_data_frame.top());
         ver_axis.set_label("y");
-        ver_axis.set_label_angle(-PI / 2.0);
+        ver_axis.scale_label_offset(1.5);
+        //ver_axis.set_label_angle(-PI / 2.0);
         ver_axis.compute_marks();
+        ver_axis.scale_tick_label_offset(1.7);
 
         // We can now define our updated data_frame.
         // TODO: Ord for f64 equivalent

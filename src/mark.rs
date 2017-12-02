@@ -12,6 +12,7 @@ pub struct Mark {
     local: Coord,
     global: Coord,
     label: Text,
+    label_offset: f64,
 }
 
 impl Mark {
@@ -20,11 +21,20 @@ impl Mark {
             local: coord,
             global: Coord::new(0.0, 0.0),
             label: Text::new(""),
+            label_offset: 0.1,
         }
     }
 
     pub fn set_label_content(&mut self, content: &str) {
         self.label.set_content(content);
+    }
+
+    pub fn set_label_offset(&mut self, val: f64) {
+        self.label_offset = val;
+    }
+
+    pub fn scale_label_offset(&mut self, val: f64) {
+        self.label_offset *= val;
     }
 
     pub fn set_local(&mut self, coord: Coord) {
@@ -49,8 +59,11 @@ impl Mark {
 
     pub fn label(&self) -> Text { self.label.clone() }
 
+    pub fn label_offset(&self) -> f64 { self.label_offset }
+
     fn scale_size(&mut self, factor: f64) {
         self.label.scale_size(factor);
+        self.label_offset *= factor;
     }
 
     pub fn fit(&mut self, parent_frame: &Frame) {

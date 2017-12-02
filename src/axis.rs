@@ -58,7 +58,7 @@ impl Axis {
             data_range: [0.0, 1.0],
             label: Text::new(""),
             label_offset: 0.2,
-            ca_num_marks: 10,
+            ca_num_marks: 6,
             tick_color: [0.0, 0.0, 0.0, 1.0],
             tick_length: 0.05,
             tick_width: 0.01,
@@ -79,7 +79,7 @@ impl Axis {
             data_range: [0.0, 1.0],
             label: Text::new(""),
             label_offset: 0.2,
-            ca_num_marks: 10,
+            ca_num_marks: 6,
             tick_color: [0.0, 0.0, 0.0, 1.0],
             tick_length: 0.04,
             tick_width: 0.005,
@@ -106,6 +106,12 @@ impl Axis {
 
     pub fn set_tick_width(&mut self, val: f64) {
         self.tick_width = val;
+    }
+
+    pub fn scale_tick_label_offset(&mut self, factor: f64) {
+        for mark in self.marks.iter_mut() {
+            mark.scale_label_offset(factor);
+        }
     }
 
     pub fn set_data_range(&mut self, data_min: f64, data_max: f64) {
@@ -246,6 +252,17 @@ impl Axis {
             cr.line_to(mark.global_x() + unit_perp.x() * self.tick_length,
                        mark.global_y() + unit_perp.y() * self.tick_length);
             cr.stroke();
+
+            cr.select_font_face("Serif", FontSlant::Normal, FontWeight::Normal);
+            cr.set_font_size(mark.label().font_size());
+            cr.move_to(mark.global_x() + unit_perp.x() * (self.tick_length + mark.label_offset()),
+                       mark.global_y() + unit_perp.y() * (self.tick_length + mark.label_offset()));
+
+            cr.transform(Matrix::new(1.0, 0.0, 0.0, -1.0, 0.0, 0.0));
+            cr.rotate(self.label.angle());
+            cr.show_text(&mark.label().content());
+            cr.rotate(-self.label.angle());
+            cr.transform(Matrix::new(1.0, 0.0, 0.0, -1.0, 0.0, 0.0));
         }
 
         // Axis line
