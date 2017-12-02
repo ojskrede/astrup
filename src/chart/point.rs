@@ -33,7 +33,7 @@ impl Point {
         Point {
             x_coord: x_coord,
             y_coord: y_coord,
-            color: [0.1, 0.2, 0.5, 0.9],
+            color: [0.5, 0.2, 0.1, 0.9],
             size: 0.01,
             shape: Shape::Circle,
         }

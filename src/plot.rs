@@ -39,7 +39,7 @@ pub struct Canvas {
 impl Canvas {
     pub fn new() -> Canvas {
         Canvas {
-            color: [0.6, 0.6, 0.6, 0.6],
+            color: [0.8, 0.8, 0.8, 0.8],
             //local_frame: Frame::new(),
             local_frame: Frame::from_sides(0.2, 0.9, 0.2, 0.9),
             global_frame: Frame::new(),
