@@ -10,7 +10,7 @@ use cairo::Context;
 
 use utils::{Plottable, Drawable, Frame, Text, Coord};
 use axis::{Axis};
-use mark::{Mark};
+use mark::{Mark, GridLine};
 use chart::Chart;
 //use style::Style;
 //
@@ -26,7 +26,11 @@ pub struct Canvas {
     // the union of the data range of its charts and the data range of its axes.
     data_frame: Frame,
     ref_num_marks: usize,
-    hor_marks: Vec<Mark>,
+    display_grid: bool,
+    grid_width: f64,
+    grid_color: [f64; 4],
+    grid: Vec<GridLine>,
+    hor_marks: Vec<Mark>, // TODO: Use these in stead of axis
     ver_marks: Vec<Mark>,
     axes: Vec<Axis>,
     charts: Vec<Chart>,
@@ -41,6 +45,10 @@ impl Canvas {
             global_frame: Frame::new(),
             data_frame: Frame::new(),
             ref_num_marks: 5,
+            display_grid: true,
+            grid_width: 0.005,
+            grid_color: [1.0, 1.0, 1.0, 0.6],
+            grid: Vec::<GridLine>::new(),
             hor_marks: Vec::<Mark>::new(),
             ver_marks: Vec::<Mark>::new(),
             axes: Vec::<Axis>::new(),
@@ -62,6 +70,25 @@ impl Canvas {
 
     pub fn set_data_frame(&mut self, frame: Frame) {
         self.data_frame = frame;
+    }
+
+    fn compute_grid(&mut self, ver_axis: &Axis, hor_axis: &Axis) {
+        for coord in ver_axis.mark_coords() {
+            let mut gridline = GridLine::new(coord.clone(),
+                                             Coord::new(self.global_frame.right(), coord.y()));
+            gridline.set_color(self.grid_color);
+            gridline.set_width(self.grid_width);
+            gridline.scale_size(self.global_frame.diag_len() / 2f64.sqrt());
+            self.grid.push(gridline);
+        }
+        for coord in hor_axis.mark_coords() {
+            let mut gridline = GridLine::new(coord.clone(),
+                                             Coord::new(coord.x(), self.global_frame.top()));
+            gridline.set_color(self.grid_color);
+            gridline.set_width(self.grid_width);
+            gridline.scale_size(self.global_frame.diag_len() / 2f64.sqrt());
+            self.grid.push(gridline);
+        }
     }
 
     fn find_largest_chart_data_frame(&self) -> Option<Frame> {
@@ -103,10 +130,12 @@ impl Canvas {
         // as this defines the ranges of the axes.
         let largest_data_frame = self.find_largest_data_frame();
 
+        // TODO: Make these "invisible" and allways included.
         let mut hor_axis = Axis::from_coord(Coord::new(0.0, 0.0), Coord::new(1.0, 0.0));
         hor_axis.set_data_range(largest_data_frame.left(), largest_data_frame.right());
         hor_axis.set_label("x");
         hor_axis.scale_label_offset(-1.0);
+        hor_axis.scale_tick_length(-1.0);
         hor_axis.compute_marks();
         let mut ver_axis = Axis::from_coord(Coord::new(0.0, 0.0), Coord::new(0.0, 1.0));
         ver_axis.set_data_range(largest_data_frame.bottom(), largest_data_frame.top());
@@ -126,12 +155,17 @@ impl Canvas {
         let data_top = ver_axis.data_max();
         self.data_frame = Frame::from_sides(data_left, data_right, data_bottom, data_top);
 
-        self.axes = vec![hor_axis, ver_axis];
 
         // Then, we update the axis, and charts based on this updated configuration
-        for axis in self.axes.iter_mut() {
-            axis.fit(&self.global_frame)
+        ver_axis.fit(&self.global_frame);
+        hor_axis.fit(&self.global_frame);
+
+        // Set grid
+        if self.display_grid {
+            self.compute_grid(&ver_axis, &hor_axis);
         }
+
+        self.axes = vec![hor_axis, ver_axis];
 
         for chart in self.charts.iter_mut() {
             chart.fit(&self.global_frame, &self.data_frame);
@@ -145,6 +179,12 @@ impl Canvas {
         cr.rectangle(self.global_frame.left(), self.global_frame.bottom(),
                      self.global_frame.width(), self.global_frame.height());
         cr.fill();
+
+        if self.display_grid {
+            for gridline in self.grid.iter() {
+                gridline.draw(cr);
+            }
+        }
 
         for axis in self.axes.iter() {
             axis.draw(cr);

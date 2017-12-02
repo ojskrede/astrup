@@ -40,12 +40,10 @@ pub struct Axis {
     label_offset: f64,
     ca_num_marks: usize,
     tick_color: [f64; 4],
-    //grid: bool,
-    grid_width: f64,
-    grid_color: [f64; 4],
+    tick_length: f64,
+    tick_width: f64,
     marks: Vec<Mark>,
     ticks: Vec<Tick>,
-    //gridlines: Vec<GridLine>,
 }
 
 impl Axis {
@@ -59,16 +57,17 @@ impl Axis {
             line_width: 0.005,
             data_range: [0.0, 1.0],
             label: Text::new(""),
-            label_offset: 0.12,
+            label_offset: 0.2,
             ca_num_marks: 10,
             tick_color: [0.0, 0.0, 0.0, 1.0],
-            grid_width: 0.05,
-            grid_color: [1.0, 1.0, 1.0, 1.0],
+            tick_length: 0.05,
+            tick_width: 0.01,
             marks: Vec::<Mark>::new(),
             ticks: Vec::<Tick>::new(),
         }
     }
 
+    // TODO: Impl default?
     pub fn from_coord(start: Coord, end: Coord) -> Axis {
         Axis {
             local_start: start,
@@ -79,11 +78,11 @@ impl Axis {
             line_width: 0.005,
             data_range: [0.0, 1.0],
             label: Text::new(""),
-            label_offset: 0.12,
+            label_offset: 0.2,
             ca_num_marks: 10,
             tick_color: [0.0, 0.0, 0.0, 1.0],
-            grid_width: 0.05,
-            grid_color: [1.0, 1.0, 1.0, 1.0],
+            tick_length: 0.04,
+            tick_width: 0.005,
             marks: Vec::<Mark>::new(),
             ticks: Vec::<Tick>::new(),
         }
@@ -101,6 +100,14 @@ impl Axis {
         self.label_offset *= factor;
     }
 
+    pub fn scale_tick_length(&mut self, factor: f64) {
+        self.tick_length *= factor;
+    }
+
+    pub fn set_tick_width(&mut self, val: f64) {
+        self.tick_width = val;
+    }
+
     pub fn set_data_range(&mut self, data_min: f64, data_max: f64) {
         self.data_range = [data_min, data_max];
     }
@@ -111,6 +118,15 @@ impl Axis {
 
     pub fn data_max(&self) -> f64 {
         self.data_range[1]
+    }
+
+    pub fn mark_coords(&self) -> Vec<Coord> {
+        let mut coords = Vec::<Coord>::new();
+        for mark in self.marks.iter() {
+            coords.push(mark.global_coord());
+        }
+
+        coords
     }
 
     /// ## Compute marks
@@ -193,6 +209,8 @@ impl Axis {
     }
 
     fn scale_size(&mut self, factor: f64) {
+        self.tick_length *= factor;
+        self.tick_width *= factor;
         self.label_offset *= factor;
         self.line_width *= factor;
         self.label.scale_size(factor);
@@ -212,15 +230,23 @@ impl Axis {
         for mark in self.marks.iter_mut() {
             mark.fit(canvas_frame);
         }
-
-        //self.marks = trim_marks(canvas_marks, &self.global_start, &self.global_end),
-
     }
 
     /// Draw axis on canvas.
     ///
     /// Note that cario have the y direction downwards, e.i. the opposite of us
     pub fn draw(&self, cr: &Context) {
+        // Ticks
+        let unit_perp = self.global_start.perp_direction(&self.global_end);
+        for mark in self.marks.iter() {
+            cr.set_source_rgba(self.tick_color[0], self.tick_color[1], self.tick_color[2],
+                               self.tick_color[3]);
+            cr.set_line_width(self.tick_width);
+            cr.move_to(mark.global_x(), mark.global_y());
+            cr.line_to(mark.global_x() + unit_perp.x() * self.tick_length,
+                       mark.global_y() + unit_perp.y() * self.tick_length);
+            cr.stroke();
+        }
 
         // Axis line
         cr.set_source_rgba(self.color[0], self.color[1], self.color[2], self.color[3]);
@@ -232,6 +258,7 @@ impl Axis {
         // Label
         cr.select_font_face("Serif", FontSlant::Italic, FontWeight::Normal);
         cr.set_font_size(self.label.font_size());
+        // TODO: Shift label "backwards" based on its length
         let mid_norm = self.global_start.perp_bisector(&self.global_end, self.label_offset);
         cr.move_to(mid_norm.x(), mid_norm.y());
         cr.transform(Matrix::new(1.0, 0.0, 0.0, -1.0, 0.0, 0.0));
@@ -239,10 +266,6 @@ impl Axis {
         cr.show_text(&self.label.content());
         cr.rotate(-self.label.angle());
         cr.transform(Matrix::new(1.0, 0.0, 0.0, -1.0, 0.0, 0.0));
-
-        for mark in self.marks.iter() {
-            mark.draw(cr);
-        }
 
         // Ticks and tick labels
         //for tick in self.ticks.iter() {

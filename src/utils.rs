@@ -82,6 +82,15 @@ impl Coord {
         //let mid = Coord::new(mid_x, mid_y); A point in the middle of (start, end)
         Coord::new(mid_x - dy * scale_factor, mid_y + dx * scale_factor)
     }
+
+    /// Returns a unit normal vector that is perpendicular on the vector from self to other.
+    pub fn perp_direction(&self, other: &Coord) -> Coord {
+        let dx = other.x() - self.x();
+        let dy = other.y() - self.y();
+        let mid_x = (other.x() + self.x()) / 2.0;
+        let mid_y = (other.y() + self.y()) / 2.0;
+        Coord::new(-dy, dx)
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -95,7 +104,7 @@ impl Text {
     pub fn new(content: &str) -> Text {
         Text {
             content: String::from(content),
-            font_size: 0.02,
+            font_size: 0.04,
             angle: 0.0,
         }
     }

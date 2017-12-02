@@ -12,9 +12,6 @@ pub struct Mark {
     local: Coord,
     global: Coord,
     label: Text,
-    label_offset: f64,
-    //tick: Tick,
-    //gridline: GridLine,
 }
 
 impl Mark {
@@ -23,9 +20,6 @@ impl Mark {
             local: coord,
             global: Coord::new(0.0, 0.0),
             label: Text::new(""),
-            label_offset: 0.05,
-            //tick: Tick::new(),
-            //gridline: GridLine::new(),
         }
     }
 
@@ -38,36 +32,30 @@ impl Mark {
     }
 
     pub fn set_global(&mut self, coord: Coord) {
-        self.global= coord;
+        self.global = coord;
+    }
+
+    pub fn global_x(&self) -> f64 {
+        self.global.x()
+    }
+
+    pub fn global_y(&self) -> f64 {
+        self.global.y()
+    }
+
+    pub fn global_coord(&self) -> Coord {
+        self.global.clone()
     }
 
     pub fn label(&self) -> Text { self.label.clone() }
 
     fn scale_size(&mut self, factor: f64) {
-        self.label_offset *= factor;
+        self.label.scale_size(factor);
     }
 
     pub fn fit(&mut self, parent_frame: &Frame) {
         self.global = self.local.relative_to(parent_frame);
         self.scale_size(parent_frame.diag_len() / 2f64.sqrt());
-        //self.label.fit()
-    }
-
-    pub fn draw(&self, cr: &Context) {
-        cr.arc(self.global.x(), self.global.y(), 0.005, 0., 2.0*3.1415);
-        cr.fill();
-
-        cr.select_font_face("Serif", FontSlant::Italic, FontWeight::Normal);
-        cr.set_font_size(self.label.font_size());
-        cr.move_to(self.global.x(), self.global.y());
-
-        cr.transform(Matrix::new(1.0, 0.0, 0.0, -1.0, 0.0, 0.0));
-        cr.rotate(self.label.angle());
-        cr.show_text(&self.label.content());
-        cr.rotate(-self.label.angle());
-        cr.transform(Matrix::new(1.0, 0.0, 0.0, -1.0, 0.0, 0.0));
-        //self.tick.draw(cr);
-        //self.gridline.draw(cr);
     }
 }
 
@@ -105,54 +93,47 @@ impl Tick {
     }
 }
 
-/*
 /// ## GridLine
 ///
 /// Indicator used by axis to serve as a reference for the displayed data
 #[derive(Clone, Debug)]
 pub struct GridLine {
+    global_start: Coord,
+    global_end: Coord,
+    width: f64,
     color: [f64; 4],
-    global_frame: Frame,
 }
 
 impl GridLine {
-    pub fn new() -> GridLine {
+    pub fn new(start: Coord, end: Coord) -> GridLine {
         GridLine {
+            global_start: start,
+            global_end: end,
+            width: 0.005,
             color: [1.0, 1.0, 1.0, 1.0],
-            global_frame: Frame::new(),
         }
     }
 
-    pub fn from_params(color: [f64; 4], frame: Frame) -> GridLine {
-        GridLine {
-            color: color,
-            global_frame: frame,
-        }
+    pub fn set_color(&mut self, color: [f64; 4]) {
+        self.color = color;
+    }
+
+    pub fn set_width(&mut self, width: f64) {
+        self.width = width;
+    }
+
+    pub fn scale_size(&mut self, factor: f64) {
+        self.width *= factor;
     }
 
     pub fn draw(&self, cr: &Context) {
         cr.set_source_rgba(self.color[0], self.color[1], self.color[2], self.color[3]);
-        cr.rectangle(self.global_frame.left(), self.global_frame.bottom(),
-                     self.global_frame.width(), self.global_frame.height());
-        cr.fill();
+        cr.set_line_width(self.width);
+        cr.move_to(self.global_start.x(), self.global_start.y());
+        cr.line_to(self.global_end.x(), self.global_end.y());
+        cr.stroke();
     }
 }
-
-/// Trim mark locations
-///
-/// Given a list of marks and boundaries assumed to be in the same reference system as the fig
-/// locations of the marks in the list, return a list where only marks inside the boundaries are
-/// kept.
-pub fn trim_marks(marks: Vec<Mark>, min_val: f64, max_val: f64) -> Vec<Mark> {
-    let mut trimmed_list = Vec::<Mark>::new();
-    for mark in marks {
-        if mark.fig_mark() < max_val && mark.fig_mark() > min_val {
-            trimmed_list.push(mark);
-        }
-    }
-    trimmed_list
-}
-*/
 
 pub fn prettify(number: f64, omagn: f64) -> String {
     if omagn > 5.0 || omagn < -5.0 {
