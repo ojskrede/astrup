@@ -134,6 +134,7 @@ extern crate num;
 extern crate failure;
 
 pub mod utils;
+pub mod view;
 pub mod figure;
 pub mod plot;
 pub mod axis;

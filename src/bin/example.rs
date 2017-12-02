@@ -3,6 +3,7 @@
 
 extern crate astrup;
 
+use astrup::view::View;
 use astrup::figure::Figure;
 use astrup::plot::Plot;
 use astrup::chart::Chart;
@@ -56,12 +57,25 @@ fn main() {
     fig.add(plot1);
     fig.add(plot2);
     fig.save("example.png").expect("Could not create example.png");
-    fig.show();
 
     // TODO: Add support for this kind of short-hand thing
     //Figure::new().add(Plot::new().add(Chart::Line(Line::new(&x_data, &y_data))));
 
-    //let mut fig2 = Figure::new();
-    //fig2.draw(plot);
-    //fig2.show();
+
+    let init_val: u64 = 4327;
+    let y_data: Vec<f64> = collatz(init_val);
+    let x_data: Vec<f64> = (0u64..y_data.len() as u64).map(|x| x as f64).collect();
+    let line = Line::new(&x_data, &y_data);
+
+    let mut plot3 = Plot::new();
+    plot3.add(Chart::Line(line));
+
+    let mut fig2 = Figure::new();
+    fig2.add(plot3);
+    fig2.save("example2.png").expect("Could not create example2.png");
+
+    // Display on screen
+    let mut view = View::new(fig);
+    view.add(fig2);
+    view.show();
 }

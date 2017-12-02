@@ -218,7 +218,7 @@ impl Plot {
             title: Text::new(""),
             color: [0.9, 0.9, 0.9, 0.9],
             //local_frame: Frame::new(),
-            local_frame: Frame::from_sides(0.1, 1.0, 0.1, 1.0),
+            local_frame: Frame::from_sides(0.0, 1.0, 0.0, 1.0),
             border: true,
             border_color: [0.0, 0.0, 0.0, 1.0],
             border_width: 0.005,
