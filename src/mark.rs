@@ -2,8 +2,7 @@
 //!
 //!
 
-use cairo::{Context, Matrix, MatrixTrait};
-use cairo::enums::{FontSlant, FontWeight};
+use cairo::Context;
 
 use utils::{Coord, Frame, Text};
 
@@ -12,7 +11,6 @@ pub struct Mark {
     local: Coord,
     global: Coord,
     label: Text,
-    label_offset: f64,
 }
 
 impl Mark {
@@ -21,28 +19,7 @@ impl Mark {
             local: coord,
             global: Coord::new(0.0, 0.0),
             label: Text::new(""),
-            label_offset: 0.1,
         }
-    }
-
-    pub fn set_label_content(&mut self, content: &str) {
-        self.label.set_content(content);
-    }
-
-    pub fn set_label_offset(&mut self, val: f64) {
-        self.label_offset = val;
-    }
-
-    pub fn scale_label_offset(&mut self, val: f64) {
-        self.label_offset *= val;
-    }
-
-    pub fn set_local(&mut self, coord: Coord) {
-        self.local = coord;
-    }
-
-    pub fn set_global(&mut self, coord: Coord) {
-        self.global = coord;
     }
 
     pub fn global_x(&self) -> f64 {
@@ -57,13 +34,44 @@ impl Mark {
         self.global.clone()
     }
 
-    pub fn label(&self) -> Text { self.label.clone() }
+    pub fn label(&self) -> Text {
+        self.label.clone()
+    }
 
-    pub fn label_offset(&self) -> f64 { self.label_offset }
+    pub fn label_hor_offset(&self) -> f64 {
+        self.label.hor_offset()
+    }
+
+    pub fn label_ver_offset(&self) -> f64 {
+        self.label.ver_offset()
+    }
+
+    pub fn set_label_content(&mut self, content: &str) {
+        self.label.set_content(content);
+    }
+
+    pub fn set_label_offset(&mut self, hor: f64, ver: f64) {
+        self.label.set_offset(hor, ver);
+    }
+
+    pub fn scale_label_offset(&mut self, factor: f64) {
+        self.label.scale_offset(factor);
+    }
+
+    pub fn set_font_size(&mut self, val: f64) {
+        self.label.set_font_size(val);
+    }
+
+    pub fn set_local(&mut self, coord: Coord) {
+        self.local = coord;
+    }
+
+    pub fn set_global(&mut self, coord: Coord) {
+        self.global = coord;
+    }
 
     fn scale_size(&mut self, factor: f64) {
         self.label.scale_size(factor);
-        self.label_offset *= factor;
     }
 
     pub fn fit(&mut self, parent_frame: &Frame) {
@@ -148,12 +156,13 @@ impl GridLine {
     }
 }
 
-pub fn prettify(number: f64, omagn: f64) -> String {
-    if omagn > 5.0 || omagn < -5.0 {
-        format!("{:e}", number)
-    } else if omagn >= 1.5 || omagn <= -1.5 {
-        format!("{0:.0}", number)
+pub fn prettify(number: f64) -> String {
+    let omagn = if number == 0.0 { 0.0 } else { number.abs().log10().floor() };
+    if omagn > 2.0 || omagn < -2.0 {
+        format!("{:>e}", number)
+    } else if omagn >= 1.0 || omagn <= -1.0 {
+        format!("{0:>.0}", number)
     } else {
-        format!("{num:.prec$}", num=number, prec= 2 - omagn as usize)
+        format!("{num:>.prec$}", num=number, prec= 2 - omagn as usize)
     }
 }

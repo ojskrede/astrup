@@ -49,6 +49,10 @@ impl Figure {
         self.width = val;
     }
 
+    pub fn get_title(&self) -> String {
+        self.title.clone()
+    }
+
     pub fn height(&self) -> usize {
         self.height
     }

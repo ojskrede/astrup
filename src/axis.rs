@@ -37,7 +37,6 @@ pub struct Axis {
     line_width: f64,
     data_range: [f64; 2],
     label: Text,
-    label_offset: f64,
     ca_num_marks: usize,
     tick_color: [f64; 4],
     tick_length: f64,
@@ -57,7 +56,6 @@ impl Axis {
             line_width: 0.005,
             data_range: [0.0, 1.0],
             label: Text::new(""),
-            label_offset: 0.2,
             ca_num_marks: 6,
             tick_color: [0.0, 0.0, 0.0, 1.0],
             tick_length: 0.05,
@@ -78,7 +76,6 @@ impl Axis {
             line_width: 0.005,
             data_range: [0.0, 1.0],
             label: Text::new(""),
-            label_offset: 0.2,
             ca_num_marks: 6,
             tick_color: [0.0, 0.0, 0.0, 1.0],
             tick_length: 0.04,
@@ -97,7 +94,7 @@ impl Axis {
     }
 
     pub fn scale_label_offset(&mut self, factor: f64) {
-        self.label_offset *= factor;
+        self.label.scale_offset(factor);
     }
 
     pub fn scale_tick_length(&mut self, factor: f64) {
@@ -108,6 +105,18 @@ impl Axis {
         self.tick_width = val;
     }
 
+    pub fn set_tick_font_size(&mut self, val: f64) {
+        for mark in self.marks.iter_mut() {
+            mark.set_font_size(val);
+        }
+    }
+
+    pub fn set_tick_label_offset(&mut self, hor: f64, ver: f64) {
+        for mark in self.marks.iter_mut() {
+            mark.set_label_offset(hor, ver);
+        }
+    }
+
     pub fn scale_tick_label_offset(&mut self, factor: f64) {
         for mark in self.marks.iter_mut() {
             mark.scale_label_offset(factor);
@@ -116,6 +125,10 @@ impl Axis {
 
     pub fn set_data_range(&mut self, data_min: f64, data_max: f64) {
         self.data_range = [data_min, data_max];
+    }
+
+    pub fn set_label_offset(&mut self, hor: f64, ver: f64) {
+        self.label.set_offset(hor, ver);
     }
 
     pub fn data_min(&self) -> f64 {
@@ -205,7 +218,7 @@ impl Axis {
                                    self.local_start.y(), self.local_end.y());
             let mark_location = Coord::new(mark_x, mark_y);
             let mut mark_k = Mark::new(mark_location);
-            mark_k.set_label_content(&prettify(data_location, omagn));
+            mark_k.set_label_content(&prettify(data_location));
 
             marks.push(mark_k);
 
@@ -217,7 +230,6 @@ impl Axis {
     fn scale_size(&mut self, factor: f64) {
         self.tick_length *= factor;
         self.tick_width *= factor;
-        self.label_offset *= factor;
         self.line_width *= factor;
         self.label.scale_size(factor);
     }
@@ -239,8 +251,6 @@ impl Axis {
     }
 
     /// Draw axis on canvas.
-    ///
-    /// Note that cario have the y direction downwards, e.i. the opposite of us
     pub fn draw(&self, cr: &Context) {
         // Ticks
         let unit_perp = self.global_start.perp_direction(&self.global_end);
@@ -255,8 +265,8 @@ impl Axis {
 
             cr.select_font_face("Serif", FontSlant::Normal, FontWeight::Normal);
             cr.set_font_size(mark.label().font_size());
-            cr.move_to(mark.global_x() + unit_perp.x() * (self.tick_length + mark.label_offset()),
-                       mark.global_y() + unit_perp.y() * (self.tick_length + mark.label_offset()));
+            cr.move_to(mark.global_x() + mark.label_hor_offset(),
+                       mark.global_y() + mark.label_ver_offset());
 
             cr.transform(Matrix::new(1.0, 0.0, 0.0, -1.0, 0.0, 0.0));
             cr.rotate(self.label.angle());
@@ -276,8 +286,11 @@ impl Axis {
         cr.select_font_face("Serif", FontSlant::Italic, FontWeight::Normal);
         cr.set_font_size(self.label.font_size());
         // TODO: Shift label "backwards" based on its length
-        let mid_norm = self.global_start.perp_bisector(&self.global_end, self.label_offset);
-        cr.move_to(mid_norm.x(), mid_norm.y());
+        //let mid_norm = self.global_start.perp_bisector(&self.global_end, self.label_offset);
+        //cr.move_to(mid_norm.x(), mid_norm.y());
+        let mid_point_x = (self.global_start.x() + self.global_end.x()) / 2.0;
+        let mid_point_y = (self.global_start.y() + self.global_end.y()) / 2.0;
+        cr.move_to(mid_point_x + self.label.hor_offset(), mid_point_y + self.label.ver_offset());
         cr.transform(Matrix::new(1.0, 0.0, 0.0, -1.0, 0.0, 0.0));
         cr.rotate(self.label.angle());
         cr.show_text(&self.label.content());

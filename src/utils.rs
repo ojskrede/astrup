@@ -98,6 +98,8 @@ pub struct Text {
     content: String,
     font_size: f64,
     angle: f64,
+    hor_offset: f64,
+    ver_offset: f64,
 }
 
 impl Text {
@@ -106,6 +108,8 @@ impl Text {
             content: String::from(content),
             font_size: 0.04,
             angle: 0.0,
+            hor_offset: 0.0,
+            ver_offset: 0.0,
         }
     }
 
@@ -121,6 +125,14 @@ impl Text {
         self.angle
     }
 
+    pub fn hor_offset(&self) -> f64 {
+        self.hor_offset
+    }
+
+    pub fn ver_offset(&self) -> f64 {
+        self.ver_offset
+    }
+
     pub fn set_content(&mut self, content: &str) {
         self.content = String::from(content);
     }
@@ -133,8 +145,20 @@ impl Text {
         self.angle = val;
     }
 
+    pub fn set_offset(&mut self, hor: f64, ver: f64) {
+        self.hor_offset = hor;
+        self.ver_offset = ver;
+    }
+
+    // TODO: Separate vertical and horizontal scaling?
+    pub fn scale_offset(&mut self, factor: f64) {
+        self.hor_offset *= factor;
+        self.ver_offset *= factor;
+    }
+
     pub fn scale_size(&mut self, factor: f64) {
         self.font_size *= factor;
+        self.scale_offset(factor);
     }
 }
 
