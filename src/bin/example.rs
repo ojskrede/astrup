@@ -47,7 +47,8 @@ fn main() {
     let init_val: u64 = 237;
     let y_data: Vec<f64> = collatz(init_val);
     let x_data: Vec<f64> = (0u64..y_data.len() as u64).map(|x| x as f64).collect();
-    let line = Line::new(&x_data, &y_data);
+    let mut line = Line::new(&x_data, &y_data);
+    line.set_line_style("dashed");
 
     let mut plot2 = Plot::new();
     plot2.set_local_frame(0.5, 0.99, 0.3, 0.99);

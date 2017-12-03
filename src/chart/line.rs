@@ -3,11 +3,78 @@
 //! Module that defines the Line struct
 //!
 
-use cairo::Context;
+use cairo::{Context, LineCap};
 
 use chart::point::Point;
 use utils;
 use utils::{Frame, Drawable, Plottable};
+
+#[derive(Clone, Debug)]
+enum LineStyle {
+    Continuous,
+    Dashed,
+    Dotted,
+}
+
+#[derive(Clone, Debug)]
+struct DashPattern {
+    on_length: f64,
+    off_length: f64,
+    offset: f64,
+    cap: LineCap,
+}
+
+impl DashPattern {
+    fn new(line_style: &LineStyle) -> DashPattern {
+        match *line_style {
+            LineStyle::Dashed => {
+                DashPattern {
+                    on_length: 0.01,
+                    off_length: 0.015,
+                    offset: 0.0,
+                    cap: LineCap::Square,
+                }
+            },
+            LineStyle::Dotted => {
+                DashPattern {
+                    on_length: 0.0,
+                    off_length: 0.015,
+                    offset: 0.0,
+                    cap: LineCap::Round,
+                }
+            },
+            LineStyle::Continuous => {
+                DashPattern {
+                    on_length: 1.0,
+                    off_length: 0.0,
+                    offset: 0.0,
+                    cap: LineCap::Round,
+                }
+            },
+        }
+    }
+
+    fn on_length(&self) -> f64 {
+        self.on_length
+    }
+
+    fn off_length(&self) -> f64 {
+        self.off_length
+    }
+
+    fn offset(&self) -> f64 {
+        self.offset
+    }
+
+    fn line_cap(&self) -> LineCap {
+        self.cap
+    }
+
+    fn scale_size(&mut self, factor: f64) {
+        self.on_length *= factor;
+        self.off_length *= factor;
+    }
+}
 
 #[derive(Clone, Debug)]
 pub struct Line {
@@ -16,6 +83,8 @@ pub struct Line {
     global_frame: Frame,
     color: [f64; 4],
     line_width: f64,
+    line_style: LineStyle,
+    dash_pattern: DashPattern,
 }
 
 impl Line {
@@ -30,13 +99,26 @@ impl Line {
             point.set_size(0.0);
             data_points.push(point);
         }
+        let line_style = LineStyle::Continuous;
+        let dash_pattern = DashPattern::new(&line_style);
         Line {
             data_points: data_points,
             data_frame: Frame::from_sides(x_data_min, x_data_max, y_data_min, y_data_max),
             global_frame: Frame::new(),
             color: [0.1, 0.2, 0.5, 0.9],
             line_width: 0.005,
+            line_style: line_style,
+            dash_pattern: dash_pattern,
         }
+    }
+
+    pub fn set_line_style(&mut self, style: &str) {
+        match style {
+            "dashed" => self.line_style = LineStyle::Dashed,
+            "dotted" => self.line_style = LineStyle::Dotted,
+            _ => self.line_style = LineStyle::Continuous,
+        }
+        self.dash_pattern = DashPattern::new(&self.line_style);
     }
 }
 
@@ -46,6 +128,7 @@ impl Drawable for Line {
             data_point.scale_size(factor);
         }
         self.line_width *= factor;
+        self.dash_pattern.scale_size(factor);
     }
 
     fn fit(&mut self, canvas_global_frame: &Frame, canvas_data_frame: &Frame) {
@@ -57,6 +140,9 @@ impl Drawable for Line {
 
     fn draw(&self, cr: &Context) {
         let mut first_point = true;
+        cr.set_dash(&[self.dash_pattern.on_length(), self.dash_pattern.off_length()],
+                      self.dash_pattern.offset());
+        cr.set_line_cap(self.dash_pattern.line_cap());
         for data_point in self.data_points.iter() {
             let canvas_x = utils::map_range(data_point.x_coord(),
                                             self.data_frame.left(), self.data_frame.right(),
@@ -78,6 +164,8 @@ impl Drawable for Line {
             cr.move_to(canvas_point.x_coord(), canvas_point.y_coord());
             first_point = false;
         }
+        // Reset back to continuous line
+        cr.set_dash(&[], 0.0);
     }
 }
 

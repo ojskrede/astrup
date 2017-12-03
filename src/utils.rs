@@ -1,23 +1,9 @@
-//! ## Draw
+//! ## Utils
 //!
-//! Module that defines the Draw enum
+//! Collection of various handy utilities
 //!
 
 use cairo::Context;
-
-/*
-use line::Line;
-use scatter::Scatter;
-use hist::Hist;
-use image::Image;
-
-pub enum Draw {
-    Line,
-    Scatter,
-    Hist,
-    Image,
-}
-*/
 
 #[derive(Clone, Debug)]
 pub struct Coord {
@@ -364,7 +350,11 @@ pub fn round_up(number: f64, omagn: f64, nearest: f64) -> f64 {
 /// Examples:
 pub fn round_down(number: f64, omagn: f64, nearest: f64) -> f64 {
     let nearest_pow = nearest * 10.0_f64.powi(omagn as i32);
-    number - number % nearest_pow
+    if number >= 0.0 {
+        number - number % nearest_pow
+    } else {
+        number - number % nearest_pow - nearest_pow
+    }
 }
 
 /// Return a number that is the input `number` rounded to the nearest multiplum of `nearest` of
