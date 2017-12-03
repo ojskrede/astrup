@@ -3,6 +3,7 @@
 //!
 
 use cairo::Context;
+use palette::Rgba;
 
 use utils::{Coord, Frame, Text};
 
@@ -86,7 +87,7 @@ impl Mark {
 /// Indicator used by axis to serve as a reference for the displayed data
 #[derive(Clone, Debug)]
 pub struct Tick {
-    color: [f64; 4],
+    color: Rgba,
     line_width: f64,
     length: f64,
 }
@@ -94,13 +95,13 @@ pub struct Tick {
 impl Tick {
     pub fn new() -> Tick {
         Tick {
-            color: [0.0, 0.0, 0.0, 1.0],
+            color: Rgba::new(0.0, 0.0, 0.0, 1.0),
             line_width: 0.005,
             length: 0.01,
         }
     }
 
-    pub fn set_color(&mut self, color: [f64; 4]) {
+    pub fn set_color(&mut self, color: Rgba) {
         self.color = color;
     }
 
@@ -122,7 +123,7 @@ pub struct GridLine {
     global_start: Coord,
     global_end: Coord,
     width: f64,
-    color: [f64; 4],
+    color: Rgba,
 }
 
 impl GridLine {
@@ -131,11 +132,11 @@ impl GridLine {
             global_start: start,
             global_end: end,
             width: 0.005,
-            color: [1.0, 1.0, 1.0, 1.0],
+            color: Rgba::new(1.0, 1.0, 1.0, 1.0),
         }
     }
 
-    pub fn set_color(&mut self, color: [f64; 4]) {
+    pub fn set_color(&mut self, color: Rgba) {
         self.color = color;
     }
 
@@ -148,7 +149,8 @@ impl GridLine {
     }
 
     pub fn draw(&self, cr: &Context) {
-        cr.set_source_rgba(self.color[0], self.color[1], self.color[2], self.color[3]);
+        cr.set_source_rgba(self.color.red as f64, self.color.green as f64, self.color.blue as f64,
+                           self.color.alpha as f64);
         cr.set_line_width(self.width);
         cr.move_to(self.global_start.x(), self.global_start.y());
         cr.line_to(self.global_end.x(), self.global_end.y());

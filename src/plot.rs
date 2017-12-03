@@ -6,6 +6,7 @@
 use std::f64::{MIN, MAX};
 
 use cairo::Context;
+use palette::Rgba;
 
 use utils::{Plottable, Drawable, Frame, Text, Coord};
 use axis::{Axis};
@@ -16,7 +17,7 @@ use chart::Chart;
 
 #[derive(Clone, Debug)]
 pub struct Canvas {
-    color: [f64; 4],
+    color: Rgba,
     // A frame with (x, y) corners relative to the (0, 1)x(0, 1) system of its parent plot,
     local_frame: Frame,
     // A frame with (x, y) corners relative to the (0, 1) x (0, 1) global figure system
@@ -27,7 +28,7 @@ pub struct Canvas {
     ref_num_marks: usize,
     display_grid: bool,
     grid_width: f64,
-    grid_color: [f64; 4],
+    grid_color: Rgba,
     grid: Vec<GridLine>,
     hor_marks: Vec<Mark>, // TODO: Use these in stead of axis
     ver_marks: Vec<Mark>,
@@ -38,7 +39,7 @@ pub struct Canvas {
 impl Canvas {
     pub fn new() -> Canvas {
         Canvas {
-            color: [0.8, 0.8, 0.8, 0.8],
+            color: Rgba::new(0.8, 0.8, 0.8, 0.8),
             //local_frame: Frame::new(),
             local_frame: Frame::from_sides(0.15, 0.95, 0.15, 0.95),
             global_frame: Frame::new(),
@@ -46,7 +47,7 @@ impl Canvas {
             ref_num_marks: 5,
             display_grid: true,
             grid_width: 0.005,
-            grid_color: [1.0, 1.0, 1.0, 0.6],
+            grid_color: Rgba::new(1.0, 1.0, 1.0, 0.9),
             grid: Vec::<GridLine>::new(),
             hor_marks: Vec::<Mark>::new(),
             ver_marks: Vec::<Mark>::new(),
@@ -182,7 +183,8 @@ impl Canvas {
     pub fn draw(&self, cr: &Context) {
 
         // Background
-        cr.set_source_rgba(self.color[0], self.color[1], self.color[2], self.color[3]);
+        cr.set_source_rgba(self.color.red as f64, self.color.green as f64, self.color.blue as f64,
+                           self.color.alpha as f64);
         cr.rectangle(self.global_frame.left(), self.global_frame.bottom(),
                      self.global_frame.width(), self.global_frame.height());
         cr.fill();
@@ -208,10 +210,10 @@ impl Canvas {
 pub struct Plot {
     //style: Style,
     title: Text,
-    color: [f64; 4],
+    color: Rgba,
     local_frame: Frame,
     border: bool,
-    border_color: [f64; 4],
+    border_color: Rgba,
     border_width: f64,
     canvas: Canvas,
 }
@@ -220,11 +222,11 @@ impl Plot {
     pub fn new() -> Plot {
         Plot {
             title: Text::new(""),
-            color: [0.9, 0.9, 0.9, 0.9],
+            color: Rgba::new(0.9, 0.9, 0.9, 0.9),
             //local_frame: Frame::new(),
             local_frame: Frame::from_sides(0.0, 1.0, 0.0, 1.0),
             border: true,
-            border_color: [0.0, 0.0, 0.0, 1.0],
+            border_color: Rgba::new(0.0, 0.0, 0.0, 1.0),
             border_width: 0.005,
             canvas: Canvas::new(),
         }
@@ -257,14 +259,15 @@ impl Plot {
     pub fn draw(&self, cr: &Context) {
 
         // Background
-        cr.set_source_rgba(self.color[0], self.color[1], self.color[2], self.color[3]);
+        cr.set_source_rgba(self.color.red as f64, self.color.green as f64, self.color.blue as f64,
+                           self.color.alpha as f64);
         cr.rectangle(self.local_frame.left(), self.local_frame.bottom(),
                      self.local_frame.width(), self.local_frame.height());
         cr.fill();
 
         if self.border {
-            cr.set_source_rgba(self.border_color[0], self.border_color[1],
-                               self.border_color[2], self.border_color[3]);
+            cr.set_source_rgba(self.border_color.red as f64, self.border_color.green as f64,
+                               self.border_color.blue as f64, self.border_color.alpha as f64);
             cr.set_line_width(self.border_width);
             cr.rectangle(self.local_frame.left(), self.local_frame.bottom(),
                          self.local_frame.width(), self.local_frame.height());

@@ -4,6 +4,7 @@
 //!
 
 use cairo::{Context, LineCap};
+use palette::Rgba;
 
 use chart::point::Point;
 use utils;
@@ -81,7 +82,7 @@ pub struct Line {
     data_points: Vec<Point>,
     data_frame: Frame,
     global_frame: Frame,
-    color: [f64; 4],
+    color: Rgba,
     line_width: f64,
     line_style: LineStyle,
     dash_pattern: DashPattern,
@@ -105,7 +106,7 @@ impl Line {
             data_points: data_points,
             data_frame: Frame::from_sides(x_data_min, x_data_max, y_data_min, y_data_max),
             global_frame: Frame::new(),
-            color: [0.1, 0.2, 0.5, 0.9],
+            color: Rgba::new(0.1, 0.2, 0.5, 0.9),
             line_width: 0.005,
             line_style: line_style,
             dash_pattern: dash_pattern,
@@ -155,7 +156,8 @@ impl Drawable for Line {
             canvas_point.set_y_coord(canvas_y);
 
             if !first_point {
-                cr.set_source_rgba(self.color[0], self.color[1], self.color[2], self.color[3]);
+                cr.set_source_rgba(self.color.red as f64, self.color.green as f64,
+                                   self.color.blue as f64, self.color.alpha as f64);
                 cr.set_line_width(self.line_width);
                 cr.line_to(canvas_point.x_coord(), canvas_point.y_coord());
                 cr.stroke();

@@ -6,6 +6,7 @@
 
 use std::fs::File;
 use failure::{Error, err_msg};
+use palette::Rgba;
 
 use gio;
 use gtk;
@@ -19,7 +20,7 @@ pub struct Figure {
     title: String,
     height: usize,
     width: usize,
-    color: [f64; 4],
+    color: Rgba,
     application: gtk::Application,
 }
 
@@ -32,7 +33,7 @@ impl Figure {
             title: String::from("Figure"),
             height: 800,
             width: 800,
-            color: [1.0, 1.0, 1.0, 1.0],
+            color: Rgba::new(1.0, 1.0, 1.0, 1.0),
             application: app,
         }
     }
@@ -94,7 +95,8 @@ impl Figure {
     pub fn draw(&self, cr: &Context) {
         cr.scale(self.width as f64, self.height as f64);
 
-        cr.set_source_rgba(self.color[0], self.color[1], self.color[2], self.color[3]);
+        cr.set_source_rgba(self.color.red as f64, self.color.green as f64, self.color.blue as f64,
+                           self.color.alpha as f64);
         cr.paint();
 
         cr.set_source_rgba(0.0, 0.0, 0.0, 1.0);

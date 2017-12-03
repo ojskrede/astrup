@@ -5,6 +5,7 @@ use std::f64::MAX;
 
 use cairo::{Context, Matrix, MatrixTrait};
 use cairo::enums::{FontSlant, FontWeight};
+use palette::Rgba;
 
 use utils::{Coord, Frame, Text, round_down, round_nearest, map_range};
 use mark::{Mark, Tick, prettify};
@@ -33,12 +34,12 @@ pub struct Axis {
     local_end: Coord,
     global_start: Coord,
     global_end: Coord,
-    color: [f64; 4],
+    color: Rgba,
     line_width: f64,
     data_range: [f64; 2],
     label: Text,
     ca_num_marks: usize,
-    tick_color: [f64; 4],
+    tick_color: Rgba,
     tick_length: f64,
     tick_width: f64,
     marks: Vec<Mark>,
@@ -52,12 +53,12 @@ impl Axis {
             local_end: Coord::new(0.0, 0.0),
             global_start: Coord::new(0.0, 0.0),
             global_end: Coord::new(0.0, 0.0),
-            color: [0.0, 0.0, 0.0, 1.0],
+            color: Rgba::new(0.0, 0.0, 0.0, 1.0),
             line_width: 0.005,
             data_range: [0.0, 1.0],
             label: Text::new(""),
             ca_num_marks: 6,
-            tick_color: [0.0, 0.0, 0.0, 1.0],
+            tick_color: Rgba::new(0.0, 0.0, 0.0, 1.0),
             tick_length: 0.05,
             tick_width: 0.01,
             marks: Vec::<Mark>::new(),
@@ -72,12 +73,12 @@ impl Axis {
             local_end: end,
             global_start: Coord::new(0.0, 0.0),
             global_end: Coord::new(0.0, 0.0),
-            color: [0.0, 0.0, 0.0, 1.0],
+            color: Rgba::new(0.0, 0.0, 0.0, 1.0),
             line_width: 0.005,
             data_range: [0.0, 1.0],
             label: Text::new(""),
             ca_num_marks: 6,
-            tick_color: [0.0, 0.0, 0.0, 1.0],
+            tick_color: Rgba::new(0.0, 0.0, 0.0, 1.0),
             tick_length: 0.04,
             tick_width: 0.005,
             marks: Vec::<Mark>::new(),
@@ -255,8 +256,8 @@ impl Axis {
         // Ticks
         let unit_perp = self.global_start.perp_direction(&self.global_end);
         for mark in self.marks.iter() {
-            cr.set_source_rgba(self.tick_color[0], self.tick_color[1], self.tick_color[2],
-                               self.tick_color[3]);
+            cr.set_source_rgba(self.tick_color.red as f64, self.tick_color.green as f64,
+                               self.tick_color.blue as f64, self.tick_color.alpha as f64);
             cr.set_line_width(self.tick_width);
             cr.move_to(mark.global_x(), mark.global_y());
             cr.line_to(mark.global_x() + unit_perp.x() * self.tick_length,
@@ -276,7 +277,8 @@ impl Axis {
         }
 
         // Axis line
-        cr.set_source_rgba(self.color[0], self.color[1], self.color[2], self.color[3]);
+        cr.set_source_rgba(self.color.red as f64, self.color.green as f64,
+                           self.color.blue as f64, self.color.alpha as f64);
         cr.set_line_width(self.line_width);
         cr.move_to(self.global_start.x(), self.global_start.y());
         cr.line_to(self.global_end.x(), self.global_end.y());
