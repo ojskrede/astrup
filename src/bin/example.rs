@@ -76,7 +76,7 @@ fn main() {
     fig2.save("example2.png").expect("Could not create example2.png");
 
     // Display on screen
-    let mut view = View::new(fig);
-    view.add(fig2);
+    let mut view = View::new(fig).expect("Somethig wrong");
+    view.add(fig2).expect("Somethig wrong");
     view.show();
 }

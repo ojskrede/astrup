@@ -4,6 +4,7 @@
 //!
 
 use std::f64::{MIN, MAX};
+use failure::Error;
 
 use cairo::Context;
 use palette::Rgba;
@@ -118,7 +119,7 @@ impl Canvas {
         }
     }
 
-    pub fn fit(&mut self, plot_frame: Frame) {
+    pub fn fit(&mut self, plot_frame: Frame) -> Result<(), Error> {
         // First, we update the global_frame relative to the parent's global_frame.
         // After this is called, both local_frame and global_frame should not be altered.
         self.global_frame = self.local_frame.relative_to(&plot_frame);
@@ -136,7 +137,7 @@ impl Canvas {
         hor_axis.set_label("x");
         //hor_axis.scale_label_offset(-1.5);
         hor_axis.scale_tick_length(-1.0);
-        hor_axis.compute_marks();
+        hor_axis.compute_marks()?;
         hor_axis.set_label_offset(-0.01, -0.13);
         hor_axis.set_tick_label_offset(-0.02, -0.07);
         hor_axis.set_tick_font_size(0.03);
@@ -145,7 +146,7 @@ impl Canvas {
         ver_axis.set_label("y");
         //ver_axis.scale_label_offset(1.5);
         //ver_axis.set_label_angle(-PI / 2.0);
-        ver_axis.compute_marks();
+        ver_axis.compute_marks()?;
         //ver_axis.scale_tick_label_offset(1.7);
         ver_axis.set_label_offset(-0.17, -0.01);
         ver_axis.set_tick_label_offset(-0.12, -0.01);
@@ -178,6 +179,8 @@ impl Canvas {
         for chart in self.charts.iter_mut() {
             chart.fit(&self.global_frame, &self.data_frame);
         }
+
+        Ok(())
     }
 
     pub fn draw(&self, cr: &Context) {
@@ -250,10 +253,12 @@ impl Plot {
     ///
     /// The function scales various elements within the plot, and calls a similar plot for its
     /// canvasses. Since the figure is its closest parent, no additional global_frame is needed.
-    pub fn fit(&mut self) {
+    pub fn fit(&mut self) -> Result<(), Error> {
         let scale_factor = self.local_frame.diag_len() / 2f64.sqrt();
         self.scale_size(scale_factor);
-        self.canvas.fit(self.local_frame.clone());
+        self.canvas.fit(self.local_frame.clone())?;
+
+        Ok(())
     }
 
     pub fn draw(&self, cr: &Context) {

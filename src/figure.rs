@@ -66,10 +66,12 @@ impl Figure {
         self.plots.push(plot);
     }
 
-    pub fn fit(&mut self) {
+    pub fn fit(&mut self) -> Result<(), Error> {
         for plot in self.plots.iter_mut() {
-            plot.fit();
+            plot.fit()?;
         }
+
+        Ok(())
     }
 
     pub fn save(&self, filename: &str) -> Result<(), Error> {
@@ -77,7 +79,7 @@ impl Figure {
         // multiple calls to fit() will be made, and this can mess up things if we call it on self.
         // The simplest solution is to clone self. But one should perhaps make fit() idempotent?.
         let mut fig = self.clone();
-        fig.fit();
+        fig.fit()?;
         let surface = match ImageSurface::create(Format::ARgb32, fig.width as i32, fig.height as i32) {
             Ok(val) => val,
             Err(msg) => return Err(err_msg(format!("{:?}", msg))),

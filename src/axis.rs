@@ -2,6 +2,7 @@
 //!
 
 use std::f64::MAX;
+use failure::{Error, err_msg};
 
 use cairo::{Context, Matrix, MatrixTrait};
 use cairo::enums::{FontSlant, FontWeight};
@@ -178,7 +179,7 @@ impl Axis {
     ///  the data, and not the range of its marks. Also, the user should be able to set the data
     ///  range, this should then determine the mark range, which in turn should determine the axis
     ///  range.
-    pub fn compute_marks(&mut self) {
+    pub fn compute_marks(&mut self) -> Result<(), Error> {
         let data_diff = self.data_range[1] - self.data_range[0];
         let ca_dist = data_diff / self.ca_num_marks as f64;
         let omagn = ca_dist.abs().log10().floor();
@@ -196,7 +197,7 @@ impl Axis {
         }
 
         let actual_min_point = round_down(self.data_range[0], omagn, round_number);
-        let ca_max_point = *self.data_range.last().unwrap();
+        let ca_max_point = *self.data_range.last().ok_or(err_msg("No final element"))?;
         let mark_distance = round_nearest(ca_dist, omagn, round_number);
 
         let mut data_locations = vec![actual_min_point];
@@ -211,7 +212,7 @@ impl Axis {
             }
         }
         let min_data = data_locations[0];
-        let max_data = *data_locations.last().unwrap();
+        let max_data = *data_locations.last().ok_or(err_msg("No final element"))?;
         for data_location in data_locations {
             let mark_x = map_range(data_location, min_data, max_data,
                                    self.local_start.x(), self.local_end.x());
@@ -226,6 +227,8 @@ impl Axis {
         }
         self.data_range = [min_data, max_data];
         self.marks = marks;
+
+        Ok(())
     }
 
     fn scale_size(&mut self, factor: f64) {

@@ -1,3 +1,7 @@
+//! View module
+//!
+
+use failure::Error;
 
 use gio;
 use gio::prelude::*;
@@ -49,19 +53,21 @@ pub struct View {
 }
 
 impl View {
-    pub fn new(mut figure: Figure) -> View {
-        figure.fit();
+    pub fn new(mut figure: Figure) -> Result<View, Error> {
+        figure.fit()?;
         let app = gtk::Application::new("com.astrup.application", gio::ApplicationFlags::empty())
                                            .expect("Failed to initialize application");
-        View {
+        Ok(View {
             figures: vec![figure],
             application: app,
-        }
+        })
     }
 
-    pub fn add(&mut self, mut figure: Figure) {
-        figure.fit();
+    pub fn add(&mut self, mut figure: Figure) -> Result<(), Error> {
+        figure.fit()?;
         self.figures.push(figure);
+
+        Ok(())
     }
 
     pub fn show(self) {
