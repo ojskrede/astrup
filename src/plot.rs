@@ -19,14 +19,10 @@ use chart::Chart;
 #[derive(Clone, Debug)]
 pub struct Canvas {
     color: Rgba,
-    // A frame with (x, y) corners relative to the (0, 1)x(0, 1) system of its parent plot,
     local_frame: Frame,
-    // A frame with (x, y) corners relative to the (0, 1) x (0, 1) global figure system
     global_frame: Frame,
-    // A frame with (x, y) corners relative to the data coordinate system. This is determined by
-    // the union of the data range of its charts and the data range of its axes.
     data_frame: Frame,
-    ref_num_marks: usize,
+    display_axes: bool,
     display_grid: bool,
     grid_width: f64,
     grid_color: Rgba,
@@ -45,7 +41,7 @@ impl Canvas {
             local_frame: Frame::from_sides(0.15, 0.95, 0.15, 0.95),
             global_frame: Frame::new(),
             data_frame: Frame::new(),
-            ref_num_marks: 5,
+            display_axes: true,
             display_grid: true,
             grid_width: 0.005,
             grid_color: Rgba::new(1.0, 1.0, 1.0, 0.9),
@@ -57,20 +53,36 @@ impl Canvas {
         }
     }
 
-    pub fn add_axis(&mut self, axis: Axis) {
-        self.axes.push(axis);
-    }
-
-    pub fn add_chart(&mut self, chart: Chart) {
-        self.charts.push(chart);
+    pub fn set_color(&mut self, color: Rgba) {
+        self.color = color;
     }
 
     pub fn set_local_frame(&mut self, frame: Frame) {
         self.local_frame = frame;
     }
 
-    pub fn set_data_frame(&mut self, frame: Frame) {
-        self.data_frame = frame;
+    pub fn display_axes(&mut self, val: bool) {
+        self.display_axes = val;
+    }
+
+    pub fn display_grid(&mut self, val: bool) {
+        self.display_grid = val;
+    }
+
+    pub fn set_gridline_width(&mut self, val: f64) {
+        self.grid_width = val;
+    }
+
+    pub fn set_grid_color(&mut self, color: Rgba) {
+        self.grid_color = color;
+    }
+
+    pub fn add_axis(&mut self, axis: Axis) {
+        self.axes.push(axis);
+    }
+
+    pub fn add_chart(&mut self, chart: Chart) {
+        self.charts.push(chart);
     }
 
     fn compute_grid(&mut self, ver_axis: &Axis, hor_axis: &Axis) {
@@ -119,6 +131,40 @@ impl Canvas {
         }
     }
 
+    /// Sets a default horizontal and vertical axis. This is important in order to determine the
+    /// data_frame of this canvas. The reason for this is that the data frame changes with these
+    /// axes, because of nice tick labeling.
+    ///
+    /// There is really no reason for these to be axis, but we need to compute the marks in order
+    /// to determine the data_frame of the canvas. In the future, there might be a more elegant
+    /// solution to this.
+    ///
+    /// In the meantime, the possibility to not draw the axes have to suffice.
+    fn set_default_axis(&mut self, data_frame: Frame) -> Result<(Axis, Axis), Error> {
+        let mut hor_axis = Axis::from_coord(Coord::new(0.0, 0.0), Coord::new(1.0, 0.0));
+        hor_axis.set_data_range(data_frame.left(), data_frame.right());
+        hor_axis.set_label("x");
+        //hor_axis.scale_label_offset(-1.5);
+        hor_axis.scale_tick_length(-1.0);
+        hor_axis.compute_marks()?;
+        hor_axis.set_label_offset(-0.01, -0.13);
+        hor_axis.set_tick_label_offset(-0.02, -0.07);
+        hor_axis.set_tick_font_size(0.03);
+
+        let mut ver_axis = Axis::from_coord(Coord::new(0.0, 0.0), Coord::new(0.0, 1.0));
+        ver_axis.set_data_range(data_frame.bottom(), data_frame.top());
+        ver_axis.set_label("y");
+        //ver_axis.scale_label_offset(1.5);
+        //ver_axis.set_label_angle(-PI / 2.0);
+        ver_axis.compute_marks()?;
+        //ver_axis.scale_tick_label_offset(1.7);
+        ver_axis.set_label_offset(-0.17, -0.01);
+        ver_axis.set_tick_label_offset(-0.12, -0.01);
+        ver_axis.set_tick_font_size(0.03);
+
+        Ok((hor_axis, ver_axis))
+    }
+
     pub fn fit(&mut self, plot_frame: Frame) -> Result<(), Error> {
         // First, we update the global_frame relative to the parent's global_frame.
         // After this is called, both local_frame and global_frame should not be altered.
@@ -131,26 +177,8 @@ impl Canvas {
         // as this defines the ranges of the axes.
         let largest_data_frame = self.find_largest_data_frame();
 
-        // TODO: Make these "invisible" and allways included.
-        let mut hor_axis = Axis::from_coord(Coord::new(0.0, 0.0), Coord::new(1.0, 0.0));
-        hor_axis.set_data_range(largest_data_frame.left(), largest_data_frame.right());
-        hor_axis.set_label("x");
-        //hor_axis.scale_label_offset(-1.5);
-        hor_axis.scale_tick_length(-1.0);
-        hor_axis.compute_marks()?;
-        hor_axis.set_label_offset(-0.01, -0.13);
-        hor_axis.set_tick_label_offset(-0.02, -0.07);
-        hor_axis.set_tick_font_size(0.03);
-        let mut ver_axis = Axis::from_coord(Coord::new(0.0, 0.0), Coord::new(0.0, 1.0));
-        ver_axis.set_data_range(largest_data_frame.bottom(), largest_data_frame.top());
-        ver_axis.set_label("y");
-        //ver_axis.scale_label_offset(1.5);
-        //ver_axis.set_label_angle(-PI / 2.0);
-        ver_axis.compute_marks()?;
-        //ver_axis.scale_tick_label_offset(1.7);
-        ver_axis.set_label_offset(-0.17, -0.01);
-        ver_axis.set_tick_label_offset(-0.12, -0.01);
-        ver_axis.set_tick_font_size(0.03);
+        // Then we compute one horizontal and one vertical axis.
+        let (mut hor_axis, mut ver_axis) = self.set_default_axis(largest_data_frame)?;
 
         // We can now define our updated data_frame.
         // TODO: Ord for f64 equivalent
@@ -198,8 +226,10 @@ impl Canvas {
             }
         }
 
-        for axis in self.axes.iter() {
-            axis.draw(cr);
+        if self.display_axes {
+            for axis in self.axes.iter() {
+                axis.draw(cr);
+            }
         }
 
         for chart in self.charts.iter() {
@@ -215,7 +245,7 @@ pub struct Plot {
     title: Text,
     color: Rgba,
     local_frame: Frame,
-    border: bool,
+    display_border: bool,
     border_color: Rgba,
     border_width: f64,
     canvas: Canvas,
@@ -226,21 +256,40 @@ impl Plot {
         Plot {
             title: Text::new(""),
             color: Rgba::new(0.9, 0.9, 0.9, 0.9),
-            //local_frame: Frame::new(),
             local_frame: Frame::from_sides(0.0, 1.0, 0.0, 1.0),
-            border: true,
+            display_border: true,
             border_color: Rgba::new(0.0, 0.0, 0.0, 1.0),
             border_width: 0.005,
             canvas: Canvas::new(),
         }
     }
 
-    pub fn add(&mut self, chart: Chart) {
-        self.canvas.add_chart(chart);
+    pub fn set_title(&mut self, title: &str) {
+        self.title.set_content(title);
+    }
+
+    pub fn set_color(&mut self, color: Rgba) {
+        self.color = color;
     }
 
     pub fn set_local_frame(&mut self, left: f64, right: f64, bottom: f64, top: f64) {
         self.local_frame.set(left, right, bottom, top);
+    }
+
+    pub fn display_border(&mut self, val: bool) {
+        self.display_border = val;
+    }
+
+    pub fn set_border_color(&mut self, color: Rgba) {
+        self.border_color = color;
+    }
+
+    pub fn set_border_width(&mut self, val: f64) {
+        self.border_width = val;
+    }
+
+    pub fn add(&mut self, chart: Chart) {
+        self.canvas.add_chart(chart);
     }
 
     fn scale_size(&mut self, factor: f64) {
@@ -270,7 +319,7 @@ impl Plot {
                      self.local_frame.width(), self.local_frame.height());
         cr.fill();
 
-        if self.border {
+        if self.display_border {
             cr.set_source_rgba(self.border_color.red as f64, self.border_color.green as f64,
                                self.border_color.blue as f64, self.border_color.alpha as f64);
             cr.set_line_width(self.border_width);

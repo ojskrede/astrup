@@ -32,11 +32,6 @@ impl Coord {
         self.y = y;
     }
 
-    fn scale(&mut self, factor: f64) {
-        self.x = self.x * factor;
-        self.x = self.x * factor;
-    }
-
     pub fn x(&self) -> f64 {
         self.x
     }
@@ -73,8 +68,6 @@ impl Coord {
     pub fn perp_direction(&self, other: &Coord) -> Coord {
         let dx = other.x() - self.x();
         let dy = other.y() - self.y();
-        let mid_x = (other.x() + self.x()) / 2.0;
-        let mid_y = (other.y() + self.y()) / 2.0;
         Coord::new(-dy, dx)
     }
 }
@@ -183,6 +176,22 @@ impl Frame {
         self.top = top;
     }
 
+    pub fn set_left(&mut self, val: f64) {
+        self.left = val;
+    }
+
+    pub fn set_right(&mut self, val: f64) {
+        self.right = val;
+    }
+
+    pub fn set_top(&mut self, val: f64) {
+        self.top = val;
+    }
+
+    pub fn set_bottom(&mut self, val: f64) {
+        self.bottom = val;
+    }
+
     pub fn left(&self) -> f64 {
         self.left
     }
@@ -213,22 +222,6 @@ impl Frame {
         (delta_x * delta_x + delta_y * delta_y).sqrt()
     }
 
-    pub fn set_left(&mut self, val: f64) {
-        self.left = val;
-    }
-
-    pub fn set_right(&mut self, val: f64) {
-        self.right = val;
-    }
-
-    pub fn set_top(&mut self, val: f64) {
-        self.top = val;
-    }
-
-    pub fn set_bottom(&mut self, val: f64) {
-        self.bottom = val;
-    }
-
     /// Returns this frame mapped to a different `reference_frame`. This is useful when one wants
     /// to map the local frame (`self`) to a global frame (`reference_frame`).
     ///
@@ -252,6 +245,7 @@ impl Frame {
     }
 }
 
+/*
 /// ## Directional rectangle
 ///
 /// Defined by a start coordinate, an end coordinate, and a width, relative to its parent frame.
@@ -302,6 +296,7 @@ impl DirRect {
         self.scale_size(frame.diag_len());
     }
 }
+*/
 
 /// ## Drawable
 ///
@@ -379,5 +374,16 @@ pub fn map_range(old_number: f64, old_min: f64, old_max: f64, new_min: f64, new_
          (old_max - old_number) / (old_max - old_min) * new_min)
     } else {
         (old_min + old_max) / 2.0
+    }
+}
+
+pub fn prettify(number: f64) -> String {
+    let omagn = if number == 0.0 { 0.0 } else { number.abs().log10().floor() };
+    if omagn > 2.0 || omagn < -2.0 {
+        format!("{:>e}", number)
+    } else if omagn >= 1.0 || omagn <= -1.0 {
+        format!("{0:>.0}", number)
+    } else {
+        format!("{num:>.prec$}", num=number, prec= 2 - omagn as usize)
     }
 }

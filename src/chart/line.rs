@@ -55,6 +55,22 @@ impl DashPattern {
         }
     }
 
+    fn set_on_length(&mut self, val: f64) {
+        self.on_length = val;
+    }
+
+    fn set_off_length(&mut self, val: f64) {
+        self.off_length = val;
+    }
+
+    fn set_offset(&mut self, val: f64) {
+        self.offset = val;
+    }
+
+    fn set_line_cap(&mut self, cap: LineCap) {
+        self.cap = cap;
+    }
+
     fn on_length(&self) -> f64 {
         self.on_length
     }
@@ -113,6 +129,14 @@ impl Line {
         }
     }
 
+    pub fn set_color(&mut self, color: Rgba) {
+        self.color = color;
+    }
+
+    pub fn set_line_width(&mut self, val: f64) {
+        self.line_width = val;
+    }
+
     pub fn set_line_style(&mut self, style: &str) {
         match style {
             "dashed" => self.line_style = LineStyle::Dashed,
@@ -121,13 +145,26 @@ impl Line {
         }
         self.dash_pattern = DashPattern::new(&self.line_style);
     }
+
+    pub fn set_dash_on_length(&mut self, val: f64) {
+        self.dash_pattern.set_on_length(val);
+    }
+
+    pub fn set_dash_off_length(&mut self, val: f64) {
+        self.dash_pattern.set_off_length(val);
+    }
+
+    pub fn set_dash_offset(&mut self, val: f64) {
+        self.dash_pattern.set_offset(val);
+    }
+
+    pub fn set_line_cap(&mut self, cap: LineCap) {
+        self.dash_pattern.set_line_cap(cap);
+    }
 }
 
 impl Drawable for Line {
     fn scale_size(&mut self, factor: f64) {
-        for data_point in self.data_points.iter_mut() {
-            data_point.scale_size(factor);
-        }
         self.line_width *= factor;
         self.dash_pattern.scale_size(factor);
     }
@@ -137,6 +174,10 @@ impl Drawable for Line {
         self.data_frame = canvas_data_frame.clone();
         let scale_factor = self.global_frame.diag_len() / 2f64.sqrt();
         self.scale_size(scale_factor);
+
+        for data_point in self.data_points.iter_mut() {
+            data_point.fit(canvas_global_frame, canvas_data_frame);
+        }
     }
 
     fn draw(&self, cr: &Context) {

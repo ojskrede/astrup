@@ -34,17 +34,15 @@ impl Scatter {
 }
 
 impl Drawable for Scatter {
-    fn scale_size(&mut self, factor: f64) {
-        for data_point in self.data_points.iter_mut() {
-            data_point.scale_size(factor);
-        }
-    }
+    fn scale_size(&mut self, _: f64) {}
 
     fn fit(&mut self, canvas_global_frame: &Frame, canvas_data_frame: &Frame) {
         self.global_frame = canvas_global_frame.clone();
         self.data_frame = canvas_data_frame.clone();
-        let scale_factor = self.global_frame.diag_len() / 2f64.sqrt();
-        self.scale_size(scale_factor);
+
+        for data_point in self.data_points.iter_mut() {
+            data_point.fit(canvas_global_frame, canvas_data_frame);
+        }
     }
 
     fn draw(&self, cr: &Context) {

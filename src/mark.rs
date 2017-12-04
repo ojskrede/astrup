@@ -23,6 +23,26 @@ impl Mark {
         }
     }
 
+    pub fn set_local(&mut self, coord: Coord) {
+        self.local = coord;
+    }
+
+    pub fn set_global(&mut self, coord: Coord) {
+        self.global = coord;
+    }
+
+    pub fn set_label_content(&mut self, content: &str) {
+        self.label.set_content(content);
+    }
+
+    pub fn set_font_size(&mut self, val: f64) {
+        self.label.set_font_size(val);
+    }
+
+    pub fn set_label_offset(&mut self, hor: f64, ver: f64) {
+        self.label.set_offset(hor, ver);
+    }
+
     pub fn global_x(&self) -> f64 {
         self.global.x()
     }
@@ -47,28 +67,8 @@ impl Mark {
         self.label.ver_offset()
     }
 
-    pub fn set_label_content(&mut self, content: &str) {
-        self.label.set_content(content);
-    }
-
-    pub fn set_label_offset(&mut self, hor: f64, ver: f64) {
-        self.label.set_offset(hor, ver);
-    }
-
     pub fn scale_label_offset(&mut self, factor: f64) {
         self.label.scale_offset(factor);
-    }
-
-    pub fn set_font_size(&mut self, val: f64) {
-        self.label.set_font_size(val);
-    }
-
-    pub fn set_local(&mut self, coord: Coord) {
-        self.local = coord;
-    }
-
-    pub fn set_global(&mut self, coord: Coord) {
-        self.global = coord;
     }
 
     fn scale_size(&mut self, factor: f64) {
@@ -136,12 +136,12 @@ impl GridLine {
         }
     }
 
-    pub fn set_color(&mut self, color: Rgba) {
-        self.color = color;
-    }
-
     pub fn set_width(&mut self, width: f64) {
         self.width = width;
+    }
+
+    pub fn set_color(&mut self, color: Rgba) {
+        self.color = color;
     }
 
     pub fn scale_size(&mut self, factor: f64) {
@@ -155,16 +155,5 @@ impl GridLine {
         cr.move_to(self.global_start.x(), self.global_start.y());
         cr.line_to(self.global_end.x(), self.global_end.y());
         cr.stroke();
-    }
-}
-
-pub fn prettify(number: f64) -> String {
-    let omagn = if number == 0.0 { 0.0 } else { number.abs().log10().floor() };
-    if omagn > 2.0 || omagn < -2.0 {
-        format!("{:>e}", number)
-    } else if omagn >= 1.0 || omagn <= -1.0 {
-        format!("{0:>.0}", number)
-    } else {
-        format!("{num:>.prec$}", num=number, prec= 2 - omagn as usize)
     }
 }

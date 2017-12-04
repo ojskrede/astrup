@@ -39,6 +39,14 @@ impl Point {
         }
     }
 
+    pub fn set_x_coord(&mut self, val: f64) {
+        self.x_coord = val;
+    }
+
+    pub fn set_y_coord(&mut self, val: f64) {
+        self.y_coord = val;
+    }
+
     pub fn set_color(&mut self, color: Rgba) {
         self.color = color;
     }
@@ -64,14 +72,6 @@ impl Point {
         self.y_coord
     }
 
-    pub fn set_x_coord(&mut self, val: f64) {
-        self.x_coord = val;
-    }
-
-    pub fn set_y_coord(&mut self, val: f64) {
-        self.y_coord = val;
-    }
-
     pub fn map_range(&mut self, old_frame: &Frame, new_frame: &Frame) {
         self.x_coord = utils::map_range(self.x_coord,
                                         old_frame.left(), old_frame.right(),
@@ -83,6 +83,14 @@ impl Point {
 }
 
 impl Drawable for Point {
+    fn scale_size(&mut self, factor: f64) {
+        self.size *= factor;
+    }
+
+    fn fit(&mut self, canvas_global_frame: &Frame, _: &Frame) {
+        self.scale_size(canvas_global_frame.diag_len() / 2f64.sqrt());
+    }
+
     fn draw(&self, cr: &Context) {
         cr.set_source_rgba(self.color.red as f64, self.color.green as f64,
                            self.color.blue as f64, self.color.alpha as f64);
@@ -91,11 +99,5 @@ impl Drawable for Point {
             Shape::Square => cr.rectangle(self.x_coord, self.y_coord, self.size, self.size),
         }
         cr.fill()
-    }
-
-    fn fit(&mut self, _: &Frame, _: &Frame) {}
-
-    fn scale_size(&mut self, factor: f64) {
-        self.size *= factor;
     }
 }

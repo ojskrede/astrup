@@ -8,8 +8,6 @@ use std::fs::File;
 use failure::{Error, err_msg};
 use palette::Rgba;
 
-use gio;
-use gtk;
 use cairo::{Context, Format, ImageSurface, Matrix, MatrixTrait};
 
 use plot::Plot;
@@ -21,20 +19,16 @@ pub struct Figure {
     height: usize,
     width: usize,
     color: Rgba,
-    application: gtk::Application,
 }
 
 impl Figure {
     pub fn new() -> Figure {
-        let app = gtk::Application::new("com.astrup.application", gio::ApplicationFlags::empty())
-                                   .expect("Failed to initialize application");
         Figure {
             plots: Vec::<Plot>::new(),
             title: String::from("Figure"),
             height: 800,
             width: 800,
             color: Rgba::new(1.0, 1.0, 1.0, 1.0),
-            application: app,
         }
     }
 
@@ -48,6 +42,10 @@ impl Figure {
 
     pub fn set_width(&mut self, val: usize) {
         self.width = val;
+    }
+
+    pub fn set_color(&mut self, color: Rgba) {
+        self.color = color;
     }
 
     pub fn get_title(&self) -> String {

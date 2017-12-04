@@ -8,22 +8,8 @@ use cairo::{Context, Matrix, MatrixTrait};
 use cairo::enums::{FontSlant, FontWeight};
 use palette::Rgba;
 
-use utils::{Coord, Frame, Text, round_down, round_nearest, map_range};
-use mark::{Mark, Tick, prettify};
-
-#[derive(Clone, Debug)]
-pub enum Orientation {
-    Horizontal,
-    Vertical,
-}
-
-#[derive(Clone, Debug)]
-pub enum Side {
-    Left,
-    Right,
-    Bottom,
-    Top,
-}
+use utils::{Coord, Frame, Text, round_down, round_nearest, map_range, prettify};
+use mark::{Mark, Tick};
 
 /// ## Axis
 ///
@@ -87,6 +73,14 @@ impl Axis {
         }
     }
 
+    pub fn set_color(&mut self, color: Rgba) {
+        self.color = color;
+    }
+
+    pub fn set_line_width(&mut self, val: f64) {
+        self.line_width = val;
+    }
+
     pub fn set_label(&mut self, content: &str) {
         self.label.set_content(content);
     }
@@ -95,16 +89,20 @@ impl Axis {
         self.label.set_angle(angle);
     }
 
-    pub fn scale_label_offset(&mut self, factor: f64) {
-        self.label.scale_offset(factor);
+    pub fn set_num_ticks(&mut self, val: usize) {
+        self.ca_num_marks = val;
     }
 
-    pub fn scale_tick_length(&mut self, factor: f64) {
-        self.tick_length *= factor;
+    pub fn set_tick_color(&mut self, color: Rgba) {
+        self.tick_color = color;
     }
 
     pub fn set_tick_width(&mut self, val: f64) {
         self.tick_width = val;
+    }
+
+    pub fn set_tick_length(&mut self, val: f64) {
+        self.tick_length = val;
     }
 
     pub fn set_tick_font_size(&mut self, val: f64) {
@@ -119,18 +117,26 @@ impl Axis {
         }
     }
 
-    pub fn scale_tick_label_offset(&mut self, factor: f64) {
-        for mark in self.marks.iter_mut() {
-            mark.scale_label_offset(factor);
-        }
-    }
-
     pub fn set_data_range(&mut self, data_min: f64, data_max: f64) {
         self.data_range = [data_min, data_max];
     }
 
     pub fn set_label_offset(&mut self, hor: f64, ver: f64) {
         self.label.set_offset(hor, ver);
+    }
+
+    pub fn scale_label_offset(&mut self, factor: f64) {
+        self.label.scale_offset(factor);
+    }
+
+    pub fn scale_tick_length(&mut self, factor: f64) {
+        self.tick_length *= factor;
+    }
+
+    pub fn scale_tick_label_offset(&mut self, factor: f64) {
+        for mark in self.marks.iter_mut() {
+            mark.scale_label_offset(factor);
+        }
     }
 
     pub fn data_min(&self) -> f64 {
