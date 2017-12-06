@@ -19,6 +19,9 @@ pub struct Figure {
     height: usize,
     width: usize,
     color: Rgba,
+    frame: bool,
+    frame_thickness: f64,
+    frame_color: Rgba,
 }
 
 impl Figure {
@@ -29,6 +32,9 @@ impl Figure {
             height: 800,
             width: 800,
             color: Rgba::new(1.0, 1.0, 1.0, 1.0),
+            frame: true,
+            frame_thickness: 0.005,
+            frame_color: Rgba::new(0.0, 0.0, 0.0, 1.0),
         }
     }
 
@@ -99,10 +105,13 @@ impl Figure {
                            self.color.alpha as f64);
         cr.paint();
 
-        cr.set_source_rgba(0.0, 0.0, 0.0, 1.0);
-        cr.set_line_width(0.01);
-        cr.rectangle(0.0, 0.0, 1.0, 1.0);
-        cr.stroke();
+        if self.frame {
+            cr.set_source_rgba(self.frame_color.red as f64, self.frame_color.green as f64,
+                               self.frame_color.blue as f64, self.frame_color.alpha as f64);
+            cr.set_line_width(self.frame_thickness);
+            cr.rectangle(0.0, 0.0, 1.0, 1.0);
+            cr.stroke();
+        }
 
         // By default, the origin is in the top left corner, x is increasing to the right, and y is
         // increasing downwards. This transforms the origin to the bottom left, and increasing y

@@ -5,10 +5,11 @@
 
 use cairo::{Context, LineCap};
 use palette::Rgba;
+use ndarray::AsArray;
 
 use chart::point::Point;
 use utils;
-use utils::{Frame, Drawable, Plottable};
+use utils::{Frame, Drawable, Plottable, NonNan};
 
 #[derive(Clone, Debug)]
 enum LineStyle {
@@ -105,14 +106,18 @@ pub struct Line {
 }
 
 impl Line {
-    pub fn new(x_data_coords: &Vec<f64>, y_data_coords: &Vec<f64>) -> Line {
-        let (x_data_min, x_data_max) = utils::vec_range(&x_data_coords);
-        let (y_data_min, y_data_max) = utils::vec_range(&y_data_coords);
+    pub fn new<'a, I: AsArray<'a, f64>>(x_data_coords: I, y_data_coords: I) -> Line {
+        let x_view: Vec<_> = x_data_coords.into().iter().map(|v| NonNan::new(*v).unwrap()).collect();
+        let y_view: Vec<_> = y_data_coords.into().iter().map(|v| NonNan::new(*v).unwrap()).collect();
+        let ref x_data_min = x_view.iter().min().expect("Could not find x min");
+        let ref x_data_max = x_view.iter().max().expect("Could not find x max");
+        let ref y_data_min = y_view.iter().min().expect("Could not find y min");
+        let ref y_data_max = y_view.iter().max().expect("Could not find y max");
+
 
         let mut data_points = Vec::<Point>::new();
-        for (&x, &y) in x_data_coords.iter().zip(y_data_coords.iter()) {
-            let mut point = Point::new(x, y);
-            //point.set_color("r", 0.8);
+        for (ref x, ref y) in x_view.iter().zip(y_view.iter()) {
+            let mut point = Point::new(x.val(), y.val());
             point.set_size(0.0);
             data_points.push(point);
         }
@@ -120,7 +125,8 @@ impl Line {
         let dash_pattern = DashPattern::new(&line_style);
         Line {
             data_points: data_points,
-            data_frame: Frame::from_sides(x_data_min, x_data_max, y_data_min, y_data_max),
+            data_frame: Frame::from_sides(x_data_min.val(), x_data_max.val(),
+                                          y_data_min.val(), y_data_max.val()),
             global_frame: Frame::new(),
             color: Rgba::new(0.1, 0.2, 0.5, 0.9),
             line_width: 0.005,

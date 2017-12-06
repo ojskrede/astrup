@@ -36,7 +36,7 @@ pub struct Canvas {
 impl Canvas {
     pub fn new() -> Canvas {
         Canvas {
-            color: Rgba::new(0.8, 0.8, 0.8, 0.8),
+            color: Rgba::new(235.0/255.0, 230.0/255.0, 242.0/255.0, 0.8),
             //local_frame: Frame::new(),
             local_frame: Frame::from_sides(0.15, 0.95, 0.15, 0.95),
             global_frame: Frame::new(),
@@ -255,7 +255,7 @@ impl Plot {
     pub fn new() -> Plot {
         Plot {
             title: Text::new(""),
-            color: Rgba::new(0.9, 0.9, 0.9, 0.9),
+            color: Rgba::new(230.0/255.0, 231.0/255.0, 242.0/255.0, 0.8),
             local_frame: Frame::from_sides(0.0, 1.0, 0.0, 1.0),
             display_border: true,
             border_color: Rgba::new(0.0, 0.0, 0.0, 1.0),

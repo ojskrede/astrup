@@ -2,6 +2,11 @@
 //!
 
 extern crate astrup;
+extern crate ndarray;
+
+use std::f64::consts::PI;
+
+use ndarray::Array;
 
 use astrup::view::View;
 use astrup::figure::Figure;
@@ -62,10 +67,9 @@ fn main() {
     // TODO: Add support for this kind of short-hand thing
     //Figure::new().add(Plot::new().add(Chart::Line(Line::new(&x_data, &y_data))));
 
+    let x_data = Array::from_iter((0..100).map(|x| (x as f64) * 2.0 * PI / 100.0));
+    let y_data = Array::from_iter((0..100).map(|i| x_data[i].sin()));
 
-    let init_val: u64 = 4327;
-    let y_data: Vec<f64> = collatz(init_val);
-    let x_data: Vec<f64> = (0u64..y_data.len() as u64).map(|x| x as f64).collect();
     let line = Line::new(&x_data, &y_data);
 
     let mut plot3 = Plot::new();

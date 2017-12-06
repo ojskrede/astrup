@@ -9,6 +9,8 @@ chrono = "0.4"
 failure = "0.1"
 palette = "0.2"
 time = "0.1"
+ndarray = "0.10"
+
 
 [dependencies.glib]
 git = "https://github.com/gtk-rs/glib"

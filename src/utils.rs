@@ -3,6 +3,8 @@
 //! Collection of various handy utilities
 //!
 
+use std::cmp::Ordering;
+
 use cairo::Context;
 
 #[derive(Clone, Debug)]
@@ -245,6 +247,36 @@ impl Frame {
     }
 }
 
+/// Wrapper for f64 for ordering.
+/// Thanks to
+/// https://stackoverflow.com/questions/28247990/how-to-do-a-binary-search-on-a-vec-of-floats/28248065#28248065
+#[derive(PartialEq,PartialOrd)]
+pub struct NonNan {
+    val: f64,
+}
+
+impl NonNan {
+    pub fn new(val: f64) -> Option<NonNan> {
+        if val.is_nan() {
+            None
+        } else {
+            Some(NonNan { val: val })
+        }
+    }
+
+    pub fn val(&self) -> f64 {
+        self.val
+    }
+}
+
+impl Eq for NonNan {}
+
+impl Ord for NonNan {
+    fn cmp(&self, other: &NonNan) -> Ordering {
+        self.partial_cmp(other).unwrap()
+    }
+}
+
 /*
 /// ## Directional rectangle
 ///
@@ -319,16 +351,87 @@ pub trait Plottable {
     fn set_data_frame(&mut self, new_data_frame: Frame);
 }
 
-/// Return a list of [vec.min(), vec.max()]
-pub fn vec_range(vec: &Vec<f64>) -> (f64, f64) {
-    let mut max_val = vec[0];
-    let mut min_val = vec[0];
-    for val in vec.iter() {
-        max_val = val.max(max_val);
-        min_val = val.min(min_val);
-    }
-    (min_val, max_val)
+/*
+/// ## DataContainer
+///
+/// Containers that hold data that we are able to plot should implement this.
+pub trait DataContainer<T: Num + PartialOrd> {
+    fn length(&self) -> usize;
+    fn num_dimensions(&self) -> usize;
+    fn range(&self) -> (T, T);
 }
+
+impl<T: Num + PartialOrd> DataContainer<T> for Vec<T> {
+    fn length(&self) -> usize {
+        self.len()
+    }
+
+    fn num_dimensions(&self) -> usize {
+        1
+    }
+
+    fn range(&self) -> (T, T) {
+        let mut max_val = self[0];
+        let mut min_val = self[0];
+        for &val in self.iter() {
+            if val > max_val { max_val = val };
+            if val < min_val { min_val = val };
+        }
+        (min_val, max_val)
+    }
+
+}
+
+impl<T: Num + PartialOrd> DataContainer<T> for Array1<T> {
+    fn length(&self) -> usize {
+        self.dim()
+    }
+
+    fn num_dimensions(&self) -> usize {
+        1
+    }
+
+    fn range(&self) -> (T, T) {
+        let mut max_val = self[0];
+        let mut min_val = self[0];
+        for &val in self.iter() {
+            if val > max_val { max_val = val };
+            if val < min_val { min_val = val };
+        }
+        (min_val, max_val)
+    }
+}
+
+impl<T: Num + PartialOrd> DataContainer<T> for Array2<T> {
+    fn length(&self) -> usize {
+        self.dim().0
+    }
+
+    fn num_dimensions(&self) -> usize {
+        2
+    }
+
+    // TODO
+    fn range(&self) -> (T, T) {
+        (self[[0, 0]], self[[0, 0]])
+    }
+}
+
+impl<T: Num + PartialOrd> DataContainer<T> for Array3<T> {
+    fn length(&self) -> usize {
+        self.dim().0
+    }
+
+    fn num_dimensions(&self) -> usize {
+        3
+    }
+
+    // TODO
+    fn range(&self) -> (T, T) {
+        (self[[0, 0, 0]], self[[0, 0, 0]])
+    }
+}
+*/
 
 /// Return a number that is the input `number` rounded up to the nearest multiplum of `nearest`
 /// of order of magnitude `omagn`.

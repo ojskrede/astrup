@@ -4,10 +4,12 @@
 //!
 
 use cairo::Context;
+use ndarray::AsArray;
 
 use chart::point::Point;
 use utils;
-use utils::{Frame, Drawable, Plottable};
+use utils::{Frame, Drawable, Plottable, NonNan};
+
 
 #[derive(Clone, Debug)]
 pub struct Scatter {
@@ -17,18 +19,23 @@ pub struct Scatter {
 }
 
 impl Scatter {
-    pub fn new(x_data_coords: &Vec<f64>, y_data_coords: &Vec<f64>) -> Scatter {
-        let (x_data_min, x_data_max) = utils::vec_range(&x_data_coords);
-        let (y_data_min, y_data_max) = utils::vec_range(&y_data_coords);
+    pub fn new<'a, I: AsArray<'a, f64>>(x_data_coords: I, y_data_coords: I) -> Scatter {
+        let x_view: Vec<_> = x_data_coords.into().iter().map(|v| NonNan::new(*v).unwrap()).collect();
+        let y_view: Vec<_> = y_data_coords.into().iter().map(|v| NonNan::new(*v).unwrap()).collect();
+        let ref x_data_min = x_view.iter().min().expect("Could not find x min");
+        let ref x_data_max = x_view.iter().max().expect("Could not find x max");
+        let ref y_data_min = y_view.iter().min().expect("Could not find y min");
+        let ref y_data_max = y_view.iter().max().expect("Could not find y max");
 
         let mut data_points = Vec::<Point>::new();
-        for (&x, &y) in x_data_coords.iter().zip(y_data_coords.iter()) {
-            data_points.push(Point::new(x, y));
+        for (ref x, ref y) in x_view.iter().zip(y_view.iter()) {
+            data_points.push(Point::new(x.val(), y.val()));
         }
         Scatter {
             data_points: data_points,
             global_frame: Frame::new(),
-            data_frame: Frame::from_sides(x_data_min, x_data_max, y_data_min, y_data_max),
+            data_frame: Frame::from_sides(x_data_min.val(), x_data_max.val(),
+                                          y_data_min.val(), y_data_max.val()),
         }
     }
 }
