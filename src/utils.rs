@@ -484,9 +484,7 @@ pub fn prettify(number: f64) -> String {
     let omagn = if number == 0.0 { 0.0 } else { number.abs().log10().floor() };
     if omagn > 2.0 || omagn < -2.0 {
         format!("{:>e}", number)
-    } else if omagn >= 1.0 || omagn <= -1.0 {
-        format!("{0:>.0}", number)
     } else {
-        format!("{num:>.prec$}", num=number, prec= 2 - omagn as usize)
+        format!("{num:>.prec$}", num=number, prec=2)
     }
 }

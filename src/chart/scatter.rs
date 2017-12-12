@@ -5,8 +5,9 @@
 
 use cairo::Context;
 use ndarray::AsArray;
+use palette::Rgba;
 
-use chart::point::Point;
+use chart::point::{Point, Shape};
 use utils;
 use utils::{Frame, Drawable, Plottable, NonNan};
 
@@ -16,6 +17,8 @@ pub struct Scatter {
     data_points: Vec<Point>,
     global_frame: Frame,
     data_frame: Frame,
+    color: Rgba,
+    shape: Shape,
 }
 
 impl Scatter {
@@ -27,8 +30,13 @@ impl Scatter {
         let ref y_data_min = y_view.iter().min().expect("Could not find y min");
         let ref y_data_max = y_view.iter().max().expect("Could not find y max");
 
+        let color = Rgba::new(0.1, 0.1, 0.8, 0.9);
+        let shape = Shape::Circle;
         let mut data_points = Vec::<Point>::new();
         for (ref x, ref y) in x_view.iter().zip(y_view.iter()) {
+            let mut point = Point::new(x.val(), y.val());
+            point.set_color(color);
+            point.set_shape(shape.clone());
             data_points.push(Point::new(x.val(), y.val()));
         }
         Scatter {
@@ -36,7 +44,23 @@ impl Scatter {
             global_frame: Frame::new(),
             data_frame: Frame::from_sides(x_data_min.val(), x_data_max.val(),
                                           y_data_min.val(), y_data_max.val()),
+            color: color,
+            shape: shape,
         }
+    }
+
+    pub fn set_color(&mut self, color: Rgba) {
+        self.color = color;
+    }
+
+    pub fn set_shape(&mut self, shape_id: &str) {
+        // TODO: Move this to draw and get rid of enum??
+        self.shape = match shape_id {
+            "Circle" | "circle" | "c" | "o" => Shape::Circle,
+            "Square" | "square" | "s" => Shape::Square,
+            "Tick" | "tick" | "t" => Shape::Tick,
+            _ => Shape::Circle,
+        };
     }
 }
 
@@ -48,6 +72,8 @@ impl Drawable for Scatter {
         self.data_frame = canvas_data_frame.clone();
 
         for data_point in self.data_points.iter_mut() {
+            data_point.set_color(self.color);
+            data_point.set_shape(self.shape.clone());
             data_point.fit(canvas_global_frame, canvas_data_frame);
         }
     }

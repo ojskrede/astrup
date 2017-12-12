@@ -12,9 +12,10 @@ use utils;
 use utils::{Drawable, Frame};
 
 #[derive(Clone, Debug)]
-enum Shape {
+pub enum Shape {
     Circle,
     Square,
+    Tick,
     //Diamond,
     //Star,
 }
@@ -51,13 +52,8 @@ impl Point {
         self.color = color;
     }
 
-    pub fn set_shape(&mut self, shape_id: &str) {
-        // TODO: Move this to draw and get rid of enum??
-        self.shape = match shape_id {
-            "Circle" | "circle" | "c" | "o" => Shape::Circle,
-            "Square" | "square" | "s" => Shape::Square,
-            _ => Shape::Circle,
-        };
+    pub fn set_shape(&mut self, shape: Shape) {
+        self.shape = shape;
     }
 
     pub fn set_size(&mut self, size: f64) {
@@ -97,6 +93,13 @@ impl Drawable for Point {
         match self.shape {
             Shape::Circle => cr.arc(self.x_coord, self.y_coord, self.size, 0., 2.0*PI),
             Shape::Square => cr.rectangle(self.x_coord, self.y_coord, self.size, self.size),
+            Shape::Tick => {
+                // Vertical tick
+                cr.set_line_width(self.size / 4.0);
+                cr.move_to(self.x_coord, self.y_coord - self.size);
+                cr.line_to(self.x_coord, self.y_coord + self.size);
+                cr.stroke();
+            },
         }
         cr.fill()
     }
