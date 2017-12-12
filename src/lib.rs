@@ -43,7 +43,7 @@
 //! - Fix the use of PlotType in the api, hide it somehow.
 //! - Implement minor ticks and grid lines
 //! - Add legend.
-//! - Add dashed lines.
+//! - Add possibility for colored area between curves.
 //!
 //! ### Close future
 //! - Refactor fit and scaling functions, e.g. one fit_fig, and fit_plot for all drawables
