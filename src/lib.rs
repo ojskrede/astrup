@@ -47,30 +47,12 @@
 //!
 //! ### Close future
 //! - Refactor fit and scaling functions, e.g. one fit_fig, and fit_plot for all drawables
-//! - Axis label and tick label sizes seems to scale differently
-//! - Use palette crate
 //! - Make gridlines a part of tick struct. This is because a gridline is just an extension of a tick.
 //! - Also have a flag or something to indicate major / minor ticks.
-//! - Only display ticks that are 10^k * {1, 2, 5}
-//! - For each plot, include a canvas which is a smaller frame within the plot (determined by
-//! fig_frame) that can display data. The default would be to attach axes around this frame, and a
-//! grid inside it, but only labels, ticks and legends should be visible outside. That is, no data
-//! or gridlines. With this, the user can add multiple axes wherever inside this draw frame.
-//! Set plot_frame (in fig coords) => set canvas (in fig coords) => draw elements.
+//! - Implement dotted gridlines
+//! - Return self from &mut self methods such that you can write something like
 //!
-//! - Create a separate module that is called view, or view_session, or something.
-//!
-//! If the user only wants to create a figure and write it to file, no interaction with view
-//! or gtk::Application is needed. For this reason we move it.
-//!
-//! If the user wants to view the figures, it should be something like this
-//!
-//! >> // Creating figure_1 and figure_2
-//! >> // ...
-//! >> let view = astrup::View::new();
-//! >> view.add(figure_1)
-//! >> view.add(figure_2)
-//! >> view.show()
+//!     let plot = Plot::new(...).set_color(...).set_line_width(...)
 //!
 //! - Name frames according to what they are. If it is natural for a struct to have a local frame,
 //! name it struct.local_frame and let this allways be initialized to (0, 1)x(0, 1). Connected to
