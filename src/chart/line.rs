@@ -13,6 +13,13 @@ use utils::{Frame, Drawable, Plottable, NonNan};
 
 #[derive(Clone, Debug)]
 enum LineStyle {
+    Plain,
+    LeftStair,
+    RightStair,
+}
+
+#[derive(Clone, Debug)]
+enum StrokeStyle {
     Continuous,
     Dashed,
     Dotted,
@@ -27,9 +34,9 @@ struct DashPattern {
 }
 
 impl DashPattern {
-    fn new(line_style: &LineStyle) -> DashPattern {
-        match *line_style {
-            LineStyle::Dashed => {
+    fn new(stroke_style: &StrokeStyle) -> DashPattern {
+        match *stroke_style {
+            StrokeStyle::Dashed => {
                 DashPattern {
                     on_length: 0.01,
                     off_length: 0.015,
@@ -37,7 +44,7 @@ impl DashPattern {
                     cap: LineCap::Square,
                 }
             },
-            LineStyle::Dotted => {
+            StrokeStyle::Dotted => {
                 DashPattern {
                     on_length: 0.0,
                     off_length: 0.015,
@@ -45,7 +52,7 @@ impl DashPattern {
                     cap: LineCap::Round,
                 }
             },
-            LineStyle::Continuous => {
+            StrokeStyle::Continuous => {
                 DashPattern {
                     on_length: 1.0,
                     off_length: 0.0,
@@ -102,6 +109,7 @@ pub struct Line {
     color: Rgba,
     line_width: f64,
     line_style: LineStyle,
+    stroke_style: StrokeStyle,
     dash_pattern: DashPattern,
 }
 
@@ -121,8 +129,9 @@ impl Line {
             point.set_size(0.0);
             data_points.push(point);
         }
-        let line_style = LineStyle::Continuous;
-        let dash_pattern = DashPattern::new(&line_style);
+        let stroke_style = StrokeStyle::Continuous;
+        let dash_pattern = DashPattern::new(&stroke_style);
+
         Line {
             data_points: data_points,
             data_frame: Frame::from_sides(x_data_min.val(), x_data_max.val(),
@@ -130,7 +139,8 @@ impl Line {
             global_frame: Frame::new(),
             color: Rgba::new(0.1, 0.2, 0.5, 0.9),
             line_width: 0.005,
-            line_style: line_style,
+            line_style: LineStyle::Plain,
+            stroke_style: stroke_style,
             dash_pattern: dash_pattern,
         }
     }
@@ -145,11 +155,20 @@ impl Line {
 
     pub fn set_line_style(&mut self, style: &str) {
         match style {
-            "dashed" => self.line_style = LineStyle::Dashed,
-            "dotted" => self.line_style = LineStyle::Dotted,
-            _ => self.line_style = LineStyle::Continuous,
+            "plain" => self.line_style = LineStyle::Plain,
+            "left_stair" => self.line_style = LineStyle::LeftStair,
+            "right_stair" => self.line_style = LineStyle::RightStair,
+            _ => self.line_style = LineStyle::Plain,
         }
-        self.dash_pattern = DashPattern::new(&self.line_style);
+    }
+
+    pub fn set_stroke_style(&mut self, style: &str) {
+        match style {
+            "dashed" => self.stroke_style = StrokeStyle::Dashed,
+            "dotted" => self.stroke_style = StrokeStyle::Dotted,
+            _ => self.stroke_style = StrokeStyle::Continuous,
+        }
+        self.dash_pattern = DashPattern::new(&self.stroke_style);
     }
 
     pub fn set_dash_on_length(&mut self, val: f64) {
@@ -191,27 +210,135 @@ impl Drawable for Line {
         cr.set_dash(&[self.dash_pattern.on_length(), self.dash_pattern.off_length()],
                       self.dash_pattern.offset());
         cr.set_line_cap(self.dash_pattern.line_cap());
-        for data_point in self.data_points.iter() {
-            let canvas_x = utils::map_range(data_point.x_coord(),
-                                            self.data_frame.left(), self.data_frame.right(),
-                                            self.global_frame.left(), self.global_frame.right());
-            let canvas_y = utils::map_range(data_point.y_coord(),
-                                            self.data_frame.bottom(), self.data_frame.top(),
-                                            self.global_frame.bottom(), self.global_frame.top());
-            let mut canvas_point = data_point.clone();
-            canvas_point.set_x_coord(canvas_x);
-            canvas_point.set_y_coord(canvas_y);
+        match self.line_style {
+            LineStyle::Plain => {
+                for data_point in self.data_points.iter() {
+                    let canvas_x = utils::map_range(data_point.x_coord(),
+                                                    self.data_frame.left(), self.data_frame.right(),
+                                                    self.global_frame.left(), self.global_frame.right());
+                    let canvas_y = utils::map_range(data_point.y_coord(),
+                                                    self.data_frame.bottom(), self.data_frame.top(),
+                                                    self.global_frame.bottom(), self.global_frame.top());
+                    let mut canvas_point = data_point.clone();
+                    canvas_point.set_x_coord(canvas_x);
+                    canvas_point.set_y_coord(canvas_y);
 
-            if !first_point {
-                cr.set_source_rgba(self.color.red as f64, self.color.green as f64,
-                                   self.color.blue as f64, self.color.alpha as f64);
-                cr.set_line_width(self.line_width);
-                cr.line_to(canvas_point.x_coord(), canvas_point.y_coord());
-                cr.stroke();
-            }
-            canvas_point.draw(cr);
-            cr.move_to(canvas_point.x_coord(), canvas_point.y_coord());
-            first_point = false;
+                    if !first_point {
+                        cr.set_source_rgba(self.color.red as f64, self.color.green as f64,
+                                           self.color.blue as f64, self.color.alpha as f64);
+                        cr.set_line_width(self.line_width);
+                        cr.line_to(canvas_point.x_coord(), canvas_point.y_coord());
+                        cr.stroke();
+                    }
+                    canvas_point.draw(cr);
+                    cr.move_to(canvas_point.x_coord(), canvas_point.y_coord());
+                    first_point = false;
+                }
+            },
+            LineStyle::LeftStair => {
+                let mut prev_canvas_x = 0.0;
+                let mut prev_canvas_y = 0.0;
+                for data_point in self.data_points.iter() {
+                    let canvas_x = utils::map_range(data_point.x_coord(),
+                                                    self.data_frame.left(), self.data_frame.right(),
+                                                    self.global_frame.left(), self.global_frame.right());
+                    let canvas_y = utils::map_range(data_point.y_coord(),
+                                                    self.data_frame.bottom(), self.data_frame.top(),
+                                                    self.global_frame.bottom(), self.global_frame.top());
+                    let mut canvas_point = data_point.clone();
+
+                    if first_point {
+                        canvas_point.set_x_coord(canvas_x);
+                        canvas_point.set_y_coord(canvas_y);
+                    } else {
+                        canvas_point.set_x_coord(prev_canvas_x);
+                        canvas_point.set_y_coord(canvas_y);
+                    }
+
+                    if first_point {
+                        // After the first point, this is the "angle point" in the stair, and has
+                        // no original point attached to it, therefore we do not draw it.
+                        canvas_point.draw(cr);
+                    } else {
+                        cr.set_source_rgba(self.color.red as f64, self.color.green as f64,
+                                           self.color.blue as f64, self.color.alpha as f64);
+                        cr.set_line_width(self.line_width);
+                        cr.line_to(canvas_point.x_coord(), canvas_point.y_coord());
+                        cr.stroke();
+                    }
+                    cr.move_to(canvas_point.x_coord(), canvas_point.y_coord());
+
+                    if !first_point {
+                        canvas_point.set_x_coord(canvas_x);
+
+                        cr.set_source_rgba(self.color.red as f64, self.color.green as f64,
+                                           self.color.blue as f64, self.color.alpha as f64);
+                        cr.set_line_width(self.line_width);
+                        cr.line_to(canvas_point.x_coord(), canvas_point.y_coord());
+                        cr.stroke();
+
+                        canvas_point.draw(cr);
+                        cr.move_to(canvas_point.x_coord(), canvas_point.y_coord());
+                    }
+
+                    prev_canvas_x = canvas_x;
+                    prev_canvas_y = canvas_y;
+
+                    first_point = false;
+                }
+            },
+            LineStyle::RightStair => {
+                let mut prev_canvas_x = 0.0;
+                let mut prev_canvas_y = 0.0;
+                for data_point in self.data_points.iter() {
+                    let canvas_x = utils::map_range(data_point.x_coord(),
+                                                    self.data_frame.left(), self.data_frame.right(),
+                                                    self.global_frame.left(), self.global_frame.right());
+                    let canvas_y = utils::map_range(data_point.y_coord(),
+                                                    self.data_frame.bottom(), self.data_frame.top(),
+                                                    self.global_frame.bottom(), self.global_frame.top());
+                    let mut canvas_point = data_point.clone();
+
+                    if first_point {
+                        canvas_point.set_x_coord(canvas_x);
+                        canvas_point.set_y_coord(canvas_y);
+                    } else {
+                        canvas_point.set_x_coord(canvas_x);
+                        canvas_point.set_y_coord(prev_canvas_y);
+                    }
+
+                    if first_point {
+                        // After the first point, this is the "angle point" in the stair, and has
+                        // no original point attached to it, therefore we do not draw it.
+                        canvas_point.draw(cr);
+                    } else {
+                        cr.set_source_rgba(self.color.red as f64, self.color.green as f64,
+                                           self.color.blue as f64, self.color.alpha as f64);
+                        cr.set_line_width(self.line_width);
+                        cr.line_to(canvas_point.x_coord(), canvas_point.y_coord());
+                        cr.stroke();
+                    }
+                    cr.move_to(canvas_point.x_coord(), canvas_point.y_coord());
+
+                    if !first_point {
+                        canvas_point.set_y_coord(canvas_y);
+
+                        cr.set_source_rgba(self.color.red as f64, self.color.green as f64,
+                                           self.color.blue as f64, self.color.alpha as f64);
+                        cr.set_line_width(self.line_width);
+                        cr.line_to(canvas_point.x_coord(), canvas_point.y_coord());
+                        cr.stroke();
+
+                        canvas_point.draw(cr);
+                        cr.move_to(canvas_point.x_coord(), canvas_point.y_coord());
+                    }
+
+                    prev_canvas_x = canvas_x;
+                    prev_canvas_y = canvas_y;
+
+                    first_point = false;
+                }
+            },
         }
         // Reset back to continuous line
         cr.set_dash(&[], 0.0);

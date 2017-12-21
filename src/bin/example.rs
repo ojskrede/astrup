@@ -33,6 +33,7 @@ fn collatz(init_val: u64) -> Vec<f64> {
 }
 
 fn main() {
+
     let x_data = vec![50.0, 51.0, 46.0, 40.0];
     let y_data = vec![590.0, 510.0, 600.0, 450.0];
     let scatter = Scatter::new(&x_data, &y_data);
@@ -41,19 +42,19 @@ fn main() {
     let init_val: u64 = 123;
     let y_data: Vec<f64> = collatz(init_val);
     let x_data: Vec<f64> = (0u64..y_data.len() as u64).map(|x| x as f64).collect();
-    let line = Line::new(&x_data, &y_data);
+    let mut line = Line::new(&x_data, &y_data);
+    line.set_line_style("right_stair");
 
     let mut plot1 = Plot::new();
     plot1.set_local_frame(0.0, 0.49, 0.0, 0.69);
     plot1.add(Chart::Line(line));
     plot1.add(Chart::Scatter(scatter));
 
-
     let init_val: u64 = 237;
     let y_data: Vec<f64> = collatz(init_val);
     let x_data: Vec<f64> = (0u64..y_data.len() as u64).map(|x| x as f64).collect();
     let mut line = Line::new(&x_data, &y_data);
-    line.set_line_style("dashed");
+    line.set_stroke_style("dashed");
 
     let mut plot2 = Plot::new();
     plot2.set_local_frame(0.5, 0.99, 0.3, 0.99);
