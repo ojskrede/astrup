@@ -53,7 +53,16 @@ pub struct View {
 }
 
 impl View {
-    pub fn new(mut figure: Figure) -> Result<View, Error> {
+    pub fn new() -> Result<View, Error> {
+        let app = gtk::Application::new("com.astrup.application", gio::ApplicationFlags::empty())
+                                           .expect("Failed to initialize application");
+        Ok(View {
+            figures: vec![],
+            application: app,
+        })
+    }
+
+    pub fn new_from(mut figure: Figure) -> Result<View, Error> {
         figure.fit()?;
         let app = gtk::Application::new("com.astrup.application", gio::ApplicationFlags::empty())
                                            .expect("Failed to initialize application");
