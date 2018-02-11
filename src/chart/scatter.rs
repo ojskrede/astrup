@@ -11,7 +11,10 @@ use chart::point::{Point, Shape};
 use utils;
 use utils::{Frame, Drawable, Plottable, NonNan};
 
-
+/// Scatter chart
+///
+/// A type used to visualise data with points. Each point coordinate is determined by the input
+/// data arrays.
 #[derive(Clone, Debug)]
 pub struct Scatter {
     data_points: Vec<Point>,
@@ -22,6 +25,7 @@ pub struct Scatter {
 }
 
 impl Scatter {
+    /// Create and return a new Scatter chart
     pub fn new<'a, I: AsArray<'a, f64>>(x_data_coords: I, y_data_coords: I) -> Scatter {
         let x_view: Vec<_> = x_data_coords.into().iter().map(|v| NonNan::new(*v).unwrap()).collect();
         let y_view: Vec<_> = y_data_coords.into().iter().map(|v| NonNan::new(*v).unwrap()).collect();
@@ -49,10 +53,21 @@ impl Scatter {
         }
     }
 
+    /// Set the scatter point color
     pub fn set_color(&mut self, color: Rgba) {
         self.color = color;
     }
 
+    /// Set the shape of the scatter point. Circle, tick, or square.
+    ///
+    /// TODO: Circle is currently filled. This is perhaps not the expected shape.
+    ///
+    /// | Input                              | Shape  |
+    /// | ---------------------------------- | ------ |
+    /// | "Circle" or "circle" or "c" or "o" | Circle |
+    /// | "Square" or "square" or "s"        | Square |
+    /// | "Tick" or "tick" or "t"            | Tick   |
+    /// | Any other &str                     | Circle |
     pub fn set_shape(&mut self, shape_id: &str) {
         // TODO: Move this to draw and get rid of enum??
         self.shape = match shape_id {

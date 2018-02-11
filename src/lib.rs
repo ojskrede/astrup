@@ -5,8 +5,8 @@
 //! ## Gloals:
 //! - Input `Vec<Num>` and `ndarray::Array*<Num>` types
 //! - It should be intuitive to build plots, but not as "easy as possible". It will probably be
-//! quite verbose.
-//! - Very modular.
+//! quite verbose and explicit.
+//! - Very configurable.
 //!
 //!
 //! ## Structures
@@ -58,7 +58,9 @@
 //! - Implement dotted gridlines
 //! - Return self from &mut self methods such that you can write something like
 //!
+//! ```
 //!     let plot = Plot::new(...).set_color(...).set_line_width(...)
+//! ```
 //!
 //! - Name frames according to what they are. If it is natural for a struct to have a local frame,
 //! name it struct.local_frame and let this allways be initialized to (0, 1)x(0, 1). Connected to
@@ -133,11 +135,3 @@ pub mod axis;
 pub mod mark;
 pub mod color;
 pub mod chart;
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}

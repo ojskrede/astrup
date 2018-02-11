@@ -7,6 +7,7 @@ use std::cmp::Ordering;
 
 use cairo::Context;
 
+/// A simple container for an (x, y) coordinate
 #[derive(Clone, Debug)]
 pub struct Coord {
     x: f64,
@@ -14,6 +15,7 @@ pub struct Coord {
 }
 
 impl Coord {
+    /// Create and return a new Coord
     pub fn new(x: f64, y: f64) -> Coord {
         Coord {
             x: x,
@@ -21,27 +23,33 @@ impl Coord {
         }
     }
 
+    /// Update a coordinate
     pub fn set(&mut self, x: f64, y: f64) {
         self.x = x;
         self.y = y;
     }
 
+    /// Update the first element of a coordinate
     pub fn set_x(&mut self, x: f64) {
         self.x = x;
     }
 
+    /// Update the second element of a coordinate
     pub fn set_y(&mut self, y: f64) {
         self.y = y;
     }
 
+    /// Return the first element of a coordinate
     pub fn x(&self) -> f64 {
         self.x
     }
 
+    /// Return the second element of a coordinate
     pub fn y(&self) -> f64 {
         self.y
     }
 
+    /// Return the distance between this coordinate and the origin
     pub fn len(&self) -> f64 {
         (self.x * self.x + self.y * self.y).sqrt()
     }
@@ -74,6 +82,7 @@ impl Coord {
     }
 }
 
+/// A structure for text elements like labels and titles
 #[derive(Clone, Debug)]
 pub struct Text {
     content: String,
@@ -84,6 +93,7 @@ pub struct Text {
 }
 
 impl Text {
+    /// Create and return a new Text struct
     pub fn new(content: &str) -> Text {
         Text {
             content: String::from(content),
@@ -94,49 +104,60 @@ impl Text {
         }
     }
 
+    /// Return the content of the text
     pub fn content(&self) -> String {
         self.content.clone()
     }
 
+    /// Return the text font size
     pub fn font_size(&self) -> f64 {
         self.font_size
     }
 
+    /// Return the angle of the text
     pub fn angle(&self) -> f64 {
         self.angle
     }
 
+    /// Return the horisontal offset of the text
     pub fn hor_offset(&self) -> f64 {
         self.hor_offset
     }
 
+    /// Return the vertical offset of the text
     pub fn ver_offset(&self) -> f64 {
         self.ver_offset
     }
 
+    /// Overwrite the text content
     pub fn set_content(&mut self, content: &str) {
         self.content = String::from(content);
     }
 
+    /// Overwrite the text font size
     pub fn set_font_size(&mut self, size: f64) {
         self.font_size = size;
     }
 
+    /// Overwrite the text angle
     pub fn set_angle(&mut self, val: f64) {
         self.angle = val;
     }
 
+    /// Owerwrite the text offset
     pub fn set_offset(&mut self, hor: f64, ver: f64) {
         self.hor_offset = hor;
         self.ver_offset = ver;
     }
 
+    /// Scale the vertical and horisontal text offset
     // TODO: Separate vertical and horisontal scaling?
     pub fn scale_offset(&mut self, factor: f64) {
         self.hor_offset *= factor;
         self.ver_offset *= factor;
     }
 
+    /// Scale the font size and offsets of the text
     pub fn scale_size(&mut self, factor: f64) {
         self.font_size *= factor;
         self.scale_offset(factor);
@@ -157,7 +178,6 @@ pub struct Frame {
 }
 
 impl Frame {
-
     /// Return a new, default frame.
     pub fn new() -> Frame {
         Frame {
@@ -302,7 +322,9 @@ impl Frame {
     }
 }
 
-/// Wrapper for f64 for ordering.
+/// Wrapper of f64 that implements Ord.
+///
+/// In this context it is mostly used to find min and max in data containers of f64.
 ///
 /// Thanks to
 /// https://stackoverflow.com/questions/28247990/how-to-do-a-binary-search-on-a-vec-of-floats/28248065#28248065
@@ -540,24 +562,28 @@ pub fn map_range(old_number: f64, old_min: f64, old_max: f64, new_min: f64, new_
 ///
 /// For a number **n > 0**, we define the order of magnitude **p** to be the integer such that
 ///
-///     **n \in [10^p, 10^{p+1} )**
+/// ```
+/// n \in [10^p, 10^{p+1})
+/// ```
 ///
-/// If **n = 0**, we define **p = 0**.
+/// If *n = 0*, we define *p = 0*.
 ///
 /// Examples:
 ///
-///              n       p
-///     123_456.78       5
-///      12_345.67       4
-///       1_234.56       3
-///         123.45       2
-///          12.34       1
-///           1.23       0
-///              0       0
-///         0.1234      -1
-///         0.0123      -2
-///         0.0012      -3
-///         0.0001      -4
+/// |         n |   p |
+/// | ---------:| --: |
+/// | 123456.78 |   5 |
+/// |  12345.67 |   4 |
+/// |   1234.56 |   3 |
+/// |    123.45 |   2 |
+/// |     12.34 |   1 |
+/// |      1.23 |   0 |
+/// |         0 |   0 |
+/// |    0.1234 |  -1 |
+/// |    0.0123 |  -2 |
+/// |    0.0012 |  -3 |
+/// |    0.0001 |  -4 |
+///
 pub fn order_of_magnitude(number: f64) -> i32 {
     // TODO: Perhaps make the "near zero" estimate dependent on the order of magnitude of the other
     // tick values. The current hard-coded version works for most cases, but not for very small
@@ -574,21 +600,22 @@ pub fn order_of_magnitude(number: f64) -> i32 {
 ///
 /// Examples where n is the number, p is the order of magnitude and m is the intended output
 ///
-///              n       p      m
-///     123_456.78       5      1.23e5
-///      12_345.67       4      1.23e4
-///       1_234.56       3      1.23e3
-///         123.45       2         123
-///          12.34       1        12.3
-///           1.23       0        1.23
-///           0.00       0        0.00
-///         0.1234      -1        0.12
-///         0.0123      -2       0.012
-///        0.00123      -3     1.23e-3
-///       0.000123      -4     1.23e-4
+///  |         n |   p |     m   |
+///  | --------: | --: | ------: |
+///  | 123456.78 |   5 |  1.23e5 |
+///  |  12345.67 |   4 |  1.23e4 |
+///  |   1234.56 |   3 |  1.23e3 |
+///  |    123.45 |   2 |     123 |
+///  |     12.34 |   1 |    12.3 |
+///  |      1.23 |   0 |    1.23 |
+///  |      0.00 |   0 |    0.00 |
+///  |    0.1234 |  -1 |    0.12 |
+///  |    0.0123 |  -2 |   0.012 |
+///  |   0.00123 |  -3 | 1.23e-3 |
+///  |  0.000123 |  -4 | 1.23e-4 |
 ///
-/// This means that the with of a tick label (for |p| < 10) will be at most 8 characters (e.g.
-/// -1.23e-4)
+/// This means that the with of a tick label (for *|p| < 10*) will be at most 8 characters
+/// (e.g. *-1.23e-4*)
 pub fn prettify(number: f64) -> String {
     let omagn = order_of_magnitude(number);
     if omagn > 2 || omagn < -2 {

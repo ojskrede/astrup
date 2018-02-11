@@ -167,10 +167,10 @@ impl Axis {
     ///
     /// ### Method
     ///
-    /// 1. Find the orider of magnitude of the difference in the data range. Call this omagn.
-    /// 2a. Let min_point be min(data) rounded down to nearest 10^(omagn - 2).
-    /// 2b. Let max_point be max(data) rounded up to nearest 10^(omagn - 2).
-    /// 3. mark_distance = (max_point - min_point) / num_labels rounded to nearest 10^(omagn - 2)
+    /// 1. Find the orider of magnitude of the difference in the data range. Call this *p*.
+    /// 2a. Let min_point be min(data) rounded down to nearest *10^(p - 2)*.
+    /// 2b. Let max_point be max(data) rounded up to nearest *10^(p - 2)*.
+    /// 3. mark_distance = (max_point - min_point) / num_labels rounded to nearest *10^(p - 2)*
     /// 4. Then, let mark_k = min_point + k*mark_distance, for k = 0 until mark_k is greater or
     ///    equal to max(data).
     /// 5. Transform between labels in the data framework (the above) and positions in the drawing
@@ -178,7 +178,6 @@ impl Axis {
     ///
     ///
     /// TODO:
-    ///  - Add a feature that only accepts marks at locations 10^k * {1, 2, 5} for integer k.
     ///  - Compute the martk data location based on largest data frame. Then update the axis' data
     ///  range to be cover (be the same as) its mark data range. Then adjust the plot location of
     ///  its marks, data, gridlines, etc. Currently the axis range is determined by the range of

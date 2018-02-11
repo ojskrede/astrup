@@ -8,8 +8,7 @@ use palette::Rgba;
 use ndarray::AsArray;
 
 use chart::point::Point;
-use utils;
-use utils::{Frame, Drawable, Plottable, NonNan};
+use utils::{self, Frame, Drawable, Plottable, NonNan};
 
 #[derive(Clone, Debug)]
 enum LineStyle {
@@ -101,6 +100,16 @@ impl DashPattern {
     }
 }
 
+/// Line struct
+///
+/// With this chart, one is able to display data using lines. Straight lines are drawn between
+/// coordinates, determined by the input data points. You can e.g. alter the line color, the dash
+/// pattern, and the stroke style.
+///
+/// **Note** The input can be any data container that implements the AsArray trait (e.g. a Vec, or
+/// ndarray Array), but the contained data must be f64. Ideally, this should be any integer or
+/// float, but I have not been able to implement a generic over them also. This is perhaps
+/// connected to things like higher kinded types and the like, which I think will come soon.
 #[derive(Clone, Debug)]
 pub struct Line {
     data_points: Vec<Point>,
@@ -114,6 +123,7 @@ pub struct Line {
 }
 
 impl Line {
+    /// Create and return a new Line chart
     pub fn new<'a, I: AsArray<'a, f64>>(x_data_coords: I, y_data_coords: I) -> Line {
         let x_view: Vec<_> = x_data_coords.into().iter().map(|v| NonNan::new(*v).unwrap()).collect();
         let y_view: Vec<_> = y_data_coords.into().iter().map(|v| NonNan::new(*v).unwrap()).collect();
@@ -145,14 +155,17 @@ impl Line {
         }
     }
 
+    /// Set the line color
     pub fn set_color(&mut self, color: Rgba) {
         self.color = color;
     }
 
+    /// Set the line width
     pub fn set_line_width(&mut self, val: f64) {
         self.line_width = val;
     }
 
+    /// Set the style of the line. Plain, left stair, or right stair.
     pub fn set_line_style(&mut self, style: &str) {
         match style {
             "plain" => self.line_style = LineStyle::Plain,
@@ -162,6 +175,7 @@ impl Line {
         }
     }
 
+    /// Set the stroke style of the line
     pub fn set_stroke_style(&mut self, style: &str) {
         match style {
             "dashed" => self.stroke_style = StrokeStyle::Dashed,
@@ -171,18 +185,22 @@ impl Line {
         self.dash_pattern = DashPattern::new(&self.stroke_style);
     }
 
+    /// Set the length of the ``on duration'' of a dash in a dash line
     pub fn set_dash_on_length(&mut self, val: f64) {
         self.dash_pattern.set_on_length(val);
     }
 
+    /// Set the length of the ``off duration'' of a dash in a dash line
     pub fn set_dash_off_length(&mut self, val: f64) {
         self.dash_pattern.set_off_length(val);
     }
 
+    /// Set the offset of the line dash pattern
     pub fn set_dash_offset(&mut self, val: f64) {
         self.dash_pattern.set_offset(val);
     }
 
+    /// Set the line cap of the line dash pattern
     pub fn set_line_cap(&mut self, cap: LineCap) {
         self.dash_pattern.set_line_cap(cap);
     }
@@ -237,7 +255,6 @@ impl Drawable for Line {
             },
             LineStyle::LeftStair => {
                 let mut prev_canvas_x = 0.0;
-                let mut prev_canvas_y = 0.0;
                 for data_point in self.data_points.iter() {
                     let canvas_x = utils::map_range(data_point.x_coord(),
                                                     self.data_frame.left(), self.data_frame.right(),
@@ -282,13 +299,11 @@ impl Drawable for Line {
                     }
 
                     prev_canvas_x = canvas_x;
-                    prev_canvas_y = canvas_y;
 
                     first_point = false;
                 }
             },
             LineStyle::RightStair => {
-                let mut prev_canvas_x = 0.0;
                 let mut prev_canvas_y = 0.0;
                 for data_point in self.data_points.iter() {
                     let canvas_x = utils::map_range(data_point.x_coord(),
@@ -333,7 +348,6 @@ impl Drawable for Line {
                         cr.move_to(canvas_point.x_coord(), canvas_point.y_coord());
                     }
 
-                    prev_canvas_x = canvas_x;
                     prev_canvas_y = canvas_y;
 
                     first_point = false;
