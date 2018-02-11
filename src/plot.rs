@@ -159,7 +159,7 @@ impl Canvas {
         ver_axis.compute_marks()?;
         //ver_axis.scale_tick_label_offset(1.7);
         ver_axis.set_label_offset(-0.17, -0.01);
-        ver_axis.set_tick_label_offset(-0.12, -0.01);
+        ver_axis.set_tick_label_offset(-0.10, -0.01);
         ver_axis.set_tick_font_size(0.03);
 
         Ok((hor_axis, ver_axis))

@@ -8,7 +8,7 @@ use cairo::{Context, Matrix, MatrixTrait};
 use cairo::enums::{FontSlant, FontWeight};
 use palette::Rgba;
 
-use utils::{Coord, Frame, Text, round_down, round_nearest, map_range, prettify};
+use utils::{self, Coord, Frame, Text};
 use mark::{Mark, Tick};
 
 /// ## Axis
@@ -188,13 +188,13 @@ impl Axis {
     pub fn compute_marks(&mut self) -> Result<(), Error> {
         let data_diff = self.data_range[1] - self.data_range[0];
         let ca_dist = data_diff / self.ca_num_marks as f64;
-        let omagn = ca_dist.abs().log10().floor();
+        let omagn = utils::order_of_magnitude(ca_dist);
 
         // Find for what k in (2, 5, 10) we shall round to the nearest ten power of
         let mut smallest_diff = MAX;
         let mut round_number = 0f64;
         for &i in [2.0, 5.0, 10.0].iter() {
-            let nearest = round_nearest(ca_dist, omagn, i);
+            let nearest = utils::round_nearest(ca_dist, omagn, i);
             let diff = (ca_dist - nearest).abs();
             if diff < smallest_diff {
                 smallest_diff = diff;
@@ -202,9 +202,9 @@ impl Axis {
             }
         }
 
-        let actual_min_point = round_down(self.data_range[0], omagn, round_number);
+        let actual_min_point = utils::round_down(self.data_range[0], omagn, round_number);
         let ca_max_point = *self.data_range.last().ok_or(err_msg("No final element"))?;
-        let mark_distance = round_nearest(ca_dist, omagn, round_number);
+        let mark_distance = utils::round_nearest(ca_dist, omagn, round_number);
 
         let mut data_locations = vec![actual_min_point];
         let mut data_location_k = actual_min_point;
@@ -220,13 +220,13 @@ impl Axis {
         let min_data = data_locations[0];
         let max_data = *data_locations.last().ok_or(err_msg("No final element"))?;
         for data_location in data_locations {
-            let mark_x = map_range(data_location, min_data, max_data,
-                                   self.local_start.x(), self.local_end.x());
-            let mark_y = map_range(data_location, min_data, max_data,
-                                   self.local_start.y(), self.local_end.y());
+            let mark_x = utils::map_range(data_location, min_data, max_data,
+                                          self.local_start.x(), self.local_end.x());
+            let mark_y = utils::map_range(data_location, min_data, max_data,
+                                          self.local_start.y(), self.local_end.y());
             let mark_location = Coord::new(mark_x, mark_y);
             let mut mark_k = Mark::new(mark_location);
-            mark_k.set_label_content(&prettify(data_location));
+            mark_k.set_label_content(&utils::prettify(data_location));
 
             marks.push(mark_k);
 

@@ -3,13 +3,13 @@
 //! A rust plotting library.
 //!
 //! ## Gloals:
-//! - Input `Vec<Num>` and `ndarray Array*` types
+//! - Input `Vec<Num>` and `ndarray::Array*<Num>` types
 //! - It should be intuitive to build plots, but not as "easy as possible". It will probably be
 //! quite verbose.
 //! - Very modular.
 //!
 //!
-//! ## Structurs
+//! ## Structures
 //!
 //! ### Figure
 //!
@@ -46,6 +46,10 @@
 //! - Add possibility for colored area between curves.
 //!
 //! ### Close future
+//! - Set axes data range explicitly. Currently it is determined to fit the range of the input
+//! data.
+//! - Set figure dimensions. Currently, non-square looks ugly.
+//! - Make more examples, and organise them sensibly
 //! - Refactor fit and scaling functions, e.g. one fit_fig, and fit_plot for all drawables
 //! - Make gridlines a part of tick struct. This is because a gridline is just an extension of a tick.
 //! - Also have a flag or something to indicate major / minor ticks.
@@ -59,6 +63,8 @@
 //! this local_frame is a global_frame, that holds coordinates relative to the global Figure
 //! coordinate system. The global_frame is used for drawing. If the struct have data attached to
 //! it, name this struct.data_frame.
+//!
+//! ## About
 //!
 //! There is a natural hierarchy to structs in this library
 //!

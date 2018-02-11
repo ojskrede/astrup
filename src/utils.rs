@@ -437,8 +437,8 @@ impl<T: Num + PartialOrd> DataContainer<T> for Array3<T> {
 /// of order of magnitude `omagn`.
 ///
 /// Examples:
-pub fn round_up(number: f64, omagn: f64, nearest: f64) -> f64 {
-    let nearest_pow = nearest * 10.0_f64.powi(omagn as i32);
+pub fn round_up(number: f64, omagn: i32, nearest: f64) -> f64 {
+    let nearest_pow = nearest * 10.0_f64.powi(omagn);
     number - number % nearest_pow + nearest_pow
 }
 
@@ -446,8 +446,8 @@ pub fn round_up(number: f64, omagn: f64, nearest: f64) -> f64 {
 /// of order of magnitude `omagn`.
 ///
 /// Examples:
-pub fn round_down(number: f64, omagn: f64, nearest: f64) -> f64 {
-    let nearest_pow = nearest * 10.0_f64.powi(omagn as i32);
+pub fn round_down(number: f64, omagn: i32, nearest: f64) -> f64 {
+    let nearest_pow = nearest * 10.0_f64.powi(omagn);
     if number >= 0.0 {
         number - number % nearest_pow
     } else {
@@ -459,8 +459,8 @@ pub fn round_down(number: f64, omagn: f64, nearest: f64) -> f64 {
 /// order of magnitude `omagn`.
 ///
 /// Examples:
-pub fn round_nearest(number: f64, omagn: f64, nearest: f64) -> f64 {
-    let nearest_pow = nearest * 10.0_f64.powi(omagn as i32);
+pub fn round_nearest(number: f64, omagn: i32, nearest: f64) -> f64 {
+    let nearest_pow = nearest * 10.0_f64.powi(omagn);
     let round_up = number - number % nearest_pow + nearest_pow;
     let round_down = number - number % nearest_pow;
     if (round_down - number).abs() > (round_up - number).abs() {
@@ -480,11 +480,73 @@ pub fn map_range(old_number: f64, old_min: f64, old_max: f64, new_min: f64, new_
     }
 }
 
-pub fn prettify(number: f64) -> String {
-    let omagn = if number == 0.0 { 0.0 } else { number.abs().log10().floor() };
-    if omagn > 2.0 || omagn < -2.0 {
-        format!("{:>e}", number)
+/// Find the order of magnitude of a number.
+///
+/// For a number **n > 0**, we define the order of magnitude **p** to be the integer such that
+///
+///     **n \in [10^p, 10^{p+1} )**
+///
+/// If **n = 0**, we define **p = 0**.
+///
+/// Examples:
+///
+///              n       p
+///     123_456.78       5
+///      12_345.67       4
+///       1_234.56       3
+///         123.45       2
+///          12.34       1
+///           1.23       0
+///           0.00       0
+///         0.1234      -1
+///         0.0123      -2
+///         0.0012      -3
+///         0.0001      -4
+pub fn order_of_magnitude(number: f64) -> i32 {
+    if number == 0.0 {
+        0
     } else {
-        format!("{num:>.prec$}", num=number, prec=2)
+        number.abs().log10().floor() as i32
+    }
+}
+
+
+/// Format a tick label w.r.t. space and clarity
+///
+/// Examples where n is the number, p is the order of magnitude and m is the intended output
+///
+///              n       p      m
+///     123_456.78       5      1.23e5
+///      12_345.67       4      1.23e4
+///       1_234.56       3      1.23e3
+///         123.45       2         123
+///          12.34       1        12.3
+///           1.23       0        1.23
+///           0.00       0        0.00
+///         0.1234      -1        0.12
+///         0.0123      -2       0.012
+///        0.00123      -3     1.23e-3
+///       0.000123      -4     1.23e-4
+///
+/// This means that the with of a tick label (for |p| < 10) will be at most 8 characters (e.g.
+/// -1.23e-4)
+pub fn prettify(number: f64) -> String {
+    let omagn = order_of_magnitude(number);
+    if omagn > 2 || omagn < -2 {
+        format!("{:>.2e}", number)
+    } else {
+        if omagn == 2 {
+            format!("{:>.0}", number)
+        } else if omagn == 1 {
+            format!("{:>.1}", number)
+        } else if omagn == 0 {
+            format!("{:>.2}", number)
+        } else if omagn == -1 {
+            format!("{:>.2}", number)
+        } else if omagn == -2 {
+            format!("{:>.3}", number)
+        } else {
+            String::from("Invalid order of magnitude. Should be unreachable.")
+        }
     }
 }

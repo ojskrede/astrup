@@ -63,7 +63,7 @@ fn main() {
     let mut fig = Figure::new();
     fig.add(plot1);
     fig.add(plot2);
-    fig.save("example.png").expect("Could not create example.png");
+    fig.save("example1.png").expect("Could not create example.png");
 
     // TODO: Add support for this kind of short-hand thing
     //Figure::new().add(Plot::new().add(Chart::Line(Line::new(&x_data, &y_data))));
