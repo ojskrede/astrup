@@ -48,7 +48,9 @@
 //! ### Close future
 //! - Set axes data range explicitly. Currently it is determined to fit the range of the input
 //! data.
-//! - Set figure dimensions. Currently, non-square looks ugly.
+//! - Set figure dimensions. Currently, non-square looks ugly. Non-square plots looks as expected,
+//! and the figure should work in the same way.
+//! - Let axis labels, tick labels and tics determine the default location of the axes
 //! - Make more examples, and organise them sensibly
 //! - Refactor fit and scaling functions, e.g. one fit_fig, and fit_plot for all drawables
 //! - Make gridlines a part of tick struct. This is because a gridline is just an extension of a tick.

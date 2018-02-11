@@ -75,6 +75,7 @@ fn main() {
 
     let mut plot3 = Plot::new();
     plot3.add(Chart::Line(line));
+    plot3.set_y_min(-1.2);
 
     let mut fig2 = Figure::new();
     fig2.add(plot3);

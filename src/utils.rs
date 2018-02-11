@@ -87,7 +87,7 @@ impl Text {
     pub fn new(content: &str) -> Text {
         Text {
             content: String::from(content),
-            font_size: 0.04,
+            font_size: 0.03,
             angle: 0.0,
             hor_offset: 0.0,
             ver_offset: 0.0,
@@ -131,7 +131,7 @@ impl Text {
         self.ver_offset = ver;
     }
 
-    // TODO: Separate vertical and horizontal scaling?
+    // TODO: Separate vertical and horisontal scaling?
     pub fn scale_offset(&mut self, factor: f64) {
         self.hor_offset *= factor;
         self.ver_offset *= factor;
@@ -150,74 +150,129 @@ pub struct Frame {
     right: f64,
     top: f64,
     bottom: f64,
+    is_left_updated: bool,
+    is_right_updated: bool,
+    is_bottom_updated: bool,
+    is_top_updated: bool,
 }
 
 impl Frame {
+
+    /// Return a new, default frame.
     pub fn new() -> Frame {
         Frame {
             left: 0.0,
             right: 1.0,
             bottom: 0.0,
             top: 1.0,
+            is_left_updated: false,
+            is_right_updated: false,
+            is_bottom_updated: false,
+            is_top_updated: false,
         }
     }
 
+    /// Return a new frame from given coordinate values.
     pub fn from_sides(left: f64, right: f64, bottom: f64, top: f64) -> Frame {
         Frame {
             left: left,
             right: right,
             bottom: bottom,
             top: top,
+            is_left_updated: false,
+            is_right_updated: false,
+            is_bottom_updated: false,
+            is_top_updated: false,
         }
     }
 
+    /// Update an already created frame
     pub fn set(&mut self, left: f64, right: f64, bottom: f64, top: f64) {
         self.left = left;
         self.right = right;
         self.bottom = bottom;
         self.top = top;
+        self.is_left_updated = true;
+        self.is_right_updated = true;
+        self.is_bottom_updated = true;
+        self.is_top_updated = true;
     }
 
+    /// Update the left horisontal frame coordinate
     pub fn set_left(&mut self, val: f64) {
         self.left = val;
+        self.is_left_updated = true;
     }
 
+    /// Update the right horisontal frame coordinate
     pub fn set_right(&mut self, val: f64) {
         self.right = val;
+        self.is_right_updated = true;
     }
 
-    pub fn set_top(&mut self, val: f64) {
-        self.top = val;
-    }
-
+    /// Update the bottom vertical frame coordinate
     pub fn set_bottom(&mut self, val: f64) {
         self.bottom = val;
+        self.is_bottom_updated = true;
     }
 
+    /// Update the top vertical frame coordinate
+    pub fn set_top(&mut self, val: f64) {
+        self.top = val;
+        self.is_top_updated = true;
+    }
+
+    /// Is the left horisontal frame coordinate updated after the default set?
+    pub fn is_left_updated(&self) -> bool {
+        self.is_left_updated
+    }
+
+    /// Is the right horisontal frame coordinate updated after the default set?
+    pub fn is_right_updated(&self) -> bool {
+        self.is_right_updated
+    }
+
+    /// Is the bottom vertical frame coordinate updated after the default set?
+    pub fn is_bottom_updated(&self) -> bool {
+        self.is_bottom_updated
+    }
+
+    /// Is the top vertical frame coordinate updated after the default set?
+    pub fn is_top_updated(&self) -> bool {
+        self.is_top_updated
+    }
+
+    /// Return the left horisontal frame coordinate
     pub fn left(&self) -> f64 {
         self.left
     }
 
+    /// Return the right horisontal frame coordinate
     pub fn right(&self) -> f64 {
         self.right
     }
 
-    pub fn top(&self) -> f64 {
-        self.top
-    }
-
+    /// Return the bottom vertical frame coordinate
     pub fn bottom(&self) -> f64 {
         self.bottom
     }
 
+    /// Return the top vertical frame coordinate
+    pub fn top(&self) -> f64 {
+        self.top
+    }
+
+    /// Return the hight of the frame
     pub fn height(&self) -> f64 {
         self.top - self.bottom
     }
 
+    /// Return the width of the frame
     pub fn width(&self) -> f64 {
         self.right - self.left
     }
 
+    /// Return the diagonal length of the frame
     pub fn diag_len(&self) -> f64 {
         let delta_x = self.right - self.left;
         let delta_y = self.top - self.bottom;
@@ -248,6 +303,7 @@ impl Frame {
 }
 
 /// Wrapper for f64 for ordering.
+///
 /// Thanks to
 /// https://stackoverflow.com/questions/28247990/how-to-do-a-binary-search-on-a-vec-of-floats/28248065#28248065
 #[derive(PartialEq,PartialOrd)]
@@ -497,13 +553,16 @@ pub fn map_range(old_number: f64, old_min: f64, old_max: f64, new_min: f64, new_
 ///         123.45       2
 ///          12.34       1
 ///           1.23       0
-///           0.00       0
+///              0       0
 ///         0.1234      -1
 ///         0.0123      -2
 ///         0.0012      -3
 ///         0.0001      -4
 pub fn order_of_magnitude(number: f64) -> i32 {
-    if number == 0.0 {
+    // TODO: Perhaps make the "near zero" estimate dependent on the order of magnitude of the other
+    // tick values. The current hard-coded version works for most cases, but not for very small
+    // ones.
+    if number < 1.0e-10 && number > -1.0e-10 {
         0
     } else {
         number.abs().log10().floor() as i32

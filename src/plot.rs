@@ -22,6 +22,7 @@ pub struct Canvas {
     local_frame: Frame,
     global_frame: Frame,
     data_frame: Frame,
+    user_data_frame: Frame,
     display_axes: bool,
     display_grid: bool,
     grid_width: f64,
@@ -41,6 +42,7 @@ impl Canvas {
             local_frame: Frame::from_sides(0.15, 0.95, 0.15, 0.95),
             global_frame: Frame::new(),
             data_frame: Frame::new(),
+            user_data_frame: Frame::new(),
             display_axes: true,
             display_grid: true,
             grid_width: 0.005,
@@ -59,6 +61,36 @@ impl Canvas {
 
     pub fn set_local_frame(&mut self, frame: Frame) {
         self.local_frame = frame;
+    }
+
+    pub fn set_data_range(&mut self, x_min: f64, x_max: f64, y_min: f64, y_max: f64) {
+        self.user_data_frame.set(x_min, x_max, y_min, y_max);
+    }
+
+    pub fn set_x_range(&mut self, x_min: f64, x_max: f64) {
+        self.user_data_frame.set_left(x_min);
+        self.user_data_frame.set_right(x_max);
+    }
+
+    pub fn set_y_range(&mut self, y_min: f64, y_max: f64) {
+        self.user_data_frame.set_bottom(y_min);
+        self.user_data_frame.set_top(y_max);
+    }
+
+    pub fn set_x_min(&mut self, x_min: f64) {
+        self.user_data_frame.set_left(x_min);
+    }
+
+    pub fn set_x_max(&mut self, x_max: f64) {
+        self.user_data_frame.set_right(x_max);
+    }
+
+    pub fn set_y_min(&mut self, y_min: f64) {
+        self.user_data_frame.set_bottom(y_min);
+    }
+
+    pub fn set_y_max(&mut self, y_max: f64) {
+        self.user_data_frame.set_top(y_max);
     }
 
     pub fn display_axes(&mut self, val: bool) {
@@ -124,11 +156,33 @@ impl Canvas {
         Some(largest_data_frame)
     }
 
-    fn find_largest_data_frame(&self) -> Frame {
-        match self.find_largest_chart_data_frame() {
+    /// Compute the data frame used by this canvas.
+    ///
+    /// First priority is user input. For the entries where there is no user input, the value
+    /// should be the smallest value larger than or equal to all respective chart values. If there
+    /// are no chart values, the default is chosen.
+    fn compute_data_frame(&self) -> Frame {
+        let mut return_this_data_frame = match self.find_largest_chart_data_frame() {
             Some(val) => val,
             None => self.data_frame.clone(),
+        };
+
+        if self.user_data_frame.is_left_updated() {
+            return_this_data_frame.set_left(self.user_data_frame.left());
         }
+
+        if self.user_data_frame.is_right_updated() {
+            return_this_data_frame.set_right(self.user_data_frame.right());
+        }
+
+        if self.user_data_frame.is_bottom_updated() {
+            return_this_data_frame.set_bottom(self.user_data_frame.bottom());
+        }
+
+        if self.user_data_frame.is_top_updated() {
+            return_this_data_frame.set_top(self.user_data_frame.top());
+        }
+        return return_this_data_frame
     }
 
     /// Sets a default horizontal and vertical axis. This is important in order to determine the
@@ -149,7 +203,7 @@ impl Canvas {
         hor_axis.compute_marks()?;
         hor_axis.set_label_offset(-0.01, -0.13);
         hor_axis.set_tick_label_offset(-0.02, -0.07);
-        hor_axis.set_tick_font_size(0.03);
+        hor_axis.set_tick_font_size(0.025);
 
         let mut ver_axis = Axis::from_coord(Coord::new(0.0, 0.0), Coord::new(0.0, 1.0));
         ver_axis.set_data_range(data_frame.bottom(), data_frame.top());
@@ -158,9 +212,9 @@ impl Canvas {
         //ver_axis.set_label_angle(-PI / 2.0);
         ver_axis.compute_marks()?;
         //ver_axis.scale_tick_label_offset(1.7);
-        ver_axis.set_label_offset(-0.17, -0.01);
+        ver_axis.set_label_offset(-0.14, -0.01);
         ver_axis.set_tick_label_offset(-0.10, -0.01);
-        ver_axis.set_tick_font_size(0.03);
+        ver_axis.set_tick_font_size(0.025);
 
         Ok((hor_axis, ver_axis))
     }
@@ -170,15 +224,15 @@ impl Canvas {
         // After this is called, both local_frame and global_frame should not be altered.
         self.global_frame = self.local_frame.relative_to(&plot_frame);
 
-        // Second, we update the data_frame. This is done in two stages.
+        // Second, we update the data_frame
         //
-        // We first find a frame that is the union of the largest data frames from our axes
-        // and our charts. This takes into account the possible user input (xrange() and yrange()),
-        // as this defines the ranges of the axes.
-        let largest_data_frame = self.find_largest_data_frame();
+        // If the user has explicitly set a data range in some of {x_min, x_max, y_min, y_max},
+        // these should be chosen. For all of the four not specified by the user, the smallest
+        // range, including data from all charts should be chosen
+        let data_frame = self.compute_data_frame();
 
         // Then we compute one horizontal and one vertical axis.
-        let (mut hor_axis, mut ver_axis) = self.set_default_axis(largest_data_frame)?;
+        let (mut hor_axis, mut ver_axis) = self.set_default_axis(data_frame)?;
 
         // We can now define our updated data_frame.
         // TODO: Ord for f64 equivalent
@@ -274,6 +328,34 @@ impl Plot {
 
     pub fn set_local_frame(&mut self, left: f64, right: f64, bottom: f64, top: f64) {
         self.local_frame.set(left, right, bottom, top);
+    }
+
+    pub fn set_data_range(&mut self, x_min: f64, x_max: f64, y_min: f64, y_max: f64) {
+        self.canvas.set_data_range(x_min, x_max, y_min, y_max);
+    }
+
+    pub fn set_x_range(&mut self, x_min: f64, x_max: f64) {
+        self.canvas.set_x_range(x_min, x_max);
+    }
+
+    pub fn set_y_range(&mut self, y_min: f64, y_max: f64) {
+        self.canvas.set_y_range(y_min, y_max);
+    }
+
+    pub fn set_x_min(&mut self, x_min: f64) {
+        self.canvas.set_x_min(x_min);
+    }
+
+    pub fn set_x_max(&mut self, x_max: f64) {
+        self.canvas.set_x_max(x_max);
+    }
+
+    pub fn set_y_min(&mut self, y_min: f64) {
+        self.canvas.set_y_min(y_min);
+    }
+
+    pub fn set_y_max(&mut self, y_max: f64) {
+        self.canvas.set_y_max(y_max);
     }
 
     pub fn display_border(&mut self, val: bool) {

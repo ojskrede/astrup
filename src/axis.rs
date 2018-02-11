@@ -185,6 +185,9 @@ impl Axis {
     ///  the data, and not the range of its marks. Also, the user should be able to set the data
     ///  range, this should then determine the mark range, which in turn should determine the axis
     ///  range.
+    ///  - The user can now set data range, but this function will override it. With this, the
+    ///  output looks nicer, but I assume that when the user puts a data range, the user assumes
+    ///  that this range should be used.
     pub fn compute_marks(&mut self) -> Result<(), Error> {
         let data_diff = self.data_range[1] - self.data_range[0];
         let ca_dist = data_diff / self.ca_num_marks as f64;
