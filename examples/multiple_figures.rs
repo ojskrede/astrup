@@ -45,27 +45,22 @@ fn main() {
     let init_val: u64 = 123;
     let y_data: Vec<f64> = collatz(init_val);
     let x_data: Vec<f64> = (0u64..y_data.len() as u64).map(|x| x as f64).collect();
-    let mut line = Line::new(&x_data, &y_data);
-    line.set_color(0.9, 0.2, 0.2, 0.9);
+    let line = Line::new(&x_data, &y_data).set_color(0.9, 0.2, 0.2, 0.9);
 
-    let mut plot11 = Plot::new();
-    plot11.set_local_frame(0.0, 0.49, 0.0, 0.69);
-    plot11.add(Chart::Line(line));
+    let plot11 = Plot::new().add(Chart::Line(line))
+                            .set_local_frame(0.0, 0.49, 0.0, 0.69);
 
     // Plot 2
     let init_val: u64 = 237;
     let y_data: Vec<f64> = collatz(init_val);
     let x_data: Vec<f64> = (0u64..y_data.len() as u64).map(|x| x as f64).collect();
-    let mut line = Line::new(&x_data, &y_data);
-    line.set_stroke_style("dashed");
+    let line = Line::new(&x_data, &y_data).set_stroke_style("dashed");
 
-    let mut plot12 = Plot::new();
-    plot12.set_local_frame(0.5, 0.99, 0.3, 0.99);
-    plot12.add(Chart::Line(line));
+    let plot12 = Plot::new().add(Chart::Line(line))
+                            .set_local_frame(0.5, 0.99, 0.3, 0.99);
 
-    let mut fig1 = Figure::new();
-    fig1.add(plot11);
-    fig1.add(plot12);
+    let fig1 = Figure::new().add(plot11)
+                            .add(plot12);
 
     // Figure 2
 
@@ -74,20 +69,17 @@ fn main() {
     let y_data2 = Array::from_iter((0..100).map(|i| (x_data[i] - PI / 2.0).sin()));
 
     let line1 = Line::new(&x_data, &y_data1);
-    let mut line2 = Line::new(&x_data, &y_data2);
-    line2.set_color(0.9, 0.2, 0.2, 0.9);
+    let line2 = Line::new(&x_data, &y_data2).set_color(0.9, 0.2, 0.2, 0.9);
 
-    let mut plot21 = Plot::new();
-    plot21.add(Chart::Line(line1));
-    plot21.add(Chart::Line(line2));
-    plot21.set_y_min(-1.2);
+    let plot21 = Plot::new().add(Chart::Line(line1))
+                            .add(Chart::Line(line2))
+                            .set_y_min(-1.2);
 
-    let mut fig2 = Figure::new();
-    fig2.add(plot21);
+    let fig2 = Figure::new().add(plot21);
 
     // Display on screen
-    let mut view = View::new_from(fig1).expect("Could not add fig1 to view");
-    view.add(fig2).expect("Could not add fig2 to view");
-    view.show();
+    View::new_from(fig1).expect("Could not add fig1 to view")
+                        .add(fig2).expect("Could not add fig2 to view")
+                        .show();
 }
 

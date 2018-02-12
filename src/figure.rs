@@ -38,20 +38,24 @@ impl Figure {
         }
     }
 
-    pub fn set_title(&mut self, title: &str) {
+    pub fn set_title(mut self, title: &str) -> Self {
         self.title = String::from(title);
+        self
     }
 
-    pub fn set_height(&mut self, val: usize) {
+    pub fn set_height(mut self, val: usize) -> Self {
         self.height = val;
+        self
     }
 
-    pub fn set_width(&mut self, val: usize) {
+    pub fn set_width(mut self, val: usize) -> Self {
         self.width = val;
+        self
     }
 
-    pub fn set_color(&mut self, color: Rgba) {
+    pub fn set_color(mut self, color: Rgba) -> Self {
         self.color = color;
+        self
     }
 
     pub fn get_title(&self) -> String {
@@ -66,8 +70,9 @@ impl Figure {
         self.width
     }
 
-    pub fn add(&mut self, plot: Plot) {
+    pub fn add(mut self, plot: Plot) -> Self {
         self.plots.push(plot);
+        self
     }
 
     pub fn fit(&mut self) -> Result<(), Error> {
@@ -78,7 +83,7 @@ impl Figure {
         Ok(())
     }
 
-    pub fn save(&self, filename: &str) -> Result<(), Error> {
+    pub fn save(self, filename: &str) -> Result<(Self), Error> {
         // Since both save() and show() can be called, and since all drawing is happening in both,
         // multiple calls to fit() will be made, and this can mess up things if we call it on self.
         // The simplest solution is to clone self. But one should perhaps make fit() idempotent?.
@@ -95,7 +100,7 @@ impl Figure {
         let mut file = File::create(filename)?;
         surface.write_to_png(&mut file)?;
 
-        Ok(())
+        Ok((self))
     }
 
     pub fn draw(&self, cr: &Context) {

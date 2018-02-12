@@ -72,11 +72,11 @@ impl View {
         })
     }
 
-    pub fn add(&mut self, mut figure: Figure) -> Result<(), Error> {
+    pub fn add(mut self, mut figure: Figure) -> Result<(Self), Error> {
         figure.fit()?;
         self.figures.push(figure);
 
-        Ok(())
+        Ok((self))
     }
 
     pub fn show(self) {

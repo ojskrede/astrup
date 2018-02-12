@@ -58,13 +58,15 @@ impl Scatter {
     }
 
     /// Set the scatter point color
-    pub fn set_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
+    pub fn set_color(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
         self.color = Rgba::new(red, green, blue, alpha);
+        self
     }
 
     /// Set the scatter point size
-    pub fn set_point_size(&mut self, size: f64) {
+    pub fn set_point_size(mut self, size: f64) -> Self {
         self.point_size = size;
+        self
     }
 
     /// Set the shape of the scatter point. Circle, tick, or square.
@@ -77,7 +79,7 @@ impl Scatter {
     /// | "Square" or "square" or "s"        | Square |
     /// | "Tick" or "tick" or "t"            | Tick   |
     /// | Any other &str                     | Circle |
-    pub fn set_shape(&mut self, shape_id: &str) {
+    pub fn set_shape(mut self, shape_id: &str) -> Self {
         // TODO: Move this to draw and get rid of enum??
         self.shape = match shape_id {
             "Circle" | "circle" | "c" | "o" => Shape::Circle,
@@ -85,6 +87,7 @@ impl Scatter {
             "Tick" | "tick" | "t" => Shape::Tick,
             _ => Shape::Circle,
         };
+        self
     }
 }
 

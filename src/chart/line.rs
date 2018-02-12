@@ -156,53 +156,61 @@ impl Line {
     }
 
     /// Set the line color
-    pub fn set_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
+    pub fn set_color(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
         self.color = Rgba::new(red, green, blue, alpha);
+        self
     }
 
     /// Set the line width
-    pub fn set_line_width(&mut self, val: f64) {
+    pub fn set_line_width(mut self, val: f64) -> Self {
         self.line_width = val;
+        self
     }
 
     /// Set the style of the line. Plain, left stair, or right stair.
-    pub fn set_line_style(&mut self, style: &str) {
+    pub fn set_line_style(mut self, style: &str) -> Self {
         match style {
             "plain" => self.line_style = LineStyle::Plain,
             "left_stair" => self.line_style = LineStyle::LeftStair,
             "right_stair" => self.line_style = LineStyle::RightStair,
             _ => self.line_style = LineStyle::Plain,
         }
+        self
     }
 
     /// Set the stroke style of the line
-    pub fn set_stroke_style(&mut self, style: &str) {
+    pub fn set_stroke_style(mut self, style: &str) -> Self {
         match style {
             "dashed" => self.stroke_style = StrokeStyle::Dashed,
             "dotted" => self.stroke_style = StrokeStyle::Dotted,
             _ => self.stroke_style = StrokeStyle::Continuous,
         }
         self.dash_pattern = DashPattern::new(&self.stroke_style);
+        self
     }
 
     /// Set the length of the ``on duration'' of a dash in a dash line
-    pub fn set_dash_on_length(&mut self, val: f64) {
+    pub fn set_dash_on_length(mut self, val: f64) -> Self {
         self.dash_pattern.set_on_length(val);
+        self
     }
 
     /// Set the length of the ``off duration'' of a dash in a dash line
-    pub fn set_dash_off_length(&mut self, val: f64) {
+    pub fn set_dash_off_length(mut self, val: f64) -> Self {
         self.dash_pattern.set_off_length(val);
+        self
     }
 
     /// Set the offset of the line dash pattern
-    pub fn set_dash_offset(&mut self, val: f64) {
+    pub fn set_dash_offset(mut self, val: f64) -> Self {
         self.dash_pattern.set_offset(val);
+        self
     }
 
     /// Set the line cap of the line dash pattern
-    pub fn set_line_cap(&mut self, cap: LineCap) {
+    pub fn set_line_cap(mut self, cap: LineCap) -> Self {
         self.dash_pattern.set_line_cap(cap);
+        self
     }
 }
 
