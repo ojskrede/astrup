@@ -45,7 +45,7 @@ fn main() {
     let init_val: u64 = 123;
     let y_data: Vec<f64> = collatz(init_val);
     let x_data: Vec<f64> = (0u64..y_data.len() as u64).map(|x| x as f64).collect();
-    let line = Line::new(&x_data, &y_data).set_color(0.9, 0.2, 0.2, 0.9);
+    let line = Line::new(&x_data, &y_data).set_color_rgba(0.9, 0.2, 0.2, 0.9);
 
     let plot11 = Plot::new().add(Chart::Line(line))
                             .set_local_frame(0.0, 0.49, 0.0, 0.69);
@@ -69,7 +69,7 @@ fn main() {
     let y_data2 = Array::from_iter((0..100).map(|i| (x_data[i] - PI / 2.0).sin()));
 
     let line1 = Line::new(&x_data, &y_data1);
-    let line2 = Line::new(&x_data, &y_data2).set_color(0.9, 0.2, 0.2, 0.9);
+    let line2 = Line::new(&x_data, &y_data2).set_color_rgba(0.9, 0.2, 0.2, 0.9);
 
     let plot21 = Plot::new().add(Chart::Line(line1))
                             .add(Chart::Line(line2))

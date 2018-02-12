@@ -48,8 +48,33 @@ impl Point {
         self.y_coord = val;
     }
 
+    /// Set the color of the point
     pub fn set_color(&mut self, color: Rgba) {
         self.color = color;
+    }
+
+    /// Set the color of the point
+    pub fn set_color_rgb(&mut self, red: f32, green: f32, blue: f32) {
+        let red = red.max(0.0);
+        let red = red.min(1.0);
+        let green = green.max(0.0);
+        let green = green.min(1.0);
+        let blue = blue.max(0.0);
+        let blue = blue.min(1.0);
+        self.color = Rgba::new(red, green, blue, 1.0);
+    }
+
+    /// Set the plot background color. **Note**: This is different from the canvas background color.
+    pub fn set_color_rgba(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
+        let red = red.max(0.0);
+        let red = red.min(1.0);
+        let green = green.max(0.0);
+        let green = green.min(1.0);
+        let blue = blue.max(0.0);
+        let blue = blue.min(1.0);
+        let alpha = alpha.max(0.0);
+        let alpha = alpha.min(1.0);
+        self.color = Rgba::new(red, green, blue, alpha);
     }
 
     pub fn set_shape(&mut self, shape: Shape) {

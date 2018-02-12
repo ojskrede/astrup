@@ -36,7 +36,7 @@
 //!
 //!     // Plot lines
 //!     let line1 = Line::new(&x_data, &y_data1).set_stroke_style("dotted");
-//!     let line2 = Line::new(&x_data, &y_data2).set_color(0.9, 0.2, 0.2, 0.9);
+//!     let line2 = Line::new(&x_data, &y_data2).set_color_rgba(0.9, 0.2, 0.2, 0.9);
 //!
 //!     // Add lines to a plot
 //!     let line_plot = Plot::new().add(Chart::Line(line1))
@@ -53,7 +53,7 @@
 //!     let y_data: Vec<f64> = (0..1000)
 //!                            .map(|_| normal_0_2.ind_sample(&mut thread_rng()))
 //!                            .collect();
-//!     let scatter = Scatter::new(&x_data, &y_data).set_color(0.1, 0.8, 0.3, 0.9)
+//!     let scatter = Scatter::new(&x_data, &y_data).set_color_rgba(0.1, 0.8, 0.3, 0.9)
 //!                                                 .set_point_size(0.005);
 //!
 //!     // Add scatter points to a new plot
@@ -194,11 +194,6 @@
 //! - Make gridlines a part of tick struct. This is because a gridline is just an extension of a tick.
 //! - Also have a flag or something to indicate major / minor ticks.
 //! - Implement dotted gridlines
-//! - Return self from &mut self methods such that you can write something like
-//!
-//! ```text,no_run
-//!     let plot = Plot::new(...).set_color(...).set_line_width(...)
-//! ```
 //!
 //! - Name frames according to what they are. If it is natural for a struct to have a local frame,
 //! name it struct.local_frame and let this allways be initialized to (0, 1)x(0, 1). Connected to

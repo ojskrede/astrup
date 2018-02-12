@@ -27,7 +27,7 @@ fn main() {
 
     // Plot lines
     let line1 = Line::new(&x_data, &y_data1).set_stroke_style("dotted");
-    let line2 = Line::new(&x_data, &y_data2).set_color(0.9, 0.2, 0.2, 0.9);
+    let line2 = Line::new(&x_data, &y_data2).set_color_rgba(0.9, 0.2, 0.2, 0.9);
 
     // Add lines to a plot
     let line_plot = Plot::new().add(Chart::Line(line1))
@@ -44,7 +44,7 @@ fn main() {
     let y_data: Vec<f64> = (0..1000)
                            .map(|_| normal_0_2.ind_sample(&mut thread_rng()))
                            .collect();
-    let scatter = Scatter::new(&x_data, &y_data).set_color(0.1, 0.8, 0.3, 0.9)
+    let scatter = Scatter::new(&x_data, &y_data).set_color_rgba(0.1, 0.8, 0.3, 0.9)
                                                 .set_point_size(0.005);
 
     // Add scatter points to a new plot

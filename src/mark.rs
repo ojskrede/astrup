@@ -127,6 +127,30 @@ impl Tick {
         self.color = color;
     }
 
+    /// Set the tick color
+    pub fn set_color_rgb(&mut self, red: f32, green: f32, blue: f32) {
+        let red = red.max(0.0);
+        let red = red.min(1.0);
+        let green = green.max(0.0);
+        let green = green.min(1.0);
+        let blue = blue.max(0.0);
+        let blue = blue.min(1.0);
+        self.color = Rgba::new(red, green, blue, 1.0);
+    }
+
+    /// Set the tick color
+    pub fn set_color_rgba(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
+        let red = red.max(0.0);
+        let red = red.min(1.0);
+        let green = green.max(0.0);
+        let green = green.min(1.0);
+        let blue = blue.max(0.0);
+        let blue = blue.min(1.0);
+        let alpha = alpha.max(0.0);
+        let alpha = alpha.min(1.0);
+        self.color = Rgba::new(red, green, blue, alpha);
+    }
+
     /// Scale the line width and lenght of a tick
     fn scale_size(&mut self, factor: f64) {
         self.line_width *= factor;
@@ -169,6 +193,30 @@ impl GridLine {
     /// Set the color of a gridline
     pub fn set_color(&mut self, color: Rgba) {
         self.color = color;
+    }
+
+    /// Set the color of a gridline
+    pub fn set_color_rgb(&mut self, red: f32, green: f32, blue: f32) {
+        let red = red.max(0.0);
+        let red = red.min(1.0);
+        let green = green.max(0.0);
+        let green = green.min(1.0);
+        let blue = blue.max(0.0);
+        let blue = blue.min(1.0);
+        self.color = Rgba::new(red, green, blue, 1.0);
+    }
+
+    /// Set the color of a gridline
+    pub fn set_color_rgba(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
+        let red = red.max(0.0);
+        let red = red.min(1.0);
+        let green = green.max(0.0);
+        let green = green.min(1.0);
+        let blue = blue.max(0.0);
+        let blue = blue.min(1.0);
+        let alpha = alpha.max(0.0);
+        let alpha = alpha.min(1.0);
+        self.color = Rgba::new(red, green, blue, alpha);
     }
 
     /// Scale the width of a gridline
