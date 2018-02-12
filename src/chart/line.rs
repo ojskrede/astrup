@@ -156,8 +156,8 @@ impl Line {
     }
 
     /// Set the line color
-    pub fn set_color(&mut self, color: Rgba) {
-        self.color = color;
+    pub fn set_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
+        self.color = Rgba::new(red, green, blue, alpha);
     }
 
     /// Set the line width

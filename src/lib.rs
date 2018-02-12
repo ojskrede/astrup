@@ -1,6 +1,63 @@
 //! # Astrup
 //!
-//! A rust plotting library.
+//! A rust plotting library using gtk-rs as a backend. This is still very much a small hobby
+//! project.
+//!
+//! ## Example
+//!
+//! ```
+//! extern crate ndarray;
+//! extern crate astrup;
+//!
+//! use std::f64::consts::PI;
+//!
+//! use ndarray::Array;
+//!
+//! use astrup::view::View;
+//! use astrup::figure::Figure;
+//! use astrup::plot::Plot;
+//! use astrup::chart::Chart;
+//! use astrup::chart::scatter::Scatter;
+//! use astrup::chart::line::Line;
+//!
+//! fn main() {
+//!
+//!     // Create scatter plot
+//!     let x_data = vec![5.9, 5.2, 5.5, 6.1];
+//!     let y_data = vec![0.2, 0.6, 1.0, 0.5];
+//!     let mut scatter = Scatter::new(&x_data, &y_data);
+//!     scatter.set_color(0.1, 0.8, 0.3, 0.9);
+//!
+//!     // Create data contained in ndarray
+//!     let x_data = Array::from_iter((0..100).map(|x| (x as f64) * 2.0 * PI / 100.0));
+//!     let y_data1 = Array::from_iter((0..100).map(|i| x_data[i].sin()));
+//!     let y_data2 = Array::from_iter((0..100).map(|i| (x_data[i] - PI / 2.0).sin()));
+//!
+//!     // Plot lines
+//!     let mut line1 = Line::new(&x_data, &y_data1);
+//!     line1.set_stroke_style("dashed");
+//!     let mut line2 = Line::new(&x_data, &y_data2);
+//!     line2.set_color(0.9, 0.2, 0.2, 0.9);
+//!
+//!     // Add scatter and line charts to a plot
+//!     let mut plot = Plot::new();
+//!     plot.add(Chart::Scatter(scatter));
+//!     plot.add(Chart::Line(line1));
+//!     plot.add(Chart::Line(line2));
+//!     plot.set_y_min(-1.2);
+//!
+//!     // Add the plot to a figure, and save it
+//!     let mut fig = Figure::new();
+//!     fig.add(plot);
+//!     fig.save("target/doc/astrup/example.png").expect("Could not create example.png");
+//!
+//!     // Display the result on screen
+//!     let view = View::new_from(fig).expect("Could not add figure to view");
+//!     view.show();
+//! }
+//! ```
+//!
+//! ![Plot](example.png)
 //!
 //! ## Gloals:
 //! - Input `Vec<Num>` and `ndarray::Array*<Num>` types

@@ -265,6 +265,8 @@ impl Axis {
     /// Draw axis on canvas.
     pub fn draw(&self, cr: &Context) {
         // Ticks
+        //
+        // TODO: tick.draw
         let unit_perp = self.global_start.perp_direction(&self.global_end);
         for mark in self.marks.iter() {
             cr.set_source_rgba(self.tick_color.red as f64, self.tick_color.green as f64,
@@ -295,7 +297,7 @@ impl Axis {
         cr.line_to(self.global_end.x(), self.global_end.y());
         cr.stroke();
 
-        // Label
+        // Axis label
         cr.select_font_face("Serif", FontSlant::Italic, FontWeight::Normal);
         cr.set_font_size(self.label.font_size());
         // TODO: Shift label "backwards" based on its length

@@ -43,6 +43,7 @@ fn main() {
     let y_data: Vec<f64> = collatz(init_val);
     let x_data: Vec<f64> = (0u64..y_data.len() as u64).map(|x| x as f64).collect();
     let mut line = Line::new(&x_data, &y_data);
+    line.set_color(0.9, 0.2, 0.2, 0.9);
     line.set_line_style("right_stair");
 
     let mut plot1 = Plot::new();
@@ -63,18 +64,23 @@ fn main() {
     let mut fig = Figure::new();
     fig.add(plot1);
     fig.add(plot2);
-    fig.save("example1.png").expect("Could not create example.png");
+    fig.save("example1.png").expect("Could not create example1.png");
 
     // TODO: Add support for this kind of short-hand thing
     //Figure::new().add(Plot::new().add(Chart::Line(Line::new(&x_data, &y_data))));
 
     let x_data = Array::from_iter((0..100).map(|x| (x as f64) * 2.0 * PI / 100.0));
-    let y_data = Array::from_iter((0..100).map(|i| x_data[i].sin()));
+    let y_data1 = Array::from_iter((0..100).map(|i| x_data[i].sin()));
+    let y_data2 = Array::from_iter((0..100).map(|i| (x_data[i] - PI / 2.0).sin()));
 
-    let line = Line::new(&x_data, &y_data);
+    let mut line1 = Line::new(&x_data, &y_data1);
+    line1.set_stroke_style("dashed");
+    let mut line2 = Line::new(&x_data, &y_data2);
+    line2.set_color(0.9, 0.2, 0.2, 0.9);
 
     let mut plot3 = Plot::new();
-    plot3.add(Chart::Line(line));
+    plot3.add(Chart::Line(line1));
+    plot3.add(Chart::Line(line2));
     plot3.set_y_min(-1.2);
 
     let mut fig2 = Figure::new();

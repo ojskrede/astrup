@@ -54,8 +54,8 @@ impl Scatter {
     }
 
     /// Set the scatter point color
-    pub fn set_color(&mut self, color: Rgba) {
-        self.color = color;
+    pub fn set_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
+        self.color = Rgba::new(red, green, blue, alpha);
     }
 
     /// Set the shape of the scatter point. Circle, tick, or square.
