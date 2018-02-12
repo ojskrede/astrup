@@ -33,7 +33,7 @@ impl Figure {
             width: 800,
             color: Rgba::new(1.0, 1.0, 1.0, 1.0),
             frame: true,
-            frame_thickness: 0.005,
+            frame_thickness: 0.001,
             frame_color: Rgba::new(0.0, 0.0, 0.0, 1.0),
         }
     }

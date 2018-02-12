@@ -365,7 +365,7 @@ impl Plot {
             local_frame: Frame::from_sides(0.0, 1.0, 0.0, 1.0),
             display_border: true,
             border_color: Rgba::new(0.0, 0.0, 0.0, 1.0),
-            border_width: 0.005,
+            border_width: 0.001,
             canvas: Canvas::new(),
         }
     }

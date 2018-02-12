@@ -1,15 +1,3 @@
-# astrup
-
-A rust plotting library using [gtk-rs](https://github.com/gtk-rs/gtk) as a backend. This is
-*still* very much a small hobby project. For alternative rust plotting libraries, see e.g.
-
-- [rustplotlib](https://github.com/ubnt-intrepid/rustplotlib)
-- [RustGnuplot](https://github.com/SiegeLord/RustGnuplot)
-- [dataplotlib](https://github.com/coder543/dataplotlib)
-
-## Example
-
-```
 extern crate ndarray;
 extern crate astrup;
 extern crate rand;
@@ -18,7 +6,7 @@ use std::f64::consts::PI;
 
 use ndarray::Array;
 use rand::distributions::{IndependentSample, Normal};
-use rand::{thread_rng, Rng};
+use rand::{thread_rng};
 
 use astrup::view::View;
 use astrup::figure::Figure;
@@ -70,17 +58,9 @@ fn main() {
     fig.add(line_plot);
     fig.add(scatter_plot);
     fig.save("frontpage_example.png").expect("Could not create frontpage_example.png");
+    fig.save("target/doc/astrup/frontpage_example.png").expect("Could not create doc frontpage_example.png");
 
     // Display the result on screen
     let view = View::new_from(fig).expect("Could not add figure to view");
     view.show();
 }
-```
-
-![Plot](frontpage_example.png)
-
-## Gloals:
-- Input `Vec` and `ndarray` containers and slices
-- It should be intuitive to build plots, but not as "easy as possible". It will probably be
-quite verbose and explicit.
-- Very configurable.

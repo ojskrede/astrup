@@ -304,13 +304,13 @@ impl Frame {
     ///
     /// Each coordinate x on any side S (top, left, bottom, right) is then mapped as
     ///
-    /// ```
+    /// ```text,no_run
     ///   x -> ((old_max - x)*new_min + (x - old_min)*new_max) / (old_max - old_min)
     /// ```
     ///
     /// Since the local frame is bounded by (0, 1) on each side, this simplifies to
     ///
-    /// ```
+    /// ```text,no_run
     ///   x -> new_min + (new_max - new_min) * x
     /// ```
     pub fn relative_to(&self, reference: &Frame) -> Frame {
@@ -562,7 +562,7 @@ pub fn map_range(old_number: f64, old_min: f64, old_max: f64, new_min: f64, new_
 ///
 /// For a number **n > 0**, we define the order of magnitude **p** to be the integer such that
 ///
-/// ```
+/// ```text,no_run
 /// n \in [10^p, 10^{p+1})
 /// ```
 ///

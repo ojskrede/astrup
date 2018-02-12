@@ -22,6 +22,7 @@ pub struct Scatter {
     data_frame: Frame,
     color: Rgba,
     shape: Shape,
+    point_size: f64,
 }
 
 impl Scatter {
@@ -36,11 +37,13 @@ impl Scatter {
 
         let color = Rgba::new(0.1, 0.1, 0.8, 0.9);
         let shape = Shape::Circle;
+        let point_size = 0.01;
         let mut data_points = Vec::<Point>::new();
         for (ref x, ref y) in x_view.iter().zip(y_view.iter()) {
             let mut point = Point::new(x.val(), y.val());
             point.set_color(color);
             point.set_shape(shape.clone());
+            point.set_size(point_size);
             data_points.push(Point::new(x.val(), y.val()));
         }
         Scatter {
@@ -50,12 +53,18 @@ impl Scatter {
                                           y_data_min.val(), y_data_max.val()),
             color: color,
             shape: shape,
+            point_size: point_size,
         }
     }
 
     /// Set the scatter point color
     pub fn set_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
         self.color = Rgba::new(red, green, blue, alpha);
+    }
+
+    /// Set the scatter point size
+    pub fn set_point_size(&mut self, size: f64) {
+        self.point_size = size;
     }
 
     /// Set the shape of the scatter point. Circle, tick, or square.
@@ -80,7 +89,9 @@ impl Scatter {
 }
 
 impl Drawable for Scatter {
-    fn scale_size(&mut self, _: f64) {}
+    fn scale_size(&mut self, factor: f64) {
+        self.point_size *= factor;
+    }
 
     fn fit(&mut self, canvas_global_frame: &Frame, canvas_data_frame: &Frame) {
         self.global_frame = canvas_global_frame.clone();
@@ -89,6 +100,7 @@ impl Drawable for Scatter {
         for data_point in self.data_points.iter_mut() {
             data_point.set_color(self.color);
             data_point.set_shape(self.shape.clone());
+            data_point.set_size(self.point_size);
             data_point.fit(canvas_global_frame, canvas_data_frame);
         }
     }
