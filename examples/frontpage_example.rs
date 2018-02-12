@@ -1,6 +1,9 @@
+//! Example shown on the docs frontpage and on the github readme
+//!
+
 extern crate ndarray;
-extern crate astrup;
 extern crate rand;
+extern crate astrup;
 
 use std::f64::consts::PI;
 

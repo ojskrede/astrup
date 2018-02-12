@@ -9,10 +9,10 @@ A rust plotting library using [gtk-rs](https://github.com/gtk-rs/gtk) as a backe
 
 ## Example
 
-```
+```rust
 extern crate ndarray;
-extern crate astrup;
 extern crate rand;
+extern crate astrup;
 
 use std::f64::consts::PI;
 

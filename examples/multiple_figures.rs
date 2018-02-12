@@ -1,7 +1,8 @@
 //! Example of how to build multiple figures
+//!
 
-extern crate astrup;
 extern crate ndarray;
+extern crate astrup;
 
 use std::f64::consts::PI;
 
