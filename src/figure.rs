@@ -1,5 +1,3 @@
-//! ## Figure
-//!
 //! Definition of the Figure struct
 //!
 
@@ -10,26 +8,25 @@ use palette::Rgba;
 
 use cairo::{Context, Format, ImageSurface, Matrix, MatrixTrait};
 
-use plot::Plot;
-use utils::Frame;
+use ::{plot, frame};
 
 #[derive(Clone)]
 pub struct Figure {
-    plots: Vec<Plot>,
+    plots: Vec<plot::Plot>,
     title: String,
     height: usize,
     width: usize,
     color: Rgba,
-    local_frame: Frame, // Currently only used for displaying border or not
+    local_frame: frame::Frame, // Currently only used for displaying border or not
 }
 
 impl Figure {
     pub fn new() -> Figure {
-        let mut local_frame = Frame::new();
+        let mut local_frame = frame::Frame::new();
         local_frame.display_border(true);
         local_frame.set_thickness(0.001);
         Figure {
-            plots: Vec::<Plot>::new(),
+            plots: Vec::<plot::Plot>::new(),
             title: String::from("Figure"),
             height: 800,
             width: 800,
@@ -114,7 +111,7 @@ impl Figure {
         self
     }
 
-    pub fn add(mut self, plot: Plot) -> Self {
+    pub fn add(mut self, plot: plot::Plot) -> Self {
         self.plots.push(plot);
         self
     }

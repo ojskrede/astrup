@@ -1,4 +1,4 @@
-//! View module
+//! Definition of the View struct
 //!
 
 use failure::Error;

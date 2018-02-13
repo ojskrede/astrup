@@ -214,11 +214,14 @@ extern crate failure;
 extern crate palette;
 extern crate ndarray;
 
-pub mod utils;
 pub mod view;
 pub mod figure;
 pub mod plot;
+pub mod canvas;
 pub mod axis;
 pub mod mark;
-pub mod color;
 pub mod chart;
+pub mod utils;
+pub mod frame;
+pub mod coord;
+pub mod text;

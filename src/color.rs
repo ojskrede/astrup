@@ -1,4 +1,4 @@
-//! Colors
+//! Colors. This might be used in the future, but not currently.
 //!
 
 pub fn red(alpha: f64) -> [f64; 4] {

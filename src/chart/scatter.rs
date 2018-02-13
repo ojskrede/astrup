@@ -7,9 +7,7 @@ use cairo::Context;
 use ndarray::AsArray;
 use palette::Rgba;
 
-use chart::point::{Point, Shape};
-use utils;
-use utils::{Frame, Drawable, Plottable, NonNan};
+use ::{utils, chart, frame};
 
 /// Scatter chart
 ///
@@ -17,40 +15,40 @@ use utils::{Frame, Drawable, Plottable, NonNan};
 /// data arrays.
 #[derive(Clone, Debug)]
 pub struct Scatter {
-    data_points: Vec<Point>,
-    global_frame: Frame,
-    data_frame: Frame,
+    data_points: Vec<chart::point::Point>,
+    global_frame: frame::Frame,
+    data_frame: frame::Frame,
     color: Rgba,
-    shape: Shape,
+    shape: chart::point::Shape,
     point_size: f64,
 }
 
 impl Scatter {
     /// Create and return a new Scatter chart
     pub fn new<'a, I: AsArray<'a, f64>>(x_data_coords: I, y_data_coords: I) -> Scatter {
-        let x_view: Vec<_> = x_data_coords.into().iter().map(|v| NonNan::new(*v).unwrap()).collect();
-        let y_view: Vec<_> = y_data_coords.into().iter().map(|v| NonNan::new(*v).unwrap()).collect();
+        let x_view: Vec<_> = x_data_coords.into().iter().map(|v| utils::NonNan::new(*v).unwrap()).collect();
+        let y_view: Vec<_> = y_data_coords.into().iter().map(|v| utils::NonNan::new(*v).unwrap()).collect();
         let ref x_data_min = x_view.iter().min().expect("Could not find x min");
         let ref x_data_max = x_view.iter().max().expect("Could not find x max");
         let ref y_data_min = y_view.iter().min().expect("Could not find y min");
         let ref y_data_max = y_view.iter().max().expect("Could not find y max");
 
         let color = Rgba::new(0.1, 0.1, 0.8, 0.9);
-        let shape = Shape::Circle;
+        let shape = chart::point::Shape::Circle;
         let point_size = 0.01;
-        let mut data_points = Vec::<Point>::new();
+        let mut data_points = Vec::<chart::point::Point>::new();
         for (ref x, ref y) in x_view.iter().zip(y_view.iter()) {
-            let mut point = Point::new(x.val(), y.val());
+            let mut point = chart::point::Point::new(x.val(), y.val());
             point.set_color(color);
             point.set_shape(shape.clone());
             point.set_size(point_size);
-            data_points.push(Point::new(x.val(), y.val()));
+            data_points.push(chart::point::Point::new(x.val(), y.val()));
         }
         Scatter {
             data_points: data_points,
-            global_frame: Frame::new(),
-            data_frame: Frame::from_sides(x_data_min.val(), x_data_max.val(),
-                                          y_data_min.val(), y_data_max.val()),
+            global_frame: frame::Frame::new(),
+            data_frame: frame::Frame::from_sides(x_data_min.val(), x_data_max.val(),
+                                                 y_data_min.val(), y_data_max.val()),
             color: color,
             shape: shape,
             point_size: point_size,
@@ -108,21 +106,21 @@ impl Scatter {
     pub fn set_shape(mut self, shape_id: &str) -> Self {
         // TODO: Move this to draw and get rid of enum??
         self.shape = match shape_id {
-            "Circle" | "circle" | "c" | "o" => Shape::Circle,
-            "Square" | "square" | "s" => Shape::Square,
-            "Tick" | "tick" | "t" => Shape::Tick,
-            _ => Shape::Circle,
+            "Circle" | "circle" | "c" | "o" => chart::point::Shape::Circle,
+            "Square" | "square" | "s" => chart::point::Shape::Square,
+            "Tick" | "tick" | "t" => chart::point::Shape::Tick,
+            _ => chart::point::Shape::Circle,
         };
         self
     }
 }
 
-impl Drawable for Scatter {
+impl utils::Drawable for Scatter {
     fn scale_size(&mut self, factor: f64) {
         self.point_size *= factor;
     }
 
-    fn fit(&mut self, canvas_global_frame: &Frame, canvas_data_frame: &Frame) {
+    fn fit(&mut self, canvas_global_frame: &frame::Frame, canvas_data_frame: &frame::Frame) {
         self.global_frame = canvas_global_frame.clone();
         self.data_frame = canvas_data_frame.clone();
 
@@ -150,8 +148,8 @@ impl Drawable for Scatter {
     }
 }
 
-impl Plottable for Scatter {
-    fn data_frame(&self) -> Frame {
+impl utils::Plottable for Scatter {
+    fn data_frame(&self) -> frame::Frame {
         self.data_frame.clone()
     }
 
@@ -171,7 +169,7 @@ impl Plottable for Scatter {
         self.data_frame.top()
     }
 
-    fn set_data_frame(&mut self, new_data_frame: Frame) {
+    fn set_data_frame(&mut self, new_data_frame: frame::Frame) {
         self.data_frame = new_data_frame;
     }
 }

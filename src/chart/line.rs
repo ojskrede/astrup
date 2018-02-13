@@ -7,8 +7,7 @@ use cairo::{Context, LineCap};
 use palette::Rgba;
 use ndarray::AsArray;
 
-use chart::point::Point;
-use utils::{self, Frame, Drawable, Plottable, NonNan};
+use ::{chart, utils, frame};
 
 #[derive(Clone, Debug)]
 enum LineStyle {
@@ -112,9 +111,9 @@ impl DashPattern {
 /// connected to things like higher kinded types and the like, which I think will come soon.
 #[derive(Clone, Debug)]
 pub struct Line {
-    data_points: Vec<Point>,
-    data_frame: Frame,
-    global_frame: Frame,
+    data_points: Vec<chart::point::Point>,
+    data_frame: frame::Frame,
+    global_frame: frame::Frame,
     color: Rgba,
     line_width: f64,
     line_style: LineStyle,
@@ -125,17 +124,17 @@ pub struct Line {
 impl Line {
     /// Create and return a new Line chart
     pub fn new<'a, I: AsArray<'a, f64>>(x_data_coords: I, y_data_coords: I) -> Line {
-        let x_view: Vec<_> = x_data_coords.into().iter().map(|v| NonNan::new(*v).unwrap()).collect();
-        let y_view: Vec<_> = y_data_coords.into().iter().map(|v| NonNan::new(*v).unwrap()).collect();
+        let x_view: Vec<_> = x_data_coords.into().iter().map(|v| utils::NonNan::new(*v).unwrap()).collect();
+        let y_view: Vec<_> = y_data_coords.into().iter().map(|v| utils::NonNan::new(*v).unwrap()).collect();
         let ref x_data_min = x_view.iter().min().expect("Could not find x min");
         let ref x_data_max = x_view.iter().max().expect("Could not find x max");
         let ref y_data_min = y_view.iter().min().expect("Could not find y min");
         let ref y_data_max = y_view.iter().max().expect("Could not find y max");
 
 
-        let mut data_points = Vec::<Point>::new();
+        let mut data_points = Vec::<chart::point::Point>::new();
         for (ref x, ref y) in x_view.iter().zip(y_view.iter()) {
-            let mut point = Point::new(x.val(), y.val());
+            let mut point = chart::point::Point::new(x.val(), y.val());
             point.set_size(0.0);
             data_points.push(point);
         }
@@ -144,9 +143,9 @@ impl Line {
 
         Line {
             data_points: data_points,
-            data_frame: Frame::from_sides(x_data_min.val(), x_data_max.val(),
-                                          y_data_min.val(), y_data_max.val()),
-            global_frame: Frame::new(),
+            data_frame: frame::Frame::from_sides(x_data_min.val(), x_data_max.val(),
+                                                 y_data_min.val(), y_data_max.val()),
+            global_frame: frame::Frame::new(),
             color: Rgba::new(0.1, 0.2, 0.5, 0.9),
             line_width: 0.005,
             line_style: LineStyle::Plain,
@@ -240,13 +239,13 @@ impl Line {
     }
 }
 
-impl Drawable for Line {
+impl utils::Drawable for Line {
     fn scale_size(&mut self, factor: f64) {
         self.line_width *= factor;
         self.dash_pattern.scale_size(factor);
     }
 
-    fn fit(&mut self, canvas_global_frame: &Frame, canvas_data_frame: &Frame) {
+    fn fit(&mut self, canvas_global_frame: &frame::Frame, canvas_data_frame: &frame::Frame) {
         self.global_frame = canvas_global_frame.clone();
         self.data_frame = canvas_data_frame.clone();
         let scale_factor = self.global_frame.diag_len() / 2f64.sqrt();
@@ -393,8 +392,8 @@ impl Drawable for Line {
     }
 }
 
-impl Plottable for Line {
-    fn data_frame(&self) -> Frame {
+impl utils::Plottable for Line {
+    fn data_frame(&self) -> frame::Frame {
         self.data_frame.clone()
     }
 
@@ -414,7 +413,7 @@ impl Plottable for Line {
         self.data_frame.top()
     }
 
-    fn set_data_frame(&mut self, new_data_frame: Frame) {
+    fn set_data_frame(&mut self, new_data_frame: frame::Frame) {
         self.data_frame = new_data_frame;
     }
 }

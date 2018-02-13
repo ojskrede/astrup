@@ -1,4 +1,4 @@
-//! Axis module
+//! Definition of the Axis struct
 //!
 
 use std::f64::MAX;
@@ -8,8 +8,7 @@ use cairo::{Context, Matrix, MatrixTrait};
 use cairo::enums::{FontSlant, FontWeight};
 use palette::Rgba;
 
-use utils::{self, Coord, Frame, Text};
-use mark::{Mark, Tick};
+use ::{utils, coord, frame, text, mark};
 
 /// ## Axis
 ///
@@ -17,59 +16,59 @@ use mark::{Mark, Tick};
 /// ticks. The ticks are often labeled, and so is also the whole axis.
 #[derive(Clone, Debug)]
 pub struct Axis {
-    local_start: Coord,
-    local_end: Coord,
-    global_start: Coord,
-    global_end: Coord,
+    local_start: coord::Coord,
+    local_end: coord::Coord,
+    global_start: coord::Coord,
+    global_end: coord::Coord,
     color: Rgba,
     line_width: f64,
     data_range: [f64; 2],
-    label: Text,
+    label: text::Text,
     ca_num_marks: usize,
     tick_color: Rgba,
     tick_length: f64,
     tick_width: f64,
-    marks: Vec<Mark>,
-    ticks: Vec<Tick>,
+    marks: Vec<mark::Mark>,
+    ticks: Vec<mark::Tick>,
 }
 
 impl Axis {
     pub fn new() -> Axis {
         Axis {
-            local_start: Coord::new(0.0, 0.0),
-            local_end: Coord::new(0.0, 0.0),
-            global_start: Coord::new(0.0, 0.0),
-            global_end: Coord::new(0.0, 0.0),
+            local_start: coord::Coord::new(0.0, 0.0),
+            local_end: coord::Coord::new(0.0, 0.0),
+            global_start: coord::Coord::new(0.0, 0.0),
+            global_end: coord::Coord::new(0.0, 0.0),
             color: Rgba::new(0.0, 0.0, 0.0, 1.0),
             line_width: 0.005,
             data_range: [0.0, 1.0],
-            label: Text::new(""),
+            label: text::Text::new(""),
             ca_num_marks: 6,
             tick_color: Rgba::new(0.0, 0.0, 0.0, 1.0),
             tick_length: 0.02,
             tick_width: 0.005,
-            marks: Vec::<Mark>::new(),
-            ticks: Vec::<Tick>::new(),
+            marks: Vec::<mark::Mark>::new(),
+            ticks: Vec::<mark::Tick>::new(),
         }
     }
 
     // TODO: Impl default?
-    pub fn from_coord(start: Coord, end: Coord) -> Axis {
+    pub fn from_coord(start: coord::Coord, end: coord::Coord) -> Axis {
         Axis {
             local_start: start,
             local_end: end,
-            global_start: Coord::new(0.0, 0.0),
-            global_end: Coord::new(0.0, 0.0),
+            global_start: coord::Coord::new(0.0, 0.0),
+            global_end: coord::Coord::new(0.0, 0.0),
             color: Rgba::new(0.0, 0.0, 0.0, 1.0),
             line_width: 0.005,
             data_range: [0.0, 1.0],
-            label: Text::new(""),
+            label: text::Text::new(""),
             ca_num_marks: 6,
             tick_color: Rgba::new(0.0, 0.0, 0.0, 1.0),
             tick_length: 0.02,
             tick_width: 0.005,
-            marks: Vec::<Mark>::new(),
-            ticks: Vec::<Tick>::new(),
+            marks: Vec::<mark::Mark>::new(),
+            ticks: Vec::<mark::Tick>::new(),
         }
     }
 
@@ -172,8 +171,8 @@ impl Axis {
         self.data_range[1]
     }
 
-    pub fn mark_coords(&self) -> Vec<Coord> {
-        let mut coords = Vec::<Coord>::new();
+    pub fn mark_coords(&self) -> Vec<coord::Coord> {
+        let mut coords = Vec::<coord::Coord>::new();
         for mark in self.marks.iter() {
             coords.push(mark.global_coord());
         }
@@ -235,7 +234,7 @@ impl Axis {
 
         let mut data_locations = vec![actual_min_point];
         let mut data_location_k = actual_min_point;
-        let mut marks = Vec::<Mark>::new();
+        let mut marks = Vec::<mark::Mark>::new();
         let mut add_next = true;
         while add_next {
             data_location_k += mark_distance;
@@ -251,8 +250,8 @@ impl Axis {
                                           self.local_start.x(), self.local_end.x());
             let mark_y = utils::map_range(data_location, min_data, max_data,
                                           self.local_start.y(), self.local_end.y());
-            let mark_location = Coord::new(mark_x, mark_y);
-            let mut mark_k = Mark::new(mark_location);
+            let mark_location = coord::Coord::new(mark_x, mark_y);
+            let mut mark_k = mark::Mark::new(mark_location);
             mark_k.set_label_content(&utils::prettify(data_location));
 
             marks.push(mark_k);
@@ -275,7 +274,7 @@ impl Axis {
     ///
     /// This function is called just before draw(), and updates the default w.r.t. user input.
     /// and changes above in the hierarchy (canvas -> plot -> figure).
-    pub fn fit(&mut self, canvas_frame: &Frame) {
+    pub fn fit(&mut self, canvas_frame: &frame::Frame) {
         // Local coordinates are determined from initialization or user input.
         self.global_start = self.local_start.relative_to(&canvas_frame);
         self.global_end = self.local_end.relative_to(&canvas_frame);

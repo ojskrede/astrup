@@ -1,20 +1,20 @@
+//! Definition of the Chart enum
+
 pub mod scatter;
 pub mod line;
 pub mod point;
 
 use cairo::Context;
 
-use chart::scatter::Scatter;
-use chart::line::Line;
-use utils::{Plottable, Drawable, Frame};
+use ::{utils, frame, chart};
 
 /// ## Chart
 ///
 /// A chart is a graphical representation of data.
 #[derive(Clone, Debug)]
 pub enum Chart {
-    Scatter(Scatter),
-    Line(Line),
+    Scatter(chart::scatter::Scatter),
+    Line(chart::line::Line),
 }
 
 /*
@@ -29,7 +29,7 @@ impl Chart {
 }
 */
 
-impl Drawable for Chart {
+impl utils::Drawable for Chart {
     fn scale_size(&mut self, factor: f64) {
         match *self {
             Chart::Scatter(ref mut s) => s.scale_size(factor),
@@ -37,7 +37,7 @@ impl Drawable for Chart {
         }
     }
 
-    fn fit(&mut self, global_frame: &Frame, data_frame: &Frame) {
+    fn fit(&mut self, global_frame: &frame::Frame, data_frame: &frame::Frame) {
         match *self {
             Chart::Scatter(ref mut s) => s.fit(global_frame, data_frame),
             Chart::Line(ref mut l) => l.fit(global_frame, data_frame),
@@ -52,9 +52,9 @@ impl Drawable for Chart {
     }
 }
 
-impl Plottable for Chart {
+impl utils::Plottable for Chart {
 
-    fn data_frame(&self) -> Frame {
+    fn data_frame(&self) -> frame::Frame {
         match *self {
             Chart::Scatter(ref s) => s.data_frame(),
             Chart::Line(ref l) => l.data_frame(),
@@ -89,7 +89,7 @@ impl Plottable for Chart {
         }
     }
 
-    fn set_data_frame(&mut self, new_data_frame: Frame) {
+    fn set_data_frame(&mut self, new_data_frame: frame::Frame) {
         match *self {
             Chart::Scatter(ref mut s) => s.set_data_frame(new_data_frame),
             Chart::Line(ref mut l) => l.set_data_frame(new_data_frame),

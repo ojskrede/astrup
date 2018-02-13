@@ -1,11 +1,10 @@
-//! Mark module
-//!
+//! Definition of the Mark, Tick, and GridLine structs.
 //!
 
 use cairo::Context;
 use palette::Rgba;
 
-use utils::{Coord, Frame, Text};
+use ::{frame, coord, text};
 
 /// Mark
 ///
@@ -14,28 +13,28 @@ use utils::{Coord, Frame, Text};
 /// versions'' of a mark, in that they are used to visualise where a mark is located.
 #[derive(Clone, Debug)]
 pub struct Mark {
-    local: Coord,
-    global: Coord,
-    label: Text,
+    local: coord::Coord,
+    global: coord::Coord,
+    label: text::Text,
 }
 
 impl Mark {
     /// Create and return a new mark
-    pub fn new(coord: Coord) -> Mark {
+    pub fn new(coord: coord::Coord) -> Mark {
         Mark {
             local: coord,
-            global: Coord::new(0.0, 0.0),
-            label: Text::new(""),
+            global: coord::Coord::new(0.0, 0.0),
+            label: text::Text::new(""),
         }
     }
 
     /// Set local mark coordinate
-    pub fn set_local(&mut self, coord: Coord) {
+    pub fn set_local(&mut self, coord: coord::Coord) {
         self.local = coord;
     }
 
     /// Set global mark coordinate
-    pub fn set_global(&mut self, coord: Coord) {
+    pub fn set_global(&mut self, coord: coord::Coord) {
         self.global = coord;
     }
 
@@ -55,7 +54,7 @@ impl Mark {
     }
 
     /// Return the global coordinate
-    pub fn global_coord(&self) -> Coord {
+    pub fn global_coord(&self) -> coord::Coord {
         self.global.clone()
     }
 
@@ -70,7 +69,7 @@ impl Mark {
     }
 
     /// Return the label
-    pub fn label(&self) -> Text {
+    pub fn label(&self) -> text::Text {
         self.label.clone()
     }
 
@@ -95,7 +94,7 @@ impl Mark {
     }
 
     /// Fit the mark to the parent frame
-    pub fn fit(&mut self, parent_frame: &Frame) {
+    pub fn fit(&mut self, parent_frame: &frame::Frame) {
         self.global = self.local.relative_to(parent_frame);
         self.scale_size(parent_frame.diag_len() / 2f64.sqrt());
     }
@@ -158,7 +157,7 @@ impl Tick {
     }
 
     /// Fit the tick to a parent mark frame
-    pub fn fit(&mut self, mark_frame: Frame) {
+    pub fn fit(&mut self, mark_frame: frame::Frame) {
         self.scale_size(mark_frame.diag_len() / 2f64.sqrt());
     }
 }
@@ -168,15 +167,15 @@ impl Tick {
 /// Indicator used by axis to serve as a reference for the displayed data
 #[derive(Clone, Debug)]
 pub struct GridLine {
-    global_start: Coord,
-    global_end: Coord,
+    global_start: coord::Coord,
+    global_end: coord::Coord,
     width: f64,
     color: Rgba,
 }
 
 impl GridLine {
     /// Create and return a new GridLine
-    pub fn new(start: Coord, end: Coord) -> GridLine {
+    pub fn new(start: coord::Coord, end: coord::Coord) -> GridLine {
         GridLine {
             global_start: start,
             global_end: end,
