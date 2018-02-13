@@ -7,6 +7,28 @@ A rust plotting library using [gtk-rs](https://github.com/gtk-rs/gtk) as a backe
 - [RustGnuplot](https://github.com/SiegeLord/RustGnuplot)
 - [dataplotlib](https://github.com/coder543/dataplotlib)
 
+## Gloals:
+- Plot data from multiple containers (first priority: `Vec` and `ndarray`).
+- Building plots should be intuitive.
+- Plots should look nice and informative.
+- It should be very configurable.
+
+## Planned charts
+
+The table below lists, by priority, the planned chart variants. Currently, only simple scatter and
+line plots are implemented.
+
+| Variant        | Implemented |
+| -------------- | ----------- |
+| Scatter        | Partially   |
+| Line           | Partially   |
+| Histogram      | No          |
+| Matrix heatmap | No          |
+| Image          | No          |
+| Filled curve   | No          |
+| Box plot       | No          |
+| Pie charts     | No          |
+
 ## Example
 
 ```rust
@@ -74,9 +96,3 @@ fn main() {
 ```
 
 ![Plot](frontpage_example.png)
-
-## Gloals:
-- Input `Vec` and `ndarray` containers and slices
-- It should be intuitive to build plots, but not as "easy as possible". It will probably be
-quite verbose and explicit.
-- Very configurable.
