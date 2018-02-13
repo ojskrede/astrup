@@ -72,10 +72,19 @@ impl Coord {
         Coord::new(mid_x - dy * scale_factor, mid_y + dx * scale_factor)
     }
 
+    /// Returns a unit length direction from self to other
+    pub fn unit_direction_to(&self, other: &Coord) -> Coord {
+        let dx = other.x() - self.x();
+        let dy = other.y() - self.y();
+        let magnitude = (dx*dx + dy*dy).sqrt();
+        Coord::new(dx / magnitude, dy / magnitude)
+    }
+
     /// Returns a unit normal vector that is perpendicular on the vector from self to other.
     pub fn perp_direction(&self, other: &Coord) -> Coord {
         let dx = other.x() - self.x();
         let dy = other.y() - self.y();
-        Coord::new(-dy, dx)
+        let magnitude = (dx*dx + dy*dy).sqrt();
+        Coord::new(-dy / magnitude, dx / magnitude)
     }
 }

@@ -132,7 +132,7 @@ impl utils::Drawable for Scatter {
         }
     }
 
-    fn draw(&self, cr: &Context) {
+    fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
         for data_point in self.data_points.iter() {
             let canvas_x = utils::map_range(data_point.x_coord(),
                                             self.data_frame.left(), self.data_frame.right(),
@@ -143,7 +143,7 @@ impl utils::Drawable for Scatter {
             let mut canvas_point = data_point.clone();
             canvas_point.set_x_coord(canvas_x);
             canvas_point.set_y_coord(canvas_y);
-            canvas_point.draw(cr);
+            canvas_point.draw(cr, fig_rel_height, fig_rel_width);
         }
     }
 }

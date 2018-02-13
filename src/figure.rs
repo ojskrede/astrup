@@ -17,7 +17,7 @@ pub struct Figure {
     height: usize,
     width: usize,
     color: Rgba,
-    local_frame: frame::Frame, // Currently only used for displaying border or not
+    local_frame: frame::Frame,
 }
 
 impl Figure {
@@ -134,6 +134,7 @@ impl Figure {
             Ok(val) => val,
             Err(msg) => return Err(err_msg(format!("{:?}", msg))),
         };
+
         let cr = Context::new(&surface);
 
         fig.draw(&cr);
@@ -144,15 +145,36 @@ impl Figure {
         Ok((self))
     }
 
+    /// Draw the figure and the subsequent structures
     pub fn draw(&self, cr: &Context) {
+
+        // # About non-square figures:
+        //
+        // All structures has been build with the assumption of a (0, 1) х (0, 1) square figure.
+        // When we transform the figure to be non-square, all structures we have built will follow
+        // the scaling.
+        //
+        // ## Desired outcomes
+        // Plots, canvases, axes, and marks will be placed as they are expected to, taken the
+        // figure scaling into accord. In general, all drawn structures are where they should be.
+        // This is controlled by the fit() and scale_size() functions down in the hierarchy.
+        //
+        // ## Unfortunate outcomes
+        // Even if the location is allright, the shape of the things we have drawn will be deformed
+        // according to the scaling of the figure. If a figure is 200 х 800, all drawn structures,
+        // like texts and lines, will be 4 times as fat as expected. This is ugly.
+        //
+        // ## One way to fix this
+        // We can pass the figure height and figure width down to every object, and counter this
+        // effect in the respective draw() functions. Since this only affects the shape, and not
+        // the location of the object, it makes sense to do stuff in the draw() functions.
         cr.scale(self.width as f64, self.height as f64);
+        let relative_height = self.height() as f64 / self.height().max(self.width()) as f64;
+        let relative_width = self.width() as f64 / self.height().max(self.width()) as f64;
 
         cr.set_source_rgba(self.color.red as f64, self.color.green as f64, self.color.blue as f64,
                            self.color.alpha as f64);
         cr.paint();
-
-        // Frame border
-        self.local_frame.draw(cr);
 
         // By default, the origin is in the top left corner, x is increasing to the right, and y is
         // increasing downwards. This transforms the origin to the bottom left, and increasing y
@@ -160,8 +182,12 @@ impl Figure {
         let flip_matrix = Matrix::new(1.0, 0.0, 0.0, -1.0, 0.0, 1.0);
         cr.transform(flip_matrix);
 
+        // Frame border
+        self.local_frame.draw(cr, relative_height, relative_width);
+
         for plot in self.plots.iter() {
-            plot.draw(&cr);
+            plot.draw(&cr, relative_height, relative_width);
+            //plot.draw(&cr, 0.5, 2.0);
         }
     }
 }

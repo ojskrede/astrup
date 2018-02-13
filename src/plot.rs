@@ -123,7 +123,7 @@ impl Plot {
         self
     }
 
-    /// Set the right horisintal data range end of the plot
+    /// Set the right horisontal data range end of the plot
     ///
     /// *Note*:
     /// This is a soft suggestion, and can be overwritten before the final result for aestethics.
@@ -186,19 +186,19 @@ impl Plot {
     /// This happend right before the plot is drawn on the figure.
     ///
     /// The function scales various elements within the plot, and calls a similar plot for its
-    /// canvasses. Since the figure is its closest parent, no additional global_frame is needed.
+    /// canvasses.
     pub fn fit(&mut self) -> Result<(), Error> {
         let scale_factor = self.local_frame.diag_len() / 2f64.sqrt();
         self.scale_size(scale_factor);
-        self.canvas.fit(self.local_frame.clone())?;
+        self.canvas.fit(&self.local_frame)?;
 
         Ok(())
     }
 
     /// Do the actual drawing of the plot
-    pub fn draw(&self, cr: &Context) {
+    pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
 
-        // Background
+        // Fill background
         cr.set_source_rgba(self.color.red as f64, self.color.green as f64, self.color.blue as f64,
                            self.color.alpha as f64);
         cr.rectangle(self.local_frame.left(), self.local_frame.bottom(),
@@ -206,9 +206,9 @@ impl Plot {
         cr.fill();
 
         // Frame border
-        self.local_frame.draw(cr);
+        self.local_frame.draw(cr, fig_rel_height, fig_rel_width);
 
-        self.canvas.draw(cr);
+        self.canvas.draw(cr, fig_rel_height, fig_rel_width);
     }
 
 }

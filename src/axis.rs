@@ -20,6 +20,7 @@ pub struct Axis {
     local_end: coord::Coord,
     global_start: coord::Coord,
     global_end: coord::Coord,
+    unit_direction: coord::Coord,
     color: Rgba,
     line_width: f64,
     data_range: [f64; 2],
@@ -39,14 +40,15 @@ impl Axis {
             local_end: coord::Coord::new(0.0, 0.0),
             global_start: coord::Coord::new(0.0, 0.0),
             global_end: coord::Coord::new(0.0, 0.0),
+            unit_direction: coord::Coord::new(0.0, 0.0),
             color: Rgba::new(0.0, 0.0, 0.0, 1.0),
             line_width: 0.005,
             data_range: [0.0, 1.0],
             label: text::Text::new(""),
             ca_num_marks: 6,
             tick_color: Rgba::new(0.0, 0.0, 0.0, 1.0),
-            tick_length: 0.02,
-            tick_width: 0.005,
+            tick_length: 0.015,
+            tick_width: 0.003,
             marks: Vec::<mark::Mark>::new(),
             ticks: Vec::<mark::Tick>::new(),
         }
@@ -59,14 +61,15 @@ impl Axis {
             local_end: end,
             global_start: coord::Coord::new(0.0, 0.0),
             global_end: coord::Coord::new(0.0, 0.0),
+            unit_direction: coord::Coord::new(0.0, 0.0),
             color: Rgba::new(0.0, 0.0, 0.0, 1.0),
             line_width: 0.005,
             data_range: [0.0, 1.0],
             label: text::Text::new(""),
             ca_num_marks: 6,
             tick_color: Rgba::new(0.0, 0.0, 0.0, 1.0),
-            tick_length: 0.02,
-            tick_width: 0.005,
+            tick_length: 0.015,
+            tick_width: 0.003,
             marks: Vec::<mark::Mark>::new(),
             ticks: Vec::<mark::Tick>::new(),
         }
@@ -278,6 +281,7 @@ impl Axis {
         // Local coordinates are determined from initialization or user input.
         self.global_start = self.local_start.relative_to(&canvas_frame);
         self.global_end = self.local_end.relative_to(&canvas_frame);
+        self.unit_direction = self.global_start.unit_direction_to(&self.global_end);
         let scale_factor = canvas_frame.diag_len() / 2f64.sqrt();
         self.scale_size(scale_factor);
 
@@ -287,22 +291,31 @@ impl Axis {
     }
 
     /// Draw axis on canvas.
-    pub fn draw(&self, cr: &Context) {
+    pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
         // Ticks
         //
         // TODO: tick.draw
-        let unit_perp = self.global_start.perp_direction(&self.global_end);
+        let unit_perp_direction = self.global_start.perp_direction(&self.global_end);
         for mark in self.marks.iter() {
             cr.set_source_rgba(self.tick_color.red as f64, self.tick_color.green as f64,
                                self.tick_color.blue as f64, self.tick_color.alpha as f64);
-            cr.set_line_width(self.tick_width);
+            let tick_width = self.tick_width * (unit_perp_direction.x().abs() * fig_rel_width + unit_perp_direction.y().abs() * fig_rel_height);
+            let tick_length = self.tick_length * (self.unit_direction.x().abs() * fig_rel_width + self.unit_direction.y().abs() * fig_rel_height);
+            cr.set_line_width(tick_width);
             cr.move_to(mark.global_x(), mark.global_y());
-            cr.line_to(mark.global_x() + unit_perp.x() * self.tick_length,
-                       mark.global_y() + unit_perp.y() * self.tick_length);
+            cr.line_to(mark.global_x() + unit_perp_direction.x() * tick_length,
+                       mark.global_y() + unit_perp_direction.y() * tick_length);
             cr.stroke();
 
             cr.select_font_face("Serif", FontSlant::Normal, FontWeight::Normal);
             cr.set_font_size(mark.label().font_size());
+            let curr_font_matrix = cr.get_font_matrix();
+            cr.set_font_matrix(Matrix::new(fig_rel_height * curr_font_matrix.xx,
+                                           1.0 * curr_font_matrix.yx,
+                                           1.0 * curr_font_matrix.xy,
+                                           fig_rel_width * curr_font_matrix.yy,
+                                           1.0 * curr_font_matrix.x0,
+                                           1.0 * curr_font_matrix.y0));
             cr.move_to(mark.global_x() + mark.label_hor_offset(),
                        mark.global_y() + mark.label_ver_offset());
 
@@ -316,20 +329,29 @@ impl Axis {
         // Axis line
         cr.set_source_rgba(self.color.red as f64, self.color.green as f64,
                            self.color.blue as f64, self.color.alpha as f64);
-        cr.set_line_width(self.line_width);
+        cr.set_line_width(self.line_width * (self.unit_direction.x().abs() * fig_rel_width + self.unit_direction.y().abs() * fig_rel_height));
         cr.move_to(self.global_start.x(), self.global_start.y());
         cr.line_to(self.global_end.x(), self.global_end.y());
         cr.stroke();
 
-        // Axis label
-        cr.select_font_face("Serif", FontSlant::Italic, FontWeight::Normal);
-        cr.set_font_size(self.label.font_size());
+        // Axis label //
         // TODO: Shift label "backwards" based on its length
         //let mid_norm = self.global_start.perp_bisector(&self.global_end, self.label_offset);
         //cr.move_to(mid_norm.x(), mid_norm.y());
         let mid_point_x = (self.global_start.x() + self.global_end.x()) / 2.0;
         let mid_point_y = (self.global_start.y() + self.global_end.y()) / 2.0;
         cr.move_to(mid_point_x + self.label.hor_offset(), mid_point_y + self.label.ver_offset());
+
+        // TODO: label.draw()
+        cr.select_font_face("Serif", FontSlant::Italic, FontWeight::Normal);
+        cr.set_font_size(self.label.font_size());
+        let curr_font_matrix = cr.get_font_matrix();
+        cr.set_font_matrix(Matrix::new(fig_rel_height * curr_font_matrix.xx,
+                                       1.0 * curr_font_matrix.yx,
+                                       1.0 * curr_font_matrix.xy,
+                                       fig_rel_width * curr_font_matrix.yy,
+                                       1.0 * curr_font_matrix.x0,
+                                       1.0 * curr_font_matrix.y0));
         cr.transform(Matrix::new(1.0, 0.0, 0.0, -1.0, 0.0, 0.0));
         cr.rotate(self.label.angle());
         cr.show_text(&self.label.content());

@@ -44,10 +44,10 @@ impl utils::Drawable for Chart {
         }
     }
 
-    fn draw(&self, cr: &Context) {
+    fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
         match *self {
-            Chart::Scatter(ref s) => s.draw(cr),
-            Chart::Line(ref l) => l.draw(cr),
+            Chart::Scatter(ref s) => s.draw(cr, fig_rel_height, fig_rel_width),
+            Chart::Line(ref l) => l.draw(cr, fig_rel_height, fig_rel_width),
         }
     }
 }

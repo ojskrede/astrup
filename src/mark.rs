@@ -169,6 +169,7 @@ impl Tick {
 pub struct GridLine {
     global_start: coord::Coord,
     global_end: coord::Coord,
+    unit_direction: coord::Coord,
     width: f64,
     color: Rgba,
 }
@@ -177,8 +178,9 @@ impl GridLine {
     /// Create and return a new GridLine
     pub fn new(start: coord::Coord, end: coord::Coord) -> GridLine {
         GridLine {
-            global_start: start,
-            global_end: end,
+            global_start: start.clone(),
+            global_end: end.clone(),
+            unit_direction: start.unit_direction_to(&end),
             width: 0.005,
             color: Rgba::new(1.0, 1.0, 1.0, 1.0),
         }
@@ -224,10 +226,12 @@ impl GridLine {
     }
 
     /// Draw the gridline
-    pub fn draw(&self, cr: &Context) {
+    pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
         cr.set_source_rgba(self.color.red as f64, self.color.green as f64, self.color.blue as f64,
                            self.color.alpha as f64);
-        cr.set_line_width(self.width);
+
+        let width = self.width * (self.unit_direction.x().abs() * fig_rel_width + self.unit_direction.y().abs() * fig_rel_height);
+        cr.set_line_width(width);
         cr.move_to(self.global_start.x(), self.global_start.y());
         cr.line_to(self.global_end.x(), self.global_end.y());
         cr.stroke();

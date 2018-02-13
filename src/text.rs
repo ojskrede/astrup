@@ -1,6 +1,8 @@
 //! Definition of the Text struct
 //!
 
+use cairo::{Matrix, MatrixTrait};
+
 /// A structure for text elements like labels and titles
 #[derive(Clone, Debug)]
 pub struct Text {
@@ -9,6 +11,7 @@ pub struct Text {
     angle: f64,
     hor_offset: f64,
     ver_offset: f64,
+    font_matrix: Matrix,
 }
 
 impl Text {
@@ -20,6 +23,7 @@ impl Text {
             angle: 0.0,
             hor_offset: 0.0,
             ver_offset: 0.0,
+            font_matrix: Matrix::new(1.0, 0.0, 0.0, 1.0, 0.0, 0.0),
         }
     }
 

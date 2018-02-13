@@ -99,7 +99,7 @@ impl DirRect {
 pub trait Drawable {
     fn scale_size(&mut self, factor: f64);
     fn fit(&mut self, global_frame: &frame::Frame, data_frame: &frame::Frame);
-    fn draw(&self, cr: &Context);
+    fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64);
 }
 
 /// ## Plottable

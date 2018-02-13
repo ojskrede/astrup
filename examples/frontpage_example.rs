@@ -54,6 +54,8 @@ fn main() {
     // Add the plots to a figure, and save it
     let fig = Figure::new().add(line_plot)
                            .add(scatter_plot)
+                           .set_width(1000)
+                           .set_height(800)
                            .save("frontpage_example.png").expect("Could not create frontpage_example.png")
                            .save("target/doc/astrup/frontpage_example.png").expect("Could not create doc frontpage_example.png");
 

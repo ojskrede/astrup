@@ -47,12 +47,14 @@ impl Header {
 }
 */
 
+/// A struct used to display the figure(s) on screen
 pub struct View {
     figures: Vec<Figure>,
     application: gtk::Application,
 }
 
 impl View {
+    /// Create and return a new View
     pub fn new() -> Result<View, Error> {
         let app = gtk::Application::new("com.astrup.application", gio::ApplicationFlags::empty())
                                            .expect("Failed to initialize application");
@@ -62,6 +64,7 @@ impl View {
         })
     }
 
+    /// Create and return a new View from an existing Figure
     pub fn new_from(mut figure: Figure) -> Result<View, Error> {
         figure.fit()?;
         let app = gtk::Application::new("com.astrup.application", gio::ApplicationFlags::empty())
@@ -72,6 +75,7 @@ impl View {
         })
     }
 
+    /// Add figures to be displayed
     pub fn add(mut self, mut figure: Figure) -> Result<(Self), Error> {
         figure.fit()?;
         self.figures.push(figure);
@@ -79,6 +83,7 @@ impl View {
         Ok((self))
     }
 
+    /// Display the figures on the screen. This must be called in order to display anything.
     pub fn show(self) {
         let figures = self.figures;
         self.application.connect_startup(move |app| {

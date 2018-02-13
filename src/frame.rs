@@ -192,12 +192,25 @@ impl Frame {
     }
 
     /// Draw a border around the frame
-    pub fn draw(&self, cr: &Context) {
+    pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
         if self.display_border {
             cr.set_source_rgba(self.color.red as f64, self.color.green as f64,
                                self.color.blue as f64, self.color.alpha as f64);
-            cr.set_line_width(self.thickness);
-            cr.rectangle(self.left(), self.bottom(), self.width(), self.height());
+            // Move to bottom left corner
+            cr.move_to(self.left, self.bottom);
+            // Bottom left to bottom right
+            cr.set_line_width(self.thickness * fig_rel_width);
+            cr.rel_line_to(self.width(), 0.0);
+            // Bottom right to top right
+            cr.set_line_width(self.thickness * fig_rel_height);
+            cr.rel_line_to(0.0, self.height());
+            // Top right to top left
+            cr.set_line_width(self.thickness * fig_rel_width);
+            cr.rel_line_to(-self.width(), 0.0);
+            // Top left to bottom left
+            cr.set_line_width(self.thickness * fig_rel_height);
+            cr.close_path();
+            //cr.rectangle(self.left(), self.bottom(), self.width(), self.height());
             cr.stroke();
         }
     }

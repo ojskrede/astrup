@@ -188,12 +188,14 @@ impl Canvas {
 
     /// Compute grid lines given a vertical and a horisontal axis
     fn compute_grid(&mut self, ver_axis: &axis::Axis, hor_axis: &axis::Axis) {
+        let scale_factor = self.global_frame.diag_len() / 2_f64.sqrt();
+        //let scale_factor = self.global_frame.height().min(self.global_frame.width());
         for coord in ver_axis.mark_coords() {
             let mut gridline = mark::GridLine::new(coord.clone(),
                                                    coord::Coord::new(self.global_frame.right(), coord.y()));
             gridline.set_color(self.grid_color);
             gridline.set_width(self.grid_width);
-            gridline.scale_size(self.global_frame.diag_len() / 2f64.sqrt());
+            gridline.scale_size(scale_factor);
             self.grid.push(gridline);
         }
         for coord in hor_axis.mark_coords() {
@@ -201,7 +203,7 @@ impl Canvas {
                                                    coord::Coord::new(coord.x(), self.global_frame.top()));
             gridline.set_color(self.grid_color);
             gridline.set_width(self.grid_width);
-            gridline.scale_size(self.global_frame.diag_len() / 2f64.sqrt());
+            gridline.scale_size(scale_factor);
             self.grid.push(gridline);
         }
     }
@@ -290,8 +292,9 @@ impl Canvas {
         Ok((hor_axis, ver_axis))
     }
 
-    /// Fit the this canvas to its plot
-    pub fn fit(&mut self, plot_frame: frame::Frame) -> Result<(), Error> {
+    /// Fit this canvas to its plot
+    pub fn fit(&mut self, plot_frame: &frame::Frame)
+    -> Result<(), Error> {
         // First, we update the global_frame relative to the parent's global_frame.
         // After this is called, both local_frame and global_frame should not be altered.
         self.global_frame = self.local_frame.relative_to(&plot_frame);
@@ -333,7 +336,7 @@ impl Canvas {
     }
 
     /// Draw the canvas
-    pub fn draw(&self, cr: &Context) {
+    pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
 
         // Background
         cr.set_source_rgba(self.color.red as f64, self.color.green as f64, self.color.blue as f64,
@@ -344,18 +347,18 @@ impl Canvas {
 
         if self.display_grid {
             for gridline in self.grid.iter() {
-                gridline.draw(cr);
+                gridline.draw(cr, fig_rel_height, fig_rel_width);
             }
         }
 
         if self.display_axes {
             for axis in self.axes.iter() {
-                axis.draw(cr);
+                axis.draw(cr, fig_rel_height, fig_rel_width);
             }
         }
 
         for chart in self.charts.iter() {
-            chart.draw(cr);
+            chart.draw(cr, fig_rel_height, fig_rel_width);
         }
 
     }
