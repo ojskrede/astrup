@@ -373,22 +373,19 @@ pub struct Plot {
     title: Text,
     color: Rgba,
     local_frame: Frame,
-    display_border: bool,
-    border_color: Rgba,
-    border_width: f64,
     canvas: Canvas,
 }
 
 impl Plot {
     /// Create and return a plot
     pub fn new() -> Plot {
+        let mut local_frame = Frame::new();
+        local_frame.display_border(true);
+        local_frame.set_thickness(0.001);
         Plot {
             title: Text::new(""),
             color: Rgba::new(230.0/255.0, 231.0/255.0, 242.0/255.0, 0.8),
-            local_frame: Frame::from_sides(0.0, 1.0, 0.0, 1.0),
-            display_border: true,
-            border_color: Rgba::new(0.0, 0.0, 0.0, 1.0),
-            border_width: 0.001,
+            local_frame: local_frame,
             canvas: Canvas::new(),
         }
     }
@@ -512,19 +509,19 @@ impl Plot {
 
     /// Whether or not to display a border around the plot
     pub fn display_border(mut self, val: bool) -> Self {
-        self.display_border = val;
+        self.local_frame.display_border(val);
         self
     }
 
     /// Set the color of the border around the plot
     pub fn set_border_color(mut self, color: Rgba) -> Self {
-        self.border_color = color;
+        self.local_frame.set_color(color);
         self
     }
 
     /// Set the line width of the border around the plot
-    pub fn set_border_width(mut self, val: f64) -> Self {
-        self.border_width = val;
+    pub fn set_border_thickness(mut self, val: f64) -> Self {
+        self.local_frame.set_thickness(val);
         self
     }
 
@@ -535,7 +532,7 @@ impl Plot {
     }
 
     fn scale_size(&mut self, factor: f64) {
-        self.border_width *= factor;
+        self.local_frame.scale_size(factor);
         self.title.scale_size(factor);
     }
 
@@ -562,14 +559,8 @@ impl Plot {
                      self.local_frame.width(), self.local_frame.height());
         cr.fill();
 
-        if self.display_border {
-            cr.set_source_rgba(self.border_color.red as f64, self.border_color.green as f64,
-                               self.border_color.blue as f64, self.border_color.alpha as f64);
-            cr.set_line_width(self.border_width);
-            cr.rectangle(self.local_frame.left(), self.local_frame.bottom(),
-                         self.local_frame.width(), self.local_frame.height());
-            cr.stroke();
-        }
+        // Frame border
+        self.local_frame.draw(cr);
 
         self.canvas.draw(cr);
     }

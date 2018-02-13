@@ -11,6 +11,7 @@ use palette::Rgba;
 use cairo::{Context, Format, ImageSurface, Matrix, MatrixTrait};
 
 use plot::Plot;
+use utils::Frame;
 
 #[derive(Clone)]
 pub struct Figure {
@@ -19,22 +20,21 @@ pub struct Figure {
     height: usize,
     width: usize,
     color: Rgba,
-    frame: bool,
-    frame_thickness: f64,
-    frame_color: Rgba,
+    local_frame: Frame, // Currently only used for displaying border or not
 }
 
 impl Figure {
     pub fn new() -> Figure {
+        let mut local_frame = Frame::new();
+        local_frame.display_border(true);
+        local_frame.set_thickness(0.001);
         Figure {
             plots: Vec::<Plot>::new(),
             title: String::from("Figure"),
             height: 800,
             width: 800,
             color: Rgba::new(1.0, 1.0, 1.0, 1.0),
-            frame: true,
-            frame_thickness: 0.001,
-            frame_color: Rgba::new(0.0, 0.0, 0.0, 1.0),
+            local_frame: local_frame,
         }
     }
 
@@ -96,6 +96,24 @@ impl Figure {
         self.width
     }
 
+    /// Whether or not to display a border around the figure
+    pub fn display_border(mut self, val: bool) -> Self {
+        self.local_frame.display_border(val);
+        self
+    }
+
+    /// Set the color of the border around the figure
+    pub fn set_border_color(mut self, color: Rgba) -> Self {
+        self.local_frame.set_color(color);
+        self
+    }
+
+    /// Set the line width of the border around the figure
+    pub fn set_border_thickness(mut self, val: f64) -> Self {
+        self.local_frame.set_thickness(val);
+        self
+    }
+
     pub fn add(mut self, plot: Plot) -> Self {
         self.plots.push(plot);
         self
@@ -136,13 +154,8 @@ impl Figure {
                            self.color.alpha as f64);
         cr.paint();
 
-        if self.frame {
-            cr.set_source_rgba(self.frame_color.red as f64, self.frame_color.green as f64,
-                               self.frame_color.blue as f64, self.frame_color.alpha as f64);
-            cr.set_line_width(self.frame_thickness);
-            cr.rectangle(0.0, 0.0, 1.0, 1.0);
-            cr.stroke();
-        }
+        // Frame border
+        self.local_frame.draw(cr);
 
         // By default, the origin is in the top left corner, x is increasing to the right, and y is
         // increasing downwards. This transforms the origin to the bottom left, and increasing y

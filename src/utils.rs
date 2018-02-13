@@ -6,6 +6,7 @@
 use std::cmp::Ordering;
 
 use cairo::Context;
+use palette::Rgba;
 
 /// A simple container for an (x, y) coordinate
 #[derive(Clone, Debug)]
@@ -175,6 +176,9 @@ pub struct Frame {
     is_right_updated: bool,
     is_bottom_updated: bool,
     is_top_updated: bool,
+    display_border: bool,
+    color: Rgba,
+    thickness: f64
 }
 
 impl Frame {
@@ -189,6 +193,9 @@ impl Frame {
             is_right_updated: false,
             is_bottom_updated: false,
             is_top_updated: false,
+            display_border: false,
+            color: Rgba::new(0.0, 0.0, 0.0, 1.0),
+            thickness: 0.0,
         }
     }
 
@@ -203,6 +210,9 @@ impl Frame {
             is_right_updated: false,
             is_bottom_updated: false,
             is_top_updated: false,
+            display_border: false,
+            color: Rgba::new(0.0, 0.0, 0.0, 1.0),
+            thickness: 0.0,
         }
     }
 
@@ -299,6 +309,21 @@ impl Frame {
         (delta_x * delta_x + delta_y * delta_y).sqrt()
     }
 
+    /// Whether or not to display the border (equivalent to thickness = 0.0)
+    pub fn display_border(&mut self, val: bool) {
+        self.display_border = val;
+    }
+
+    /// Set the color of the frame border
+    pub fn set_color(&mut self, color: Rgba) {
+        self.color = color;
+    }
+
+    /// Set the line width of the frame border
+    pub fn set_thickness(&mut self, val: f64) {
+        self.thickness = val;
+    }
+
     /// Returns this frame mapped to a different `reference_frame`. This is useful when one wants
     /// to map the local frame (`self`) to a global frame (`reference_frame`).
     ///
@@ -319,6 +344,22 @@ impl Frame {
         let new_bottom = reference.bottom() + reference.height() * self.bottom();
         let new_top = reference.bottom() + reference.height() * self.top();
         Frame::from_sides(new_left, new_right, new_bottom, new_top)
+    }
+
+    /// Scale the frame border thickness with factor
+    pub fn scale_size(&mut self, factor: f64) {
+        self.thickness *= factor;
+    }
+
+    /// Draw a border around the frame
+    pub fn draw(&self, cr: &Context) {
+        if self.display_border {
+            cr.set_source_rgba(self.color.red as f64, self.color.green as f64,
+                               self.color.blue as f64, self.color.alpha as f64);
+            cr.set_line_width(self.thickness);
+            cr.rectangle(self.left(), self.bottom(), self.width(), self.height());
+            cr.stroke();
+        }
     }
 }
 
