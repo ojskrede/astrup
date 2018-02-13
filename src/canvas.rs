@@ -37,7 +37,7 @@ impl Canvas {
     /// Create and return a new canvas
     pub fn new() -> Canvas {
         Canvas {
-            color: Rgba::new(235.0/255.0, 230.0/255.0, 242.0/255.0, 0.8),
+            color: Rgba::new(230.0/255.0, 235.0/255.0, 245.0/255.0, 1.0),
             local_frame: frame::Frame::from_sides(0.15, 0.95, 0.15, 0.95), // TODO: Update w.r.t. the width of axis labels and tick labels
             global_frame: frame::Frame::new(),
             data_frame: frame::Frame::new(),

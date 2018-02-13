@@ -23,14 +23,13 @@ pub struct Figure {
 impl Figure {
     pub fn new() -> Figure {
         let mut local_frame = frame::Frame::new();
-        local_frame.display_border(true);
-        local_frame.set_thickness(0.001);
+        local_frame.display_border(false);
         Figure {
             plots: Vec::<plot::Plot>::new(),
             title: String::from("Figure"),
             height: 800,
             width: 800,
-            color: Rgba::new(1.0, 1.0, 1.0, 1.0),
+            color: Rgba::new(1.0, 1.0, 1.0, 0.0),
             local_frame: local_frame,
         }
     }
@@ -107,6 +106,7 @@ impl Figure {
 
     /// Set the line width of the border around the figure
     pub fn set_border_thickness(mut self, val: f64) -> Self {
+        self.local_frame.display_border(true);
         self.local_frame.set_thickness(val);
         self
     }

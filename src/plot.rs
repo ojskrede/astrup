@@ -30,7 +30,7 @@ impl Plot {
         local_frame.set_thickness(0.001);
         Plot {
             title: text::Text::new(""),
-            color: Rgba::new(230.0/255.0, 231.0/255.0, 242.0/255.0, 0.8),
+            color: Rgba::new(240.0/255.0, 242.0/255.0, 255.0/255.0, 1.0),
             local_frame: local_frame,
             canvas: canvas::Canvas::new(),
         }

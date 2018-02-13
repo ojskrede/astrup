@@ -56,6 +56,7 @@ fn main() {
                            .add(scatter_plot)
                            .set_width(1000)
                            .set_height(800)
+                           .set_border_thickness(0.001)
                            .save("frontpage_example.png").expect("Could not create frontpage_example.png")
                            .save("target/doc/astrup/frontpage_example.png").expect("Could not create doc frontpage_example.png");
 
