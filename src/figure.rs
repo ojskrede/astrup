@@ -14,6 +14,7 @@ use ::{plot, frame};
 pub struct Figure {
     plots: Vec<plot::Plot>,
     title: String,
+    window_title: String,
     height: usize,
     width: usize,
     color: Rgba,
@@ -27,6 +28,7 @@ impl Figure {
         Figure {
             plots: Vec::<plot::Plot>::new(),
             title: String::from("Figure"),
+            window_title: String::from("Astrup"),
             height: 800,
             width: 800,
             color: Rgba::new(1.0, 1.0, 1.0, 0.0),
@@ -37,6 +39,11 @@ impl Figure {
     pub fn set_title(mut self, title: &str) -> Self {
         self.title = String::from(title);
         self
+    }
+
+    /// Set window title. This is displayed in the window "header", and not in the figure itself.
+    pub fn set_window_title(&mut self, title: &str) {
+        self.window_title = String::from(title);
     }
 
     pub fn set_height(mut self, val: usize) -> Self {
@@ -80,8 +87,12 @@ impl Figure {
         self
     }
 
-    pub fn get_title(&self) -> String {
+    pub fn title(&self) -> String {
         self.title.clone()
+    }
+
+    pub fn window_title(&self) -> String {
+        self.window_title.clone()
     }
 
     pub fn height(&self) -> usize {
