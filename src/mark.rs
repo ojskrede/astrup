@@ -1,7 +1,7 @@
 //! Definition of the Mark, Tick, and GridLine structs.
 //!
 
-use cairo::Context;
+use cairo::{Context, LineCap};
 use palette::Rgba;
 
 use ::{frame, coord, text};
@@ -16,6 +16,7 @@ pub struct Mark {
     local: coord::Coord,
     global: coord::Coord,
     label: text::Text,
+    tick: Tick,
 }
 
 impl Mark {
@@ -25,6 +26,7 @@ impl Mark {
             local: coord,
             global: coord::Coord::new(0.0, 0.0),
             label: text::Text::new(""),
+            tick: Tick::new(),
         }
     }
 
@@ -51,6 +53,36 @@ impl Mark {
     /// Set label offset in vertical and horisontal direction
     pub fn set_label_offset(&mut self, hor: f64, ver: f64) {
         self.label.set_offset(hor, ver);
+    }
+
+    pub fn set_tick_color(&mut self, color: Rgba) {
+        self.tick.set_color(color);
+    }
+
+    pub fn set_tick_width(&mut self, val: f64) {
+        self.tick.set_width(val);
+    }
+
+    /// Set the length of the tick, in both positive and negative extent
+    pub fn set_tick_length(&mut self, val: f64) {
+        self.tick.set_length(val);
+    }
+
+    /// Set the positive length of the tick
+    pub fn set_positive_tick_length(&mut self, val: f64) {
+        self.tick.set_positive_length(val);
+    }
+
+    /// Set the negative length of the tick
+    pub fn set_negative_tick_length(&mut self, val: f64) {
+        self.tick.set_negative_length(val);
+    }
+
+    /// Set the direction of the tick. It is only the unsigned version of the direction that is
+    /// used, that is, its angle. The extension of the tick is controlled by its positive_length
+    /// and negative_length.
+    pub fn set_tick_direction(&mut self, direction: &coord::Coord) {
+        self.tick.set_direction(direction);
     }
 
     /// Return the global coordinate
@@ -91,12 +123,25 @@ impl Mark {
     /// Scale the size of the label
     fn scale_size(&mut self, factor: f64) {
         self.label.scale_size(factor);
+        self.tick.scale_size(factor);
     }
 
     /// Fit the mark to the parent frame
     pub fn fit(&mut self, parent_frame: &frame::Frame) {
         self.global = self.local.relative_to(parent_frame);
         self.scale_size(parent_frame.diag_len() / 2f64.sqrt());
+    }
+
+    /// Draw ticks and labels
+    pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
+        // Draw tick
+        self.tick.draw(cr, fig_rel_height, fig_rel_width, self.global_x(), self.global_y());
+
+        // Draw label
+        cr.move_to(self.global_x() + self.label.hor_offset(),
+                   self.global_y() + self.label.ver_offset());
+
+        self.label.draw(cr, fig_rel_height, fig_rel_width);
     }
 }
 
@@ -107,8 +152,10 @@ impl Mark {
 #[derive(Clone, Debug)]
 pub struct Tick {
     color: Rgba,
-    line_width: f64,
-    length: f64,
+    width: f64,
+    positive_length: f64, // Length from root mark in the direction of increasing x and/or y
+    negative_length: f64, // Length from root mark in the direction of decreasing x and/or y
+    direction: coord::Coord,
 }
 
 impl Tick {
@@ -116,9 +163,37 @@ impl Tick {
     pub fn new() -> Tick {
         Tick {
             color: Rgba::new(0.0, 0.0, 0.0, 1.0),
-            line_width: 0.005,
-            length: 0.01,
+            width: 0.005,
+            positive_length: 0.01,
+            negative_length: 0.01,
+            direction: coord::Coord::new(0.0, 0.0),
         }
+    }
+
+    /// Set the tick width
+    pub fn set_width(&mut self, val: f64) {
+        self.width = val;
+    }
+
+    /// Set both the positive and negative tick length
+    pub fn set_length(&mut self, val: f64) {
+        self.positive_length = val;
+        self.negative_length = val;
+    }
+
+    /// Set the tick positive length
+    pub fn set_positive_length(&mut self, val: f64) {
+        self.positive_length = val;
+    }
+
+    /// Set the tick negative length
+    pub fn set_negative_length(&mut self, val: f64) {
+        self.negative_length = val;
+    }
+
+    /// Set the tick direction
+    pub fn set_direction(&mut self, direction: &coord::Coord) {
+        self.direction = direction.clone()
     }
 
     /// Set the tick color
@@ -150,15 +225,69 @@ impl Tick {
         self.color = Rgba::new(red, green, blue, alpha);
     }
 
+    /// Return the tick color
+    pub fn color(&self) -> Rgba {
+        self.color
+    }
+
+    /// Return the tick direction
+    pub fn direction(&self) -> coord::Coord {
+        self.direction.clone()
+    }
+
+    /// Return the tick width
+    pub fn width(&self) -> f64 {
+        self.width
+    }
+
+    /// Return the positive tick length
+    pub fn positive_length(&self) -> f64 {
+        self.positive_length
+    }
+
+    /// Return the negative tick length
+    pub fn negative_length(&self) -> f64 {
+        self.negative_length
+    }
+
     /// Scale the line width and lenght of a tick
     fn scale_size(&mut self, factor: f64) {
-        self.line_width *= factor;
-        self.length *= factor;
+        self.width *= factor;
+        self.positive_length *= factor;
+        self.negative_length *= factor;
     }
 
     /// Fit the tick to a parent mark frame
     pub fn fit(&mut self, mark_frame: frame::Frame) {
         self.scale_size(mark_frame.diag_len() / 2f64.sqrt());
+    }
+
+    /// Draw the tick mark
+    pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64, x_root: f64, y_root: f64) {
+        cr.set_line_cap(LineCap::Square);
+        cr.set_source_rgba(self.color.red as f64, self.color.green as f64,
+                           self.color.blue as f64, self.color.alpha as f64);
+
+        // Perpendicular on the tick direction
+        let width = self.width * (self.direction.y().abs() * fig_rel_height +
+                                  self.direction.x().abs() * fig_rel_width);
+        cr.set_line_width(width);
+
+        // With the tick direction
+        let pos_length = self.positive_length * (self.direction.x().abs() * fig_rel_height +
+                                                 self.direction.y().abs() * fig_rel_width);
+        cr.move_to(x_root, y_root);
+        cr.line_to(x_root + self.direction.x().abs() * pos_length,
+                   y_root + self.direction.y().abs() * pos_length);
+        cr.stroke();
+
+        // Against the tick direction
+        let neg_length = self.negative_length * (self.direction.x().abs() * fig_rel_height +
+                                                 self.direction.y().abs() * fig_rel_width);
+        cr.move_to(x_root, y_root);
+        cr.line_to(x_root - self.direction.x().abs() * neg_length,
+                   y_root - self.direction.y().abs() * neg_length);
+        cr.stroke();
     }
 }
 
@@ -169,7 +298,7 @@ impl Tick {
 pub struct GridLine {
     global_start: coord::Coord,
     global_end: coord::Coord,
-    unit_direction: coord::Coord,
+    direction: coord::Coord,
     width: f64,
     color: Rgba,
 }
@@ -180,7 +309,7 @@ impl GridLine {
         GridLine {
             global_start: start.clone(),
             global_end: end.clone(),
-            unit_direction: start.unit_direction_to(&end),
+            direction: start.unit_direction_to(&end),
             width: 0.005,
             color: Rgba::new(1.0, 1.0, 1.0, 1.0),
         }
@@ -230,7 +359,7 @@ impl GridLine {
         cr.set_source_rgba(self.color.red as f64, self.color.green as f64, self.color.blue as f64,
                            self.color.alpha as f64);
 
-        let width = self.width * (self.unit_direction.x().abs() * fig_rel_width + self.unit_direction.y().abs() * fig_rel_height);
+        let width = self.width * (self.direction.x().abs() * fig_rel_width + self.direction.y().abs() * fig_rel_height);
         cr.set_line_width(width);
         cr.move_to(self.global_start.x(), self.global_start.y());
         cr.line_to(self.global_end.x(), self.global_end.y());

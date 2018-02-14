@@ -1,7 +1,8 @@
 //! Definition of the Text struct
 //!
 
-use cairo::{Matrix, MatrixTrait};
+use cairo::{Context, Matrix, MatrixTrait};
+use cairo::enums::{FontSlant, FontWeight};
 
 /// A structure for text elements like labels and titles
 #[derive(Clone, Debug)]
@@ -84,6 +85,26 @@ impl Text {
     pub fn scale_size(&mut self, factor: f64) {
         self.font_size *= factor;
         self.scale_offset(factor);
+    }
+
+    /// Draw text
+    pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
+
+        cr.select_font_face("Serif", FontSlant::Normal, FontWeight::Normal);
+        cr.set_font_size(self.font_size);
+        let curr_font_matrix = cr.get_font_matrix();
+        cr.set_font_matrix(Matrix::new(fig_rel_height * curr_font_matrix.xx,
+                                       1.0 * curr_font_matrix.yx,
+                                       1.0 * curr_font_matrix.xy,
+                                       fig_rel_width * curr_font_matrix.yy,
+                                       1.0 * curr_font_matrix.x0,
+                                       1.0 * curr_font_matrix.y0));
+
+        cr.transform(Matrix::new(1.0, 0.0, 0.0, -1.0, 0.0, 0.0));
+        cr.rotate(self.angle);
+        cr.show_text(&self.content);
+        cr.rotate(-self.angle);
+        cr.transform(Matrix::new(1.0, 0.0, 0.0, -1.0, 0.0, 0.0));
     }
 }
 

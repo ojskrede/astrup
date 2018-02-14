@@ -271,9 +271,9 @@ impl Canvas {
         let mut hor_axis = axis::Axis::from_coord(coord::Coord::new(0.0, 0.0), coord::Coord::new(1.0, 0.0));
         hor_axis.set_data_range(data_frame.left(), data_frame.right());
         hor_axis.set_label("x");
-        //hor_axis.scale_label_offset(-1.5);
-        hor_axis.scale_tick_length(-1.0);
         hor_axis.compute_marks()?;
+        hor_axis.set_positive_tick_length(0.0);
+        hor_axis.set_negative_tick_length(0.01);
         hor_axis.set_label_offset(-0.01, -0.13);
         hor_axis.set_tick_label_offset(-0.02, -0.07);
         hor_axis.set_tick_font_size(0.025);
@@ -281,10 +281,9 @@ impl Canvas {
         let mut ver_axis = axis::Axis::from_coord(coord::Coord::new(0.0, 0.0), coord::Coord::new(0.0, 1.0));
         ver_axis.set_data_range(data_frame.bottom(), data_frame.top());
         ver_axis.set_label("y");
-        //ver_axis.scale_label_offset(1.5);
-        //ver_axis.set_label_angle(-PI / 2.0);
         ver_axis.compute_marks()?;
-        //ver_axis.scale_tick_label_offset(1.7);
+        ver_axis.set_positive_tick_length(0.0);
+        ver_axis.set_negative_tick_length(0.01);
         ver_axis.set_label_offset(-0.14, -0.01);
         ver_axis.set_tick_label_offset(-0.10, -0.01);
         ver_axis.set_tick_font_size(0.025);

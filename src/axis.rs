@@ -4,33 +4,27 @@
 use std::f64::MAX;
 use failure::{Error, err_msg};
 
-use cairo::{Context, Matrix, MatrixTrait};
-use cairo::enums::{FontSlant, FontWeight};
+use cairo::{Context};
 use palette::Rgba;
 
 use ::{utils, coord, frame, text, mark};
 
 /// ## Axis
 ///
-/// An axis is a reference source for the plot. It is often displayed as a line with evenly spaced
-/// ticks. The ticks are often labeled, and so is also the whole axis.
+/// An axis is a reference source for the plot.
 #[derive(Clone, Debug)]
 pub struct Axis {
     local_start: coord::Coord,
     local_end: coord::Coord,
     global_start: coord::Coord,
     global_end: coord::Coord,
-    unit_direction: coord::Coord,
+    direction: coord::Coord,
     color: Rgba,
     line_width: f64,
     data_range: [f64; 2],
     label: text::Text,
     ca_num_marks: usize,
-    tick_color: Rgba,
-    tick_length: f64,
-    tick_width: f64,
     marks: Vec<mark::Mark>,
-    ticks: Vec<mark::Tick>,
 }
 
 impl Axis {
@@ -40,38 +34,30 @@ impl Axis {
             local_end: coord::Coord::new(0.0, 0.0),
             global_start: coord::Coord::new(0.0, 0.0),
             global_end: coord::Coord::new(0.0, 0.0),
-            unit_direction: coord::Coord::new(0.0, 0.0),
+            direction: coord::Coord::new(0.0, 0.0),
             color: Rgba::new(0.0, 0.0, 0.0, 1.0),
             line_width: 0.005,
             data_range: [0.0, 1.0],
             label: text::Text::new(""),
             ca_num_marks: 6,
-            tick_color: Rgba::new(0.0, 0.0, 0.0, 1.0),
-            tick_length: 0.015,
-            tick_width: 0.003,
             marks: Vec::<mark::Mark>::new(),
-            ticks: Vec::<mark::Tick>::new(),
         }
     }
 
     // TODO: Impl default?
     pub fn from_coord(start: coord::Coord, end: coord::Coord) -> Axis {
         Axis {
-            local_start: start,
-            local_end: end,
+            local_start: start.clone(),
+            local_end: end.clone(),
             global_start: coord::Coord::new(0.0, 0.0),
             global_end: coord::Coord::new(0.0, 0.0),
-            unit_direction: coord::Coord::new(0.0, 0.0),
+            direction: start.unit_direction_to(&end),
             color: Rgba::new(0.0, 0.0, 0.0, 1.0),
             line_width: 0.005,
             data_range: [0.0, 1.0],
             label: text::Text::new(""),
             ca_num_marks: 6,
-            tick_color: Rgba::new(0.0, 0.0, 0.0, 1.0),
-            tick_length: 0.015,
-            tick_width: 0.003,
             marks: Vec::<mark::Mark>::new(),
-            ticks: Vec::<mark::Tick>::new(),
         }
     }
 
@@ -120,16 +106,16 @@ impl Axis {
         self.ca_num_marks = val;
     }
 
-    pub fn set_tick_color(&mut self, color: Rgba) {
-        self.tick_color = color;
+    pub fn set_positive_tick_length(&mut self, val: f64) {
+        for mark in self.marks.iter_mut() {
+            mark.set_positive_tick_length(val);
+        }
     }
 
-    pub fn set_tick_width(&mut self, val: f64) {
-        self.tick_width = val;
-    }
-
-    pub fn set_tick_length(&mut self, val: f64) {
-        self.tick_length = val;
+    pub fn set_negative_tick_length(&mut self, val: f64) {
+        for mark in self.marks.iter_mut() {
+            mark.set_negative_tick_length(val);
+        }
     }
 
     pub fn set_tick_font_size(&mut self, val: f64) {
@@ -154,10 +140,6 @@ impl Axis {
 
     pub fn scale_label_offset(&mut self, factor: f64) {
         self.label.scale_offset(factor);
-    }
-
-    pub fn scale_tick_length(&mut self, factor: f64) {
-        self.tick_length *= factor;
     }
 
     pub fn scale_tick_label_offset(&mut self, factor: f64) {
@@ -185,7 +167,7 @@ impl Axis {
 
     /// ## Compute marks
     ///
-    /// Marks are used by axis ticks, and axis gridlines, to determine their location.
+    /// Marks are used to determine the location of ticks and gridlines.
     ///
     /// This method will return a list of evenly spaced marks according to the following method.
     /// This assumes that the data range is known, and that know how many marks we want. The latter
@@ -204,13 +186,6 @@ impl Axis {
     ///    framework using the data range and axis frame.
     ///
     ///
-    /// TODO:
-    ///  - Compute the martk data location based on largest data frame. Then update the axis' data
-    ///  range to be cover (be the same as) its mark data range. Then adjust the plot location of
-    ///  its marks, data, gridlines, etc. Currently the axis range is determined by the range of
-    ///  the data, and not the range of its marks. Also, the user should be able to set the data
-    ///  range, this should then determine the mark range, which in turn should determine the axis
-    ///  range.
     ///  - The user can now set data range, but this function will override it. With this, the
     ///  output looks nicer, but I assume that when the user puts a data range, the user assumes
     ///  that this range should be used.
@@ -267,8 +242,6 @@ impl Axis {
     }
 
     fn scale_size(&mut self, factor: f64) {
-        self.tick_length *= factor;
-        self.tick_width *= factor;
         self.line_width *= factor;
         self.label.scale_size(factor);
     }
@@ -281,86 +254,37 @@ impl Axis {
         // Local coordinates are determined from initialization or user input.
         self.global_start = self.local_start.relative_to(&canvas_frame);
         self.global_end = self.local_end.relative_to(&canvas_frame);
-        self.unit_direction = self.global_start.unit_direction_to(&self.global_end);
+        let unit_perp_direction = self.global_start.perp_direction(&self.global_end);
         let scale_factor = canvas_frame.diag_len() / 2f64.sqrt();
         self.scale_size(scale_factor);
 
         for mark in self.marks.iter_mut() {
+            mark.set_tick_direction(&unit_perp_direction);
             mark.fit(canvas_frame);
         }
     }
 
     /// Draw axis on canvas.
     pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
-        // Ticks
-        //
-        // TODO: tick.draw
-        let unit_perp_direction = self.global_start.perp_direction(&self.global_end);
+        // Draw ticks and tick labels
+        println!("Axis direction: {:?}", self.direction);
         for mark in self.marks.iter() {
-            cr.set_source_rgba(self.tick_color.red as f64, self.tick_color.green as f64,
-                               self.tick_color.blue as f64, self.tick_color.alpha as f64);
-            let tick_width = self.tick_width * (unit_perp_direction.x().abs() * fig_rel_width + unit_perp_direction.y().abs() * fig_rel_height);
-            let tick_length = self.tick_length * (self.unit_direction.x().abs() * fig_rel_width + self.unit_direction.y().abs() * fig_rel_height);
-            cr.set_line_width(tick_width);
-            cr.move_to(mark.global_x(), mark.global_y());
-            cr.line_to(mark.global_x() + unit_perp_direction.x() * tick_length,
-                       mark.global_y() + unit_perp_direction.y() * tick_length);
-            cr.stroke();
-
-            cr.select_font_face("Serif", FontSlant::Normal, FontWeight::Normal);
-            cr.set_font_size(mark.label().font_size());
-            let curr_font_matrix = cr.get_font_matrix();
-            cr.set_font_matrix(Matrix::new(fig_rel_height * curr_font_matrix.xx,
-                                           1.0 * curr_font_matrix.yx,
-                                           1.0 * curr_font_matrix.xy,
-                                           fig_rel_width * curr_font_matrix.yy,
-                                           1.0 * curr_font_matrix.x0,
-                                           1.0 * curr_font_matrix.y0));
-            cr.move_to(mark.global_x() + mark.label_hor_offset(),
-                       mark.global_y() + mark.label_ver_offset());
-
-            cr.transform(Matrix::new(1.0, 0.0, 0.0, -1.0, 0.0, 0.0));
-            cr.rotate(self.label.angle());
-            cr.show_text(&mark.label().content());
-            cr.rotate(-self.label.angle());
-            cr.transform(Matrix::new(1.0, 0.0, 0.0, -1.0, 0.0, 0.0));
+            mark.draw(cr, fig_rel_height, fig_rel_width);
         }
 
-        // Axis line
+        // Draw axis line
         cr.set_source_rgba(self.color.red as f64, self.color.green as f64,
                            self.color.blue as f64, self.color.alpha as f64);
-        cr.set_line_width(self.line_width * (self.unit_direction.x().abs() * fig_rel_width + self.unit_direction.y().abs() * fig_rel_height));
+        cr.set_line_width(self.line_width * (self.direction.x().abs() * fig_rel_width +
+                                             self.direction.y().abs() * fig_rel_height));
         cr.move_to(self.global_start.x(), self.global_start.y());
         cr.line_to(self.global_end.x(), self.global_end.y());
         cr.stroke();
 
-        // Axis label //
-        // TODO: Shift label "backwards" based on its length
-        //let mid_norm = self.global_start.perp_bisector(&self.global_end, self.label_offset);
-        //cr.move_to(mid_norm.x(), mid_norm.y());
+        // Draw axis label
         let mid_point_x = (self.global_start.x() + self.global_end.x()) / 2.0;
         let mid_point_y = (self.global_start.y() + self.global_end.y()) / 2.0;
         cr.move_to(mid_point_x + self.label.hor_offset(), mid_point_y + self.label.ver_offset());
-
-        // TODO: label.draw()
-        cr.select_font_face("Serif", FontSlant::Italic, FontWeight::Normal);
-        cr.set_font_size(self.label.font_size());
-        let curr_font_matrix = cr.get_font_matrix();
-        cr.set_font_matrix(Matrix::new(fig_rel_height * curr_font_matrix.xx,
-                                       1.0 * curr_font_matrix.yx,
-                                       1.0 * curr_font_matrix.xy,
-                                       fig_rel_width * curr_font_matrix.yy,
-                                       1.0 * curr_font_matrix.x0,
-                                       1.0 * curr_font_matrix.y0));
-        cr.transform(Matrix::new(1.0, 0.0, 0.0, -1.0, 0.0, 0.0));
-        cr.rotate(self.label.angle());
-        cr.show_text(&self.label.content());
-        cr.rotate(-self.label.angle());
-        cr.transform(Matrix::new(1.0, 0.0, 0.0, -1.0, 0.0, 0.0));
-
-        // Ticks and tick labels
-        //for tick in self.ticks.iter() {
-            //tick.draw(cr);
-        //}
+        self.label.draw(cr, fig_rel_height, fig_rel_width);
     }
 }
