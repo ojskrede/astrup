@@ -96,7 +96,7 @@ fn main() {
                            .set_width(1000)
                            .set_height(800)
                            .set_border_thickness(0.001)
-                           .save("frontpage_example.png").expect("Could not create frontpage_example.png");
+                           .save("assets/frontpage_example.png").expect("Could not save frontpage_example.png");
 
     // Display the result on screen
     View::new_from(fig).expect("Could not add figure to view")
@@ -104,4 +104,4 @@ fn main() {
 }
 ```
 
-![Plot](frontpage_example.png)
+![Plot](assets/frontpage_example.png)
