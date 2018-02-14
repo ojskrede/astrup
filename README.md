@@ -1,4 +1,4 @@
-# astrup
+# Astrup
 
 A rust plotting library using [gtk-rs](https://github.com/gtk-rs/gtk) as a backend. This is
 *still* very much a small hobby project. For alternative rust plotting libraries, see e.g.
@@ -6,6 +6,14 @@ A rust plotting library using [gtk-rs](https://github.com/gtk-rs/gtk) as a backe
 - [rustplotlib](https://github.com/ubnt-intrepid/rustplotlib)
 - [RustGnuplot](https://github.com/SiegeLord/RustGnuplot)
 - [dataplotlib](https://github.com/coder543/dataplotlib)
+
+## Build:
+
+- [Install rust](https://www.rust-lang.org/en-US/install.html), and make sure `~/.cargo/bin/` is in
+  your `PATH`.
+- Make sure you have **GTK+**, **GLib**, and **Cairo** development files on your system.
+  Install instructions can be found [here](http://gtk-rs.org/docs/requirements.html).
+- Clone the repository, and build with `cargo build`.
 
 ## Gloals:
 - Plot data from multiple containers (first priority: `Vec` and `ndarray`).
