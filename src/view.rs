@@ -51,6 +51,7 @@ impl Header {
 pub struct View {
     figures: Vec<Figure>,
     application: gtk::Application,
+    window_title: String,
 }
 
 impl View {
@@ -61,6 +62,7 @@ impl View {
         Ok(View {
             figures: vec![],
             application: app,
+            window_title: String::from("Astrup"),
         })
     }
 
@@ -72,6 +74,7 @@ impl View {
         Ok(View {
             figures: vec![figure],
             application: app,
+            window_title: String::from("Astrup"),
         })
     }
 
@@ -83,9 +86,15 @@ impl View {
         Ok((self))
     }
 
+    /// Set window title
+    pub fn set_window_title(&mut self, title: &str) {
+        self.window_title = String::from(title);
+    }
+
     /// Display the figures on the screen. This must be called in order to display anything.
     pub fn show(self) {
         let figures = self.figures;
+        let window_title = self.window_title;
         self.application.connect_startup(move |app| {
             for fig in figures.iter() {
                 let window = ApplicationWindow::new(app);
@@ -97,7 +106,7 @@ impl View {
                     Inhibit(false)
                 }));
 
-                window.set_title("Figure name");
+                window.set_title(&window_title);
                 window.set_border_width(10);
                 //window.fullscreen();
                 window.set_position(WindowPosition::Center);
