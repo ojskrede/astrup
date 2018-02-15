@@ -7,7 +7,7 @@ use failure::Error;
 use cairo::Context;
 use palette::Rgba;
 
-use ::{axis, mark, chart, frame, coord};
+use ::{axis, mark, chart, shape, coord};
 use utils::{Drawable, Plottable};
 
 
@@ -18,10 +18,10 @@ use utils::{Drawable, Plottable};
 #[derive(Clone, Debug)]
 pub struct Canvas {
     color: Rgba,
-    local_frame: frame::Frame,
-    global_frame: frame::Frame,
-    data_frame: frame::Frame,
-    user_data_frame: frame::Frame,
+    local_frame: shape::Rectangle,
+    global_frame: shape::Rectangle,
+    data_frame: shape::Rectangle,
+    user_data_frame: shape::Rectangle,
     display_axes: bool,
     display_grid: bool,
     grid_width: f64,
@@ -38,10 +38,10 @@ impl Canvas {
     pub fn new() -> Canvas {
         Canvas {
             color: Rgba::new(230.0/255.0, 235.0/255.0, 245.0/255.0, 1.0),
-            local_frame: frame::Frame::from_sides(0.15, 0.95, 0.15, 0.95), // TODO: Update w.r.t. the width of axis labels and tick labels
-            global_frame: frame::Frame::new(),
-            data_frame: frame::Frame::new(),
-            user_data_frame: frame::Frame::new(),
+            local_frame: shape::Rectangle::from_sides(0.15, 0.95, 0.15, 0.95), // TODO: Update w.r.t. the width of axis labels and tick labels
+            global_frame: shape::Rectangle::new(),
+            data_frame: shape::Rectangle::new(),
+            user_data_frame: shape::Rectangle::new(),
             display_axes: true,
             display_grid: true,
             grid_width: 0.005,
@@ -84,7 +84,7 @@ impl Canvas {
     }
 
     /// Set local frame coordinates.
-    pub fn set_local_frame(&mut self, frame: frame::Frame) {
+    pub fn set_local_frame(&mut self, frame: shape::Rectangle) {
         self.local_frame = frame;
     }
 
@@ -209,9 +209,9 @@ impl Canvas {
     }
 
     /// Find the smallest data frame including all data points from all charts
-    fn find_largest_chart_data_frame(&self) -> Option<frame::Frame> {
+    fn find_largest_chart_data_frame(&self) -> Option<shape::Rectangle> {
         if self.charts.len() == 0 { return None }
-        let mut largest_data_frame = frame::Frame::from_sides(f64::MAX, f64::MIN, f64::MAX, f64::MIN);
+        let mut largest_data_frame = shape::Rectangle::from_sides(f64::MAX, f64::MIN, f64::MAX, f64::MIN);
         for chart in self.charts.iter() {
             if chart.data_frame().left() < largest_data_frame.left() {
                 largest_data_frame.set_left(chart.data_frame().left());
@@ -234,7 +234,7 @@ impl Canvas {
     /// First priority is user input. For the entries where there is no user input, the value
     /// should be the smallest value larger than or equal to all respective chart values. If there
     /// are no chart values, the default is chosen.
-    fn compute_data_frame(&self) -> frame::Frame {
+    fn compute_data_frame(&self) -> shape::Rectangle {
         let mut return_this_data_frame = match self.find_largest_chart_data_frame() {
             Some(val) => val,
             None => self.data_frame.clone(),
@@ -267,7 +267,7 @@ impl Canvas {
     /// solution to this.
     ///
     /// In the meantime, the possibility to not draw the axes have to suffice.
-    fn set_default_axis(&mut self, data_frame: frame::Frame) -> Result<(axis::Axis, axis::Axis), Error> {
+    fn set_default_axis(&mut self, data_frame: shape::Rectangle) -> Result<(axis::Axis, axis::Axis), Error> {
         let mut hor_axis = axis::Axis::from_coord(coord::Coord::new(0.0, 0.0), coord::Coord::new(1.0, 0.0));
         hor_axis.set_data_range(data_frame.left(), data_frame.right());
         hor_axis.set_label("x");
@@ -292,7 +292,7 @@ impl Canvas {
     }
 
     /// Fit this canvas to its plot
-    pub fn fit(&mut self, plot_frame: &frame::Frame)
+    pub fn fit(&mut self, plot_frame: &shape::Rectangle)
     -> Result<(), Error> {
         // First, we update the global_frame relative to the parent's global_frame.
         // After this is called, both local_frame and global_frame should not be altered.
@@ -314,7 +314,7 @@ impl Canvas {
         let data_right = hor_axis.data_max();
         let data_bottom = ver_axis.data_min();
         let data_top = ver_axis.data_max();
-        self.data_frame = frame::Frame::from_sides(data_left, data_right, data_bottom, data_top);
+        self.data_frame = shape::Rectangle::from_sides(data_left, data_right, data_bottom, data_top);
 
         // Then, we update the axis, and charts based on this updated configuration
         ver_axis.fit(&self.global_frame);

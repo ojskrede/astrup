@@ -4,7 +4,7 @@
 use cairo::{Context, LineCap};
 use palette::Rgba;
 
-use ::{frame, coord, text};
+use ::{shape, coord, text};
 
 /// Mark
 ///
@@ -127,7 +127,7 @@ impl Mark {
     }
 
     /// Fit the mark to the parent frame
-    pub fn fit(&mut self, parent_frame: &frame::Frame) {
+    pub fn fit(&mut self, parent_frame: &shape::Rectangle) {
         self.global = self.local.relative_to(parent_frame);
         self.scale_size(parent_frame.diag_len() / 2f64.sqrt());
     }
@@ -259,7 +259,7 @@ impl Tick {
     }
 
     /// Fit the tick to a parent mark frame
-    pub fn fit(&mut self, mark_frame: frame::Frame) {
+    pub fn fit(&mut self, mark_frame: shape::Rectangle) {
         self.scale_size(mark_frame.diag_len() / 2f64.sqrt());
     }
 

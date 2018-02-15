@@ -8,7 +8,7 @@ use palette::Rgba;
 
 use cairo::{Context, Format, ImageSurface, Matrix, MatrixTrait};
 
-use ::{plot, frame};
+use ::{plot, shape};
 
 #[derive(Clone)]
 pub struct Figure {
@@ -18,12 +18,12 @@ pub struct Figure {
     height: usize,
     width: usize,
     color: Rgba,
-    local_frame: frame::Frame,
+    local_frame: shape::Rectangle,
 }
 
 impl Figure {
     pub fn new() -> Figure {
-        let mut local_frame = frame::Frame::new();
+        let mut local_frame = shape::Rectangle::new();
         local_frame.display_border(false);
         Figure {
             plots: Vec::<plot::Plot>::new(),

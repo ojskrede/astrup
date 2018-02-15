@@ -1,13 +1,16 @@
-//! Definition of the Frame struct
+//! Definition of geometrical shapes
+//!
 
 use cairo::Context;
 use palette::Rgba;
 
-/// ## Frame
+use ::coord;
+
+/// ## Rectangle
 ///
 /// A frame defined by its boundaries.
 #[derive(Clone, Debug)]
-pub struct Frame {
+pub struct Rectangle {
     left: f64,
     right: f64,
     top: f64,
@@ -17,14 +20,15 @@ pub struct Frame {
     is_bottom_updated: bool,
     is_top_updated: bool,
     display_border: bool,
+    angle: f64,
     color: Rgba,
     thickness: f64
 }
 
-impl Frame {
+impl Rectangle {
     /// Return a new, default frame.
-    pub fn new() -> Frame {
-        Frame {
+    pub fn new() -> Rectangle {
+        Rectangle {
             left: 0.0,
             right: 1.0,
             bottom: 0.0,
@@ -34,14 +38,15 @@ impl Frame {
             is_bottom_updated: false,
             is_top_updated: false,
             display_border: false,
+            angle: 0.0,
             color: Rgba::new(0.0, 0.0, 0.0, 1.0),
             thickness: 0.0,
         }
     }
 
     /// Return a new frame from given coordinate values.
-    pub fn from_sides(left: f64, right: f64, bottom: f64, top: f64) -> Frame {
-        Frame {
+    pub fn from_sides(left: f64, right: f64, bottom: f64, top: f64) -> Rectangle {
+        Rectangle {
             left: left,
             right: right,
             bottom: bottom,
@@ -51,6 +56,7 @@ impl Frame {
             is_bottom_updated: false,
             is_top_updated: false,
             display_border: false,
+            angle: 0.0,
             color: Rgba::new(0.0, 0.0, 0.0, 1.0),
             thickness: 0.0,
         }
@@ -178,12 +184,12 @@ impl Frame {
     /// ```text,no_run
     ///   x -> new_min + (new_max - new_min) * x
     /// ```
-    pub fn relative_to(&self, reference: &Frame) -> Frame {
+    pub fn relative_to(&self, reference: &Rectangle) -> Rectangle {
         let new_left = reference.left() + reference.width() * self.left();
         let new_right = reference.left() + reference.width() * self.right();
         let new_bottom = reference.bottom() + reference.height() * self.bottom();
         let new_top = reference.bottom() + reference.height() * self.top();
-        Frame::from_sides(new_left, new_right, new_bottom, new_top)
+        Rectangle::from_sides(new_left, new_right, new_bottom, new_top)
     }
 
     /// Scale the frame border thickness with factor
@@ -212,6 +218,30 @@ impl Frame {
             cr.close_path();
             //cr.rectangle(self.left(), self.bottom(), self.width(), self.height());
             cr.stroke();
+        }
+    }
+}
+
+/// ## Quadrilateral
+///
+/// A quadrilateral defined by its vertices
+#[derive(Clone, Debug)]
+pub struct Quadrilateral {
+    vertex_a: coord::Coord,
+    vertex_b: coord::Coord,
+    vertex_c: coord::Coord,
+    vertex_d: coord::Coord,
+    centroid: coord::Coord,
+}
+
+impl Quadrilateral {
+    pub fn new() -> Quadrilateral {
+        Quadrilateral {
+            vertex_a: coord::Coord::new(0.0, 0.0),
+            vertex_b: coord::Coord::new(1.0, 0.0),
+            vertex_c: coord::Coord::new(1.0, 1.0),
+            vertex_d: coord::Coord::new(0.0, 1.0),
+            centroid: coord::Coord::new(0.5, 0.5),
         }
     }
 }

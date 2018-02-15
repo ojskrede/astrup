@@ -9,7 +9,7 @@
 //!
 //! ## Example
 //!
-//! ```
+//! ```rust
 //! extern crate ndarray;
 //! extern crate rand;
 //! extern crate astrup;
@@ -225,6 +225,7 @@ pub mod axis;
 pub mod mark;
 pub mod chart;
 pub mod utils;
-pub mod frame;
+pub mod shape;
 pub mod coord;
+pub mod label;
 pub mod text;

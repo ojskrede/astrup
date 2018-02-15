@@ -7,7 +7,7 @@ use failure::{Error, err_msg};
 use cairo::{Context};
 use palette::Rgba;
 
-use ::{utils, coord, frame, text, mark};
+use ::{utils, coord, shape, text, mark};
 
 /// ## Axis
 ///
@@ -249,7 +249,7 @@ impl Axis {
     ///
     /// This function is called just before draw(), and updates the default w.r.t. user input.
     /// and changes above in the hierarchy (canvas -> plot -> figure).
-    pub fn fit(&mut self, canvas_frame: &frame::Frame) {
+    pub fn fit(&mut self, canvas_frame: &shape::Rectangle) {
         // Local coordinates are determined from initialization or user input.
         self.global_start = self.local_start.relative_to(&canvas_frame);
         self.global_end = self.local_end.relative_to(&canvas_frame);

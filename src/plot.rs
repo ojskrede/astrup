@@ -7,7 +7,7 @@ use failure::Error;
 use cairo::Context;
 use palette::Rgba;
 
-use ::{canvas, chart, frame, text};
+use ::{canvas, chart, shape, text};
 
 
 /// ## Plot
@@ -19,14 +19,14 @@ use ::{canvas, chart, frame, text};
 pub struct Plot {
     title: text::Text,
     color: Rgba,
-    local_frame: frame::Frame,
+    local_frame: shape::Rectangle,
     canvas: canvas::Canvas,
 }
 
 impl Plot {
     /// Create and return a plot
     pub fn new() -> Plot {
-        let mut local_frame = frame::Frame::new();
+        let mut local_frame = shape::Rectangle::new();
         local_frame.display_border(true);
         local_frame.set_thickness(0.001);
         Plot {

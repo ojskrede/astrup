@@ -5,7 +5,7 @@ use std::cmp::Ordering;
 
 use cairo::Context;
 
-use frame;
+use shape;
 
 /// Wrapper of f64 that implements Ord.
 ///
@@ -85,7 +85,7 @@ impl DirRect {
         self.width *= factor;
     }
 
-    fn fit(&mut self, frame: Frame) {
+    fn fit(&mut self, frame: Rectangle) {
         self.start = self.start.relative_to(&frame);
         self.end = self.end.relative_to(&frame);
         self.scale_size(frame.diag_len());
@@ -98,7 +98,7 @@ impl DirRect {
 /// All objects that can be drawn should implement this trait.
 pub trait Drawable {
     fn scale_size(&mut self, factor: f64);
-    fn fit(&mut self, global_frame: &frame::Frame, data_frame: &frame::Frame);
+    fn fit(&mut self, global_frame: &shape::Rectangle, data_frame: &shape::Rectangle);
     fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64);
 }
 
@@ -106,12 +106,12 @@ pub trait Drawable {
 ///
 /// All objects that can be used to plot things (e.g. represent data) should implement this.
 pub trait Plottable {
-    fn data_frame(&self) -> frame::Frame;
+    fn data_frame(&self) -> shape::Rectangle;
     fn data_x_min(&self) -> f64;
     fn data_x_max(&self) -> f64;
     fn data_y_min(&self) -> f64;
     fn data_y_max(&self) -> f64;
-    fn set_data_frame(&mut self, new_data_frame: frame::Frame);
+    fn set_data_frame(&mut self, new_data_frame: shape::Rectangle);
 }
 
 /*

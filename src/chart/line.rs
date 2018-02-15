@@ -1,5 +1,3 @@
-//! ## Line
-//!
 //! Module that defines the Line struct
 //!
 
@@ -7,7 +5,7 @@ use cairo::{Context, LineCap};
 use palette::Rgba;
 use ndarray::AsArray;
 
-use ::{chart, utils, frame, coord};
+use ::{chart, utils, shape, coord};
 
 #[derive(Clone, Debug)]
 enum LineStyle {
@@ -112,8 +110,8 @@ impl DashPattern {
 #[derive(Clone, Debug)]
 pub struct Line {
     data_points: Vec<chart::point::Point>,
-    data_frame: frame::Frame,
-    global_frame: frame::Frame,
+    data_frame: shape::Rectangle,
+    global_frame: shape::Rectangle,
     color: Rgba,
     line_width: f64,
     line_style: LineStyle,
@@ -143,9 +141,9 @@ impl Line {
 
         Line {
             data_points: data_points,
-            data_frame: frame::Frame::from_sides(x_data_min.val(), x_data_max.val(),
+            data_frame: shape::Rectangle::from_sides(x_data_min.val(), x_data_max.val(),
                                                  y_data_min.val(), y_data_max.val()),
-            global_frame: frame::Frame::new(),
+            global_frame: shape::Rectangle::new(),
             color: Rgba::new(0.1, 0.2, 0.5, 0.9),
             line_width: 0.005,
             line_style: LineStyle::Plain,
@@ -245,7 +243,7 @@ impl utils::Drawable for Line {
         self.dash_pattern.scale_size(factor);
     }
 
-    fn fit(&mut self, canvas_global_frame: &frame::Frame, canvas_data_frame: &frame::Frame) {
+    fn fit(&mut self, canvas_global_frame: &shape::Rectangle, canvas_data_frame: &shape::Rectangle) {
         self.global_frame = canvas_global_frame.clone();
         self.data_frame = canvas_data_frame.clone();
         let scale_factor = self.global_frame.diag_len() / 2f64.sqrt();
@@ -398,7 +396,7 @@ impl utils::Drawable for Line {
 }
 
 impl utils::Plottable for Line {
-    fn data_frame(&self) -> frame::Frame {
+    fn data_frame(&self) -> shape::Rectangle {
         self.data_frame.clone()
     }
 
@@ -418,7 +416,7 @@ impl utils::Plottable for Line {
         self.data_frame.top()
     }
 
-    fn set_data_frame(&mut self, new_data_frame: frame::Frame) {
+    fn set_data_frame(&mut self, new_data_frame: shape::Rectangle) {
         self.data_frame = new_data_frame;
     }
 }

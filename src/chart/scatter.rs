@@ -7,7 +7,7 @@ use cairo::Context;
 use ndarray::AsArray;
 use palette::Rgba;
 
-use ::{utils, chart, frame};
+use ::{utils, chart, shape};
 
 /// Scatter chart
 ///
@@ -16,8 +16,8 @@ use ::{utils, chart, frame};
 #[derive(Clone, Debug)]
 pub struct Scatter {
     data_points: Vec<chart::point::Point>,
-    global_frame: frame::Frame,
-    data_frame: frame::Frame,
+    global_frame: shape::Rectangle,
+    data_frame: shape::Rectangle,
     color: Rgba,
     shape: chart::point::Shape,
     point_size: f64,
@@ -46,8 +46,8 @@ impl Scatter {
         }
         Scatter {
             data_points: data_points,
-            global_frame: frame::Frame::new(),
-            data_frame: frame::Frame::from_sides(x_data_min.val(), x_data_max.val(),
+            global_frame: shape::Rectangle::new(),
+            data_frame: shape::Rectangle::from_sides(x_data_min.val(), x_data_max.val(),
                                                  y_data_min.val(), y_data_max.val()),
             color: color,
             shape: shape,
@@ -120,7 +120,7 @@ impl utils::Drawable for Scatter {
         self.point_size *= factor;
     }
 
-    fn fit(&mut self, canvas_global_frame: &frame::Frame, canvas_data_frame: &frame::Frame) {
+    fn fit(&mut self, canvas_global_frame: &shape::Rectangle, canvas_data_frame: &shape::Rectangle) {
         self.global_frame = canvas_global_frame.clone();
         self.data_frame = canvas_data_frame.clone();
 
@@ -149,7 +149,7 @@ impl utils::Drawable for Scatter {
 }
 
 impl utils::Plottable for Scatter {
-    fn data_frame(&self) -> frame::Frame {
+    fn data_frame(&self) -> shape::Rectangle {
         self.data_frame.clone()
     }
 
@@ -169,7 +169,7 @@ impl utils::Plottable for Scatter {
         self.data_frame.top()
     }
 
-    fn set_data_frame(&mut self, new_data_frame: frame::Frame) {
+    fn set_data_frame(&mut self, new_data_frame: shape::Rectangle) {
         self.data_frame = new_data_frame;
     }
 }

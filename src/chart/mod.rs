@@ -6,7 +6,7 @@ pub mod point;
 
 use cairo::Context;
 
-use ::{utils, frame, chart};
+use ::{utils, shape, chart};
 
 /// ## Chart
 ///
@@ -37,7 +37,7 @@ impl utils::Drawable for Chart {
         }
     }
 
-    fn fit(&mut self, global_frame: &frame::Frame, data_frame: &frame::Frame) {
+    fn fit(&mut self, global_frame: &shape::Rectangle, data_frame: &shape::Rectangle) {
         match *self {
             Chart::Scatter(ref mut s) => s.fit(global_frame, data_frame),
             Chart::Line(ref mut l) => l.fit(global_frame, data_frame),
@@ -54,7 +54,7 @@ impl utils::Drawable for Chart {
 
 impl utils::Plottable for Chart {
 
-    fn data_frame(&self) -> frame::Frame {
+    fn data_frame(&self) -> shape::Rectangle {
         match *self {
             Chart::Scatter(ref s) => s.data_frame(),
             Chart::Line(ref l) => l.data_frame(),
@@ -89,7 +89,7 @@ impl utils::Plottable for Chart {
         }
     }
 
-    fn set_data_frame(&mut self, new_data_frame: frame::Frame) {
+    fn set_data_frame(&mut self, new_data_frame: shape::Rectangle) {
         match *self {
             Chart::Scatter(ref mut s) => s.set_data_frame(new_data_frame),
             Chart::Line(ref mut l) => l.set_data_frame(new_data_frame),

@@ -8,7 +8,7 @@ use std::f64::consts::PI;
 use cairo::Context;
 use palette::Rgba;
 
-use ::{utils, frame, coord};
+use ::{utils, shape, coord};
 
 #[derive(Clone, Debug)]
 pub enum Shape {
@@ -99,7 +99,7 @@ impl Point {
         self.coord.y()
     }
 
-    pub fn map_range(&mut self, old_frame: &frame::Frame, new_frame: &frame::Frame) {
+    pub fn map_range(&mut self, old_frame: &shape::Rectangle, new_frame: &shape::Rectangle) {
         let new_x = utils::map_range(self.x_coord(),
                                      old_frame.left(), old_frame.right(),
                                      new_frame.right(), new_frame.right());
@@ -115,7 +115,7 @@ impl utils::Drawable for Point {
         self.size *= factor;
     }
 
-    fn fit(&mut self, canvas_global_frame: &frame::Frame, _: &frame::Frame) {
+    fn fit(&mut self, canvas_global_frame: &shape::Rectangle, _: &shape::Rectangle) {
         self.scale_size(canvas_global_frame.diag_len() / 2f64.sqrt());
     }
 

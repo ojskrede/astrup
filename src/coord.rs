@@ -1,7 +1,7 @@
 //! Definition of the Coord struct
 //!
 
-use ::{utils, frame};
+use ::{utils, shape};
 
 /// ## Coord
 ///
@@ -54,7 +54,7 @@ impl Coord {
 
     /// Maps this coordinate, which is assumed to be relative to a unit square, to a different
     /// reference system defined by the input frame.
-    pub fn relative_to(&self, frame: &frame::Frame) -> Coord {
+    pub fn relative_to(&self, frame: &shape::Rectangle) -> Coord {
         let x = utils::map_range(self.x, 0.0, 1.0, frame.left(), frame.right());
         let y = utils::map_range(self.y, 0.0, 1.0, frame.bottom(), frame.top());
         Coord::new(x, y)
