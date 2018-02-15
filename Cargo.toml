@@ -2,6 +2,7 @@
 name = "astrup"
 version = "0.0.9"
 authors = ["Ole-Johan Skrede <ojskrede@gmail.com>"]
+description = "A simple plotting library"
 license = "MIT/Apache-2.0"
 repository = "https://github.com/ojskrede/astrup"
 
