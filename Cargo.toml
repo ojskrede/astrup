@@ -1,6 +1,6 @@
 [package]
 name = "astrup"
-version = "0.1.0"
+version = "0.0.9"
 authors = ["Ole-Johan Skrede <ojskrede@gmail.com>"]
 license = "MIT/Apache-2.0"
 repository = "https://github.com/ojskrede/astrup"
@@ -12,7 +12,11 @@ failure = "0.1"
 palette = "0.2"
 time = "0.1"
 ndarray = "0.11"
-rand = "0.4"
 gtk = "0.3"
 cairo-rs = { version = "0.3", features = ["png"] }
 gio = "0.3"
+
+rand = "0.4"
+csv = "1.0.0-beta.5"
+serde = "1.0"
+serde_derive = "1.0"
