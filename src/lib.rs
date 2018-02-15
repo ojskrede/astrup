@@ -18,7 +18,7 @@
 //!
 //! use ndarray::Array;
 //! use rand::distributions::{IndependentSample, Normal};
-//! use rand::{thread_rng};
+//! use rand::{StdRng, SeedableRng};
 //!
 //! use astrup::view::View;
 //! use astrup::figure::Figure;
@@ -44,14 +44,18 @@
 //!                                .set_y_min(-1.2)
 //!                                .set_local_frame(0.0, 0.7, 0.51, 1.0);
 //!
+//!     // Create a seedable rng so that the scatter points are equal from run to run
+//!     let seed: Vec<usize> = vec![8, 8, 8, 8, 8, 8, 8, 8];
+//!     let mut seeded_rng: StdRng = SeedableRng::from_seed(seed.as_slice());
+//!
 //!     // Create scatter points
 //!     let normal_0_1 = Normal::new(0.0, 1.0);
 //!     let normal_0_2 = Normal::new(0.0, 2.0);
 //!     let x_data: Vec<f64> = (0..1000)
-//!                            .map(|_| normal_0_1.ind_sample(&mut thread_rng()))
+//!                            .map(|_| normal_0_1.ind_sample(&mut seeded_rng))
 //!                            .collect();
 //!     let y_data: Vec<f64> = (0..1000)
-//!                            .map(|_| normal_0_2.ind_sample(&mut thread_rng()))
+//!                            .map(|_| normal_0_2.ind_sample(&mut seeded_rng))
 //!                            .collect();
 //!     let scatter = Scatter::new(&x_data, &y_data).set_color_rgba(0.1, 0.8, 0.3, 0.9)
 //!                                                 .set_point_size(0.005);

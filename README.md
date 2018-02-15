@@ -52,7 +52,7 @@ use std::f64::consts::PI;
 
 use ndarray::Array;
 use rand::distributions::{IndependentSample, Normal};
-use rand::{thread_rng};
+use rand::{StdRng, SeedableRng};
 
 use astrup::view::View;
 use astrup::figure::Figure;
@@ -73,10 +73,14 @@ fn main() {
     let line2 = Line::new(&x_data, &y_data2).set_color_rgba(0.9, 0.2, 0.2, 0.9);
 
     // Add lines to a plot
-    let line_plot = Plot::new().add(Chart::Line(line1))
-                               .add(Chart::Line(line2))
+    let line_plot = Plot::new().add(&Chart::Line(line1))
+                               .add(&Chart::Line(line2))
                                .set_y_min(-1.2)
                                .set_local_frame(0.0, 0.7, 0.51, 1.0);
+
+    // Create a seedable rng so that the scatter points are equal from run to run
+    let seed: Vec<usize> = vec![8, 8, 8, 8, 8, 8, 8, 8];
+    let mut seeded_rng: StdRng = SeedableRng::from_seed(seed.as_slice());
 
     // Create scatter points
     let normal_0_1 = Normal::new(0.0, 1.0);
@@ -92,11 +96,11 @@ fn main() {
 
     // Add scatter points to a new plot
     let scatter_plot = Plot::new().set_local_frame(0.3, 1.0, 0.0, 0.49)
-                                  .add(Chart::Scatter(scatter));
+                                  .add(&Chart::Scatter(scatter));
 
     // Add the plots to a figure, and save it
-    let fig = Figure::new().add(line_plot)
-                           .add(scatter_plot)
+    let fig = Figure::new().add(&line_plot)
+                           .add(&scatter_plot)
                            .set_width(1000)
                            .set_height(800)
                            .set_border_thickness(0.001)
