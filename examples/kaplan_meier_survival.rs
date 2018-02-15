@@ -101,14 +101,14 @@ fn main() {
             let (surv_stage_3, cens_stage_3) = survival_charts(&data, 3, 255.0, 200.0, 14.0);
             let (surv_stage_4, cens_stage_4) = survival_charts(&data, 4, 34.0, 174.0, 51.0);
 
-            let survival_plot = Plot::new().add(Chart::Line(surv_stage_1.clone()))
-                                           .add(Chart::Scatter(cens_stage_1.clone()))
-                                           .add(Chart::Line(surv_stage_2))
-                                           .add(Chart::Scatter(cens_stage_2))
-                                           .add(Chart::Line(surv_stage_3))
-                                           .add(Chart::Scatter(cens_stage_3))
-                                           .add(Chart::Line(surv_stage_4.clone()))
-                                           .add(Chart::Scatter(cens_stage_4.clone()))
+            let survival_plot = Plot::new().add(&Chart::Line(surv_stage_1.clone()))
+                                           .add(&Chart::Scatter(cens_stage_1.clone()))
+                                           .add(&Chart::Line(surv_stage_2))
+                                           .add(&Chart::Scatter(cens_stage_2))
+                                           .add(&Chart::Line(surv_stage_3))
+                                           .add(&Chart::Scatter(cens_stage_3))
+                                           .add(&Chart::Line(surv_stage_4.clone()))
+                                           .add(&Chart::Scatter(cens_stage_4.clone()))
                                            .set_local_frame(0.0, 1.0, 0.5, 1.0);
 
             let (lower_stage_1, upper_stage_1) = ci_charts(&data, 1, 224.0, 52.0, 11.0);
@@ -116,18 +116,18 @@ fn main() {
             //let (surv_stage_3, cens_stage_3) = survival_charts(&data, 3, 255.0, 200.0, 14.0);
             let (lower_stage_4, upper_stage_4) = ci_charts(&data, 4, 34.0, 174.0, 51.0);
 
-            let ci_plot = Plot::new().add(Chart::Line(surv_stage_1))
-                                     .add(Chart::Line(lower_stage_1))
-                                     .add(Chart::Line(upper_stage_1))
-                                     .add(Chart::Scatter(cens_stage_1))
-                                     .add(Chart::Line(surv_stage_4))
-                                     .add(Chart::Line(lower_stage_4))
-                                     .add(Chart::Line(upper_stage_4))
-                                     .add(Chart::Scatter(cens_stage_4))
+            let ci_plot = Plot::new().add(&Chart::Line(surv_stage_1))
+                                     .add(&Chart::Line(lower_stage_1))
+                                     .add(&Chart::Line(upper_stage_1))
+                                     .add(&Chart::Scatter(cens_stage_1))
+                                     .add(&Chart::Line(surv_stage_4))
+                                     .add(&Chart::Line(lower_stage_4))
+                                     .add(&Chart::Line(upper_stage_4))
+                                     .add(&Chart::Scatter(cens_stage_4))
                                      .set_local_frame(0.0, 1.0, 0.0, 0.5);
 
-            let fig = Figure::new().add(survival_plot)
-                                   .add(ci_plot)
+            let fig = Figure::new().add(&survival_plot)
+                                   .add(&ci_plot)
                                    .set_height(1000)
                                    .set_width(1000);
                                    //.save("kaplan_meier_survival.png").expect("Could not save kaplan_meier_survival.png");

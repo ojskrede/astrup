@@ -173,8 +173,8 @@ impl Plot {
     }
 
     /// Add a canvas to the plot
-    pub fn add(mut self, chart: chart::Chart) -> Self {
-        self.canvas.add_chart(chart);
+    pub fn add(mut self, chart: &chart::Chart) -> Self {
+        self.canvas.add_chart(chart.clone());
         self
     }
 

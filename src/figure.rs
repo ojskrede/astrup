@@ -122,8 +122,8 @@ impl Figure {
         self
     }
 
-    pub fn add(mut self, plot: plot::Plot) -> Self {
-        self.plots.push(plot);
+    pub fn add(mut self, plot: &plot::Plot) -> Self {
+        self.plots.push(plot.clone());
         self
     }
 
