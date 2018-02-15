@@ -11,7 +11,7 @@ use gtk::{ApplicationWindow, Window, WindowPosition, DrawingArea};
 
 use figure::Figure;
 
-// make moving clones into closures more convenient
+// Make moving clones into closures more convenient. From cairo-rs tutorial.
 macro_rules! clone {
     (@param _) => ( _ );
     (@param $x:ident) => ( $x );
@@ -29,25 +29,11 @@ macro_rules! clone {
     );
 }
 
-/*
-struct Header {
-    container: gtk::HeaderBar
-}
-
-impl Header {
-    fn new(name: &str) -> Header {
-        let container = gtk::HeaderBar::new();
-
-        container.set_title(name);
-
-        container.set_show_close_button(true);
-
-        Header { container }
-    }
-}
-*/
-
-/// A struct used to display the figure(s) on screen
+/// A struct used to display the figure(s) on screen.
+///
+/// Currently, this is just a window with a title bar and an exit cross. One window is made for
+/// each figure. If you resize the window after it has been launched, the figure stays intact, e.i.
+/// no resizing of the figure. This can change in the future, but has low priority.
 pub struct View {
     figures: Vec<Figure>,
     application: gtk::Application,
@@ -90,7 +76,6 @@ impl View {
             for fig in figures.iter() {
                 let window = ApplicationWindow::new(app);
                 let drawing_area = Box::new(DrawingArea::new)();
-                //drawing_area.set_size_request(fig.width() as i32, fig.height() as i32);
                 drawing_area.connect_draw(clone!(fig => move |_, cr| {
                     fig.draw(cr);
 

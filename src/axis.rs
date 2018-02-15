@@ -1,7 +1,7 @@
 //! Definition of the Axis struct
 //!
 
-use std::f64::MAX;
+use std::f64;
 use failure::{Error, err_msg};
 
 use cairo::{Context};
@@ -44,7 +44,6 @@ impl Axis {
         }
     }
 
-    // TODO: Impl default?
     pub fn from_coord(start: coord::Coord, end: coord::Coord) -> Axis {
         Axis {
             local_start: start.clone(),
@@ -195,7 +194,7 @@ impl Axis {
         let omagn = utils::order_of_magnitude(ca_dist);
 
         // Find for what k in (2, 5, 10) we shall round to the nearest ten power of
-        let mut smallest_diff = MAX;
+        let mut smallest_diff = f64::MAX;
         let mut round_number = 0f64;
         for &i in [2.0, 5.0, 10.0].iter() {
             let nearest = utils::round_nearest(ca_dist, omagn, i);
@@ -267,7 +266,6 @@ impl Axis {
     /// Draw axis on canvas.
     pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
         // Draw ticks and tick labels
-        println!("Axis direction: {:?}", self.direction);
         for mark in self.marks.iter() {
             mark.draw(cr, fig_rel_height, fig_rel_width);
         }

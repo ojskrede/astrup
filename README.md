@@ -1,11 +1,15 @@
 # Astrup
 
-A rust plotting library using [gtk-rs](https://github.com/gtk-rs/gtk) as a backend. This is
-*still* very much a small hobby project. For alternative rust plotting libraries, see e.g.
+A rust plotting library using [gtk-rs](https://github.com/gtk-rs/gtk) as a backend. This is *still*
+very much a small hobby project. I believe it is ok for simple use, but lots of changes (also
+breaking ones) should be expected.
+
+For alternative rust plotting libraries, see e.g.
 
 - [rustplotlib](https://github.com/ubnt-intrepid/rustplotlib)
 - [RustGnuplot](https://github.com/SiegeLord/RustGnuplot)
 - [dataplotlib](https://github.com/coder543/dataplotlib)
+
 
 ## Build:
 

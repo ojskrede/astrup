@@ -13,7 +13,8 @@ use ::{canvas, chart, frame, text};
 /// ## Plot
 ///
 /// Determines a single plot. A plot is part of a figure, and contains a canvas where things are
-/// drawn, and some space around the canvas, to make space for labels, ticks, and tick labels.
+/// drawn. By default, there is some space around the canvas, to make space for labels, ticks, and
+/// tick labels.
 #[derive(Clone, Debug)]
 pub struct Plot {
     title: text::Text,
@@ -205,9 +206,10 @@ impl Plot {
                      self.local_frame.width(), self.local_frame.height());
         cr.fill();
 
-        // Frame border
+        // Draw frame border
         self.local_frame.draw(cr, fig_rel_height, fig_rel_width);
 
+        // Draw canvas
         self.canvas.draw(cr, fig_rel_height, fig_rel_width);
     }
 

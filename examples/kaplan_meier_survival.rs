@@ -129,8 +129,8 @@ fn main() {
             let fig = Figure::new().add(survival_plot)
                                    .add(ci_plot)
                                    .set_height(1000)
-                                   .set_width(1000)
-                                   .save("kaplan_meier_survival.png").expect("Could not save kaplan_meier_survival.png");
+                                   .set_width(1000);
+                                   //.save("kaplan_meier_survival.png").expect("Could not save kaplan_meier_survival.png");
 
             match View::new_from(fig) {
                 Ok(view) => view.show(),

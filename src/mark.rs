@@ -148,7 +148,8 @@ impl Mark {
 
 /// ## Tick
 ///
-/// Indicator used by an axis to serve as a reference for the displayed data
+/// Indicator used by an axis to serve as a reference for the displayed data. This can extend to
+/// both sides of the mark it is associated with.
 #[derive(Clone, Debug)]
 pub struct Tick {
     color: Rgba,

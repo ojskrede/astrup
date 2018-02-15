@@ -30,7 +30,7 @@ impl Figure {
             title: String::from("Figure"),
             window_title: String::from("Astrup"),
             height: 800,
-            width: 800,
+            width: 1000,
             color: Rgba::new(1.0, 1.0, 1.0, 0.0),
             local_frame: local_frame,
         }
@@ -163,7 +163,7 @@ impl Figure {
         //
         // All structures has been build with the assumption of a (0, 1) х (0, 1) square figure.
         // When we transform the figure to be non-square, all structures we have built will follow
-        // the scaling.
+        // the scaling. Below follows a rationale why things are done as they are.
         //
         // ## Desired outcomes
         // Plots, canvases, axes, and marks will be placed as they are expected to, taken the
@@ -198,7 +198,6 @@ impl Figure {
 
         for plot in self.plots.iter() {
             plot.draw(&cr, relative_height, relative_width);
-            //plot.draw(&cr, 0.5, 2.0);
         }
     }
 }
