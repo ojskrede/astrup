@@ -22,7 +22,18 @@ pub struct Mark {
 
 impl Mark {
     /// Create and return a new mark
-    pub fn new(coord: coord::Coord) -> Mark {
+    pub fn new() -> Mark {
+        Mark {
+            local: coord::Coord::new(),
+            global: coord::Coord::new(),
+            label: label::Label::new(),
+            label_offset: 0.0,
+            tick: Tick::new(),
+        }
+    }
+
+    /// Create and return a new mark
+    pub fn new_from_coord(coord: coord::Coord) -> Mark {
         Mark {
             local: coord,
             global: coord::Coord::new(),
@@ -167,7 +178,7 @@ impl Mark {
     /// Fit the mark to the parent frame
     pub fn fit(&mut self, parent_frame: &shape::Rectangle) {
         self.global = self.local.relative_to(parent_frame);
-        self.scale_size(parent_frame.diag_len() / 2f64.sqrt());
+        self.scale_size(parent_frame.diag_len());
         self.label.fit(parent_frame);
     }
 
@@ -198,9 +209,9 @@ impl Tick {
     pub fn new() -> Tick {
         Tick {
             color: Rgba::new(0.0, 0.0, 0.0, 1.0),
-            width: 0.005,
-            positive_length: 0.01,
-            negative_length: 0.01,
+            width: 0.0025,
+            positive_length: 0.005,
+            negative_length: 0.005,
             direction: coord::Coord::new(),
         }
     }
@@ -294,7 +305,7 @@ impl Tick {
 
     /// Fit the tick to a parent mark frame
     pub fn fit(&mut self, mark_frame: shape::Rectangle) {
-        self.scale_size(mark_frame.diag_len() / 2f64.sqrt());
+        self.scale_size(mark_frame.diag_len());
     }
 
     /// Draw the tick mark
@@ -340,12 +351,23 @@ pub struct GridLine {
 
 impl GridLine {
     /// Create and return a new GridLine
-    pub fn new(start: coord::Coord, end: coord::Coord) -> GridLine {
+    pub fn new() -> GridLine {
+        GridLine {
+            global_start: coord::Coord::new(),
+            global_end: coord::Coord::new(),
+            direction: coord::Coord::new(),
+            width: 0.001,
+            color: Rgba::new(1.0, 1.0, 1.0, 1.0),
+        }
+    }
+
+    /// Create and return a new GridLine
+    pub fn new_from(start: coord::Coord, end: coord::Coord) -> GridLine {
         GridLine {
             global_start: start.clone(),
             global_end: end.clone(),
             direction: start.unit_direction_to(&end),
-            width: 0.005,
+            width: 0.001,
             color: Rgba::new(1.0, 1.0, 1.0, 1.0),
         }
     }

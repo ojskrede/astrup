@@ -43,7 +43,7 @@ impl Rectangle {
     }
 
     /// Return a new frame from given coordinate values.
-    pub fn from_sides(left: f64, right: f64, bottom: f64, top: f64) -> Rectangle {
+    pub fn new_from(left: f64, right: f64, bottom: f64, top: f64) -> Rectangle {
         Rectangle {
             left: left,
             right: right,

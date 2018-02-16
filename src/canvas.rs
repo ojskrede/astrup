@@ -44,13 +44,13 @@ impl Canvas {
         y_axis_label.set_font_size(0.025);
         Canvas {
             color: Rgba::new(230.0/255.0, 235.0/255.0, 245.0/255.0, 1.0),
-            local_frame: shape::Rectangle::from_sides(0.15, 0.95, 0.15, 0.95),
+            local_frame: shape::Rectangle::new_from(0.15, 0.95, 0.15, 0.95),
             global_frame: shape::Rectangle::new(),
             data_frame: shape::Rectangle::new(),
             user_data_frame: shape::Rectangle::new(),
             display_axes: true,
             display_grid: true,
-            grid_width: 0.005,
+            grid_width: 0.0025,
             grid_color: Rgba::new(1.0, 1.0, 1.0, 0.9),
             grid: Vec::<mark::GridLine>::new(),
             hor_marks: Vec::<mark::Mark>::new(),
@@ -216,19 +216,19 @@ impl Canvas {
 
     /// Compute grid lines given a vertical and a horisontal axis
     fn compute_grid(&mut self, ver_axis: &axis::Axis, hor_axis: &axis::Axis) {
-        let scale_factor = self.global_frame.diag_len() / 2_f64.sqrt();
+        let scale_factor = self.global_frame.diag_len();
         //let scale_factor = self.global_frame.height().min(self.global_frame.width());
         for coord in ver_axis.mark_coords() {
-            let mut gridline = mark::GridLine::new(coord.clone(),
-                                                   coord::Coord::new_from(self.global_frame.right(), coord.y()));
+            let mut gridline = mark::GridLine::new_from(coord.clone(),
+                                                        coord::Coord::new_from(self.global_frame.right(), coord.y()));
             gridline.set_color(self.grid_color);
             gridline.set_width(self.grid_width);
             gridline.scale_size(scale_factor);
             self.grid.push(gridline);
         }
         for coord in hor_axis.mark_coords() {
-            let mut gridline = mark::GridLine::new(coord.clone(),
-                                                   coord::Coord::new_from(coord.x(), self.global_frame.top()));
+            let mut gridline = mark::GridLine::new_from(coord.clone(),
+                                                        coord::Coord::new_from(coord.x(), self.global_frame.top()));
             gridline.set_color(self.grid_color);
             gridline.set_width(self.grid_width);
             gridline.scale_size(scale_factor);
@@ -239,7 +239,7 @@ impl Canvas {
     /// Find the smallest data frame including all data points from all charts
     fn find_largest_chart_data_frame(&self) -> Option<shape::Rectangle> {
         if self.charts.len() == 0 { return None }
-        let mut largest_data_frame = shape::Rectangle::from_sides(f64::MAX, f64::MIN, f64::MAX, f64::MIN);
+        let mut largest_data_frame = shape::Rectangle::new_from(f64::MAX, f64::MIN, f64::MAX, f64::MIN);
         for chart in self.charts.iter() {
             if chart.data_frame().left() < largest_data_frame.left() {
                 largest_data_frame.set_left(chart.data_frame().left());
@@ -296,7 +296,7 @@ impl Canvas {
     ///
     /// In the meantime, the possibility to not draw the axes have to suffice.
     fn set_default_axes(&mut self, data_frame: shape::Rectangle) -> Result<(axis::Axis, axis::Axis), Error> {
-        let mut hor_axis = axis::Axis::from_coord(coord::Coord::new_from(0.0, 0.0), coord::Coord::new_from(1.0, 0.0));
+        let mut hor_axis = axis::Axis::new_from(coord::Coord::new_from(0.0, 0.0), coord::Coord::new_from(1.0, 0.0));
         hor_axis.set_data_range(data_frame.left(), data_frame.right());
         hor_axis.compute_marks()?;
 
@@ -314,7 +314,7 @@ impl Canvas {
         hor_axis.set_label_frame_gaps(0.0, 0.0, 0.0, 0.0);
         */
 
-        let mut ver_axis = axis::Axis::from_coord(coord::Coord::new_from(0.0, 0.0), coord::Coord::new_from(0.0, 1.0));
+        let mut ver_axis = axis::Axis::new_from(coord::Coord::new_from(0.0, 0.0), coord::Coord::new_from(0.0, 1.0));
         ver_axis.set_data_range(data_frame.bottom(), data_frame.top());
         ver_axis.compute_marks()?;
 
@@ -343,7 +343,7 @@ impl Canvas {
         // First, we update the global_frame relative to the parent's global_frame.
         // After this is called, both local_frame and global_frame should not be altered.
         self.local_frame.scale_size(plot_frame.diag_len()); //JIC we want to display the border
-        self.global_frame = self.local_frame.relative_to(&plot_frame);
+        self.global_frame = self.local_frame.relative_to(plot_frame);
 
         // Second, we update the data_frame
         let data_frame = self.compute_data_frame();
@@ -361,7 +361,7 @@ impl Canvas {
         let data_right = hor_axis.data_max();
         let data_bottom = ver_axis.data_min();
         let data_top = ver_axis.data_max();
-        self.data_frame = shape::Rectangle::from_sides(data_left, data_right, data_bottom, data_top);
+        self.data_frame = shape::Rectangle::new_from(data_left, data_right, data_bottom, data_top);
 
         // Then, we update the axis, and charts based on this updated configuration
         ver_axis.fit(&self.global_frame);

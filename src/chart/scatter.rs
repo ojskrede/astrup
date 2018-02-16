@@ -35,7 +35,7 @@ impl Scatter {
 
         let color = Rgba::new(0.1, 0.1, 0.8, 0.9);
         let shape = chart::point::Shape::Circle;
-        let point_size = 0.01;
+        let point_size = 0.008;
         let mut data_points = Vec::<chart::point::Point>::new();
         for (ref x, ref y) in x_view.iter().zip(y_view.iter()) {
             let mut point = chart::point::Point::new(x.val(), y.val());
@@ -47,8 +47,8 @@ impl Scatter {
         Scatter {
             data_points: data_points,
             global_frame: shape::Rectangle::new(),
-            data_frame: shape::Rectangle::from_sides(x_data_min.val(), x_data_max.val(),
-                                                 y_data_min.val(), y_data_max.val()),
+            data_frame: shape::Rectangle::new_from(x_data_min.val(), x_data_max.val(),
+                                                   y_data_min.val(), y_data_max.val()),
             color: color,
             shape: shape,
             point_size: point_size,

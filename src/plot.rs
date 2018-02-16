@@ -213,7 +213,7 @@ impl Plot {
     /// The function scales various elements within the plot, and calls a similar plot for its
     /// canvasses.
     pub fn fit(&mut self) -> Result<(), Error> {
-        let scale_factor = self.local_frame.diag_len() / 2f64.sqrt();
+        let scale_factor = self.local_frame.diag_len();
         self.scale_size(scale_factor);
         self.canvas.fit(&self.local_frame)?;
 

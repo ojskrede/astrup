@@ -30,7 +30,7 @@ struct DashPattern {
 }
 
 impl DashPattern {
-    fn new(stroke_style: &StrokeStyle) -> DashPattern {
+    fn new_from(stroke_style: &StrokeStyle) -> DashPattern {
         match *stroke_style {
             StrokeStyle::Dashed => {
                 DashPattern {
@@ -137,15 +137,15 @@ impl Line {
             data_points.push(point);
         }
         let stroke_style = StrokeStyle::Continuous;
-        let dash_pattern = DashPattern::new(&stroke_style);
+        let dash_pattern = DashPattern::new_from(&stroke_style);
 
         Line {
             data_points: data_points,
-            data_frame: shape::Rectangle::from_sides(x_data_min.val(), x_data_max.val(),
-                                                 y_data_min.val(), y_data_max.val()),
+            data_frame: shape::Rectangle::new_from(x_data_min.val(), x_data_max.val(),
+                                                   y_data_min.val(), y_data_max.val()),
             global_frame: shape::Rectangle::new(),
             color: Rgba::new(0.1, 0.2, 0.5, 0.9),
-            line_width: 0.005,
+            line_width: 0.0035,
             line_style: LineStyle::Plain,
             stroke_style: stroke_style,
             dash_pattern: dash_pattern,
@@ -208,7 +208,7 @@ impl Line {
             "dotted" => self.stroke_style = StrokeStyle::Dotted,
             _ => self.stroke_style = StrokeStyle::Continuous,
         }
-        self.dash_pattern = DashPattern::new(&self.stroke_style);
+        self.dash_pattern = DashPattern::new_from(&self.stroke_style);
         self
     }
 
@@ -246,7 +246,7 @@ impl utils::Drawable for Line {
     fn fit(&mut self, canvas_global_frame: &shape::Rectangle, canvas_data_frame: &shape::Rectangle) {
         self.global_frame = canvas_global_frame.clone();
         self.data_frame = canvas_data_frame.clone();
-        let scale_factor = self.global_frame.diag_len() / 2f64.sqrt();
+        let scale_factor = self.global_frame.diag_len();
         self.scale_size(scale_factor);
 
         for data_point in self.data_points.iter_mut() {

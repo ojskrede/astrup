@@ -51,7 +51,7 @@ fn main() {
                            .map(|_| normal_0_2.ind_sample(&mut seeded_rng) as f64)
                            .collect();
     let scatter = Scatter::new(&x_data, &y_data).set_color_rgba(0.1, 0.8, 0.3, 0.9)
-                                                .set_point_size(0.005);
+                                                .set_point_size(0.003);
 
     // Add scatter points to a new plot
     let scatter_plot = Plot::new().set_local_frame(0.3, 1.0, 0.0, 0.49)

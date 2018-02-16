@@ -32,7 +32,7 @@ impl Point {
         Point {
             coord: coord::Coord::new_from(x_coord, y_coord),
             color: Rgba::new(0.5, 0.2, 0.1, 0.9),
-            size: 0.01,
+            size: 0.003,
             shape: Shape::Circle,
         }
     }
@@ -116,7 +116,7 @@ impl utils::Drawable for Point {
     }
 
     fn fit(&mut self, canvas_global_frame: &shape::Rectangle, _: &shape::Rectangle) {
-        self.scale_size(canvas_global_frame.diag_len() / 2f64.sqrt());
+        self.scale_size(canvas_global_frame.diag_len());
     }
 
     fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {

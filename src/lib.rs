@@ -64,7 +64,7 @@
 //!                            .map(|_| normal_0_2.ind_sample(&mut seeded_rng) as f64)
 //!                            .collect();
 //!     let scatter = Scatter::new(&x_data, &y_data).set_color_rgba(0.1, 0.8, 0.3, 0.9)
-//!                                                 .set_point_size(0.005);
+//!                                                 .set_point_size(0.003);
 //!
 //!     // Add scatter points to a new plot
 //!     let scatter_plot = Plot::new().set_local_frame(0.3, 1.0, 0.0, 0.49)
@@ -192,35 +192,20 @@
 //! implemented sometime in the future.
 //!
 //! #### [GridLine](mark/struct.GridLine.html)
-//! Much the same as a tick, but stretches across the whole canvas, normally on the axis it belongs
-//! to.
+//! Much the same as a tick, but stretches across the whole canvas, perpendicular on the axis it
+//! belongs to.
 //!
 //! ## TODO:
 //!
 //! ### Close future
-//! - Set axes data range explicitly. Currently it is determined to fit the range of the input
-//! data.
-//! - Set figure dimensions. Currently, non-square looks ugly. Non-square plots looks as expected,
-//! and the figure should work in the same way. This can possibly be done by cropping the figure to
-//! fit its plots at the end of the drawing.
-//! - Let axis labels, tick labels and tics determine the default location of the axes
-//! - Make more examples, and organise them sensibly
-//! - Refactor fit and scaling functions, e.g. one fit_fig, and fit_plot for all drawables
-//! - Make gridlines a part of tick struct. This is because a gridline is just an extension of a tick.
-//! - Also have a flag or something to indicate major / minor ticks.
+//! - Implement the above plot variants
+//! - Implement minor ticks and grid lines
 //! - Implement dotted gridlines
-//!
-//! - Name frames according to what they are. If it is natural for a struct to have a local frame,
-//! name it struct.local_frame and let this allways be initialized to (0, 1)x(0, 1). Connected to
-//! this local_frame is a global_frame, that holds coordinates relative to the global Figure
-//! coordinate system. The global_frame is used for drawing. If the struct have data attached to
-//! it, name this struct.data_frame.
 //!
 //! ### More distant future
 //! - Implement the above plot variants
+//! - Add legend
 //! - Fix the use of PlotType in the api, hide it somehow.
-//! - Implement minor ticks and grid lines
-//! - Add legend.
 extern crate cairo;
 extern crate gio;
 extern crate gtk;

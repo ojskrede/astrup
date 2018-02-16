@@ -36,7 +36,7 @@ impl Axis {
             global_end: coord::Coord::new(),
             direction: coord::Coord::new(),
             color: Rgba::new(0.0, 0.0, 0.0, 1.0),
-            line_width: 0.005,
+            line_width: 0.0025,
             data_range: [0.0, 1.0],
             label: label::Label::new(),
             ca_num_marks: 7,
@@ -44,7 +44,7 @@ impl Axis {
         }
     }
 
-    pub fn from_coord(start: coord::Coord, end: coord::Coord) -> Axis {
+    pub fn new_from(start: coord::Coord, end: coord::Coord) -> Axis {
         Axis {
             local_start: start.clone(),
             local_end: end.clone(),
@@ -52,7 +52,7 @@ impl Axis {
             global_end: coord::Coord::new(),
             direction: start.unit_direction_to(&end),
             color: Rgba::new(0.0, 0.0, 0.0, 1.0),
-            line_width: 0.005,
+            line_width: 0.0025,
             data_range: [0.0, 1.0],
             label: label::Label::new(),
             ca_num_marks: 7,
@@ -240,7 +240,7 @@ impl Axis {
             let mark_y = utils::map_range(data_location, min_data, max_data,
                                           self.local_start.y(), self.local_end.y());
             let mark_location = coord::Coord::new_from(mark_x, mark_y);
-            let mut mark_k = mark::Mark::new(mark_location);
+            let mut mark_k = mark::Mark::new_from_coord(mark_location);
             mark_k.set_label_content(&utils::prettify(data_location));
 
             marks.push(mark_k);
@@ -262,10 +262,10 @@ impl Axis {
     /// and changes above in the hierarchy (canvas -> plot -> figure).
     pub fn fit(&mut self, canvas_frame: &shape::Rectangle) {
         // Local coordinates are determined from initialization or user input.
-        self.global_start = self.local_start.relative_to(&canvas_frame);
-        self.global_end = self.local_end.relative_to(&canvas_frame);
+        self.global_start = self.local_start.relative_to(canvas_frame);
+        self.global_end = self.local_end.relative_to(canvas_frame);
         let unit_perp_direction = self.global_start.perp_direction(&self.global_end);
-        let scale_factor = canvas_frame.diag_len() / 2f64.sqrt();
+        let scale_factor = canvas_frame.diag_len();
         self.scale_size(scale_factor);
 
         self.label.fit(canvas_frame);
