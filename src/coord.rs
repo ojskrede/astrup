@@ -14,7 +14,15 @@ pub struct Coord {
 
 impl Coord {
     /// Create and return a new Coord
-    pub fn new(x: f64, y: f64) -> Coord {
+    pub fn new() -> Coord {
+        Coord {
+            x: 0.0,
+            y: 0.0,
+        }
+    }
+
+    /// Create and return a new Coord
+    pub fn new_from(x: f64, y: f64) -> Coord {
         Coord {
             x: x,
             y: y,
@@ -57,7 +65,7 @@ impl Coord {
     pub fn relative_to(&self, frame: &shape::Rectangle) -> Coord {
         let x = utils::map_range(self.x, 0.0, 1.0, frame.left(), frame.right());
         let y = utils::map_range(self.y, 0.0, 1.0, frame.bottom(), frame.top());
-        Coord::new(x, y)
+        Coord::new_from(x, y)
     }
 
     /// Returns a coordinate that is in the middle between self and other, and shifted a distance
@@ -69,7 +77,7 @@ impl Coord {
         let mid_y = (other.y() + self.y()) / 2.0;
         //let norm = Coord::new(-dy, dx); A point normal on (start, end)
         //let mid = Coord::new(mid_x, mid_y); A point in the middle of (start, end)
-        Coord::new(mid_x - dy * scale_factor, mid_y + dx * scale_factor)
+        Coord::new_from(mid_x - dy * scale_factor, mid_y + dx * scale_factor)
     }
 
     /// Returns a unit length direction from self to other
@@ -77,7 +85,7 @@ impl Coord {
         let dx = other.x() - self.x();
         let dy = other.y() - self.y();
         let magnitude = (dx*dx + dy*dy).sqrt();
-        Coord::new(dx / magnitude, dy / magnitude)
+        Coord::new_from(dx / magnitude, dy / magnitude)
     }
 
     /// Returns a unit normal vector that is perpendicular on the vector from self to other.
@@ -85,6 +93,6 @@ impl Coord {
         let dx = other.x() - self.x();
         let dy = other.y() - self.y();
         let magnitude = (dx*dx + dy*dy).sqrt();
-        Coord::new(-dy / magnitude, dx / magnitude)
+        Coord::new_from(-dy / magnitude, dx / magnitude)
     }
 }

@@ -69,8 +69,8 @@ pub struct DirRect {
 impl DirRect {
     fn new() -> DirRect {
         DirRect {
-            start: Coord::new(0.0, 0.0),
-            end: Coord::new(1.0, 1.0),
+            start: Coord::new_from(0.0, 0.0),
+            end: Coord::new_from(1.0, 1.0),
             width: 0.0,
         }
     }
@@ -301,6 +301,8 @@ pub fn order_of_magnitude(number: f64) -> i32 {
 ///
 /// This means that the with of a tick label (for *|p| < 10*) will be at most 8 characters
 /// (e.g. *-1.23e-4*)
+///
+/// Note that this takes the order of magnitude from outside.
 pub fn prettify(number: f64) -> String {
     let omagn = order_of_magnitude(number);
     if omagn > 2 || omagn < -2 {

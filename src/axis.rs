@@ -7,7 +7,7 @@ use failure::{Error, err_msg};
 use cairo::{Context};
 use palette::Rgba;
 
-use ::{utils, coord, shape, text, mark};
+use ::{utils, coord, shape, label, mark};
 
 /// ## Axis
 ///
@@ -22,7 +22,7 @@ pub struct Axis {
     color: Rgba,
     line_width: f64,
     data_range: [f64; 2],
-    label: text::Text,
+    label: label::Label,
     ca_num_marks: usize,
     marks: Vec<mark::Mark>,
 }
@@ -30,16 +30,16 @@ pub struct Axis {
 impl Axis {
     pub fn new() -> Axis {
         Axis {
-            local_start: coord::Coord::new(0.0, 0.0),
-            local_end: coord::Coord::new(0.0, 0.0),
-            global_start: coord::Coord::new(0.0, 0.0),
-            global_end: coord::Coord::new(0.0, 0.0),
-            direction: coord::Coord::new(0.0, 0.0),
+            local_start: coord::Coord::new(),
+            local_end: coord::Coord::new(),
+            global_start: coord::Coord::new(),
+            global_end: coord::Coord::new(),
+            direction: coord::Coord::new(),
             color: Rgba::new(0.0, 0.0, 0.0, 1.0),
             line_width: 0.005,
             data_range: [0.0, 1.0],
-            label: text::Text::new(""),
-            ca_num_marks: 6,
+            label: label::Label::new(),
+            ca_num_marks: 7,
             marks: Vec::<mark::Mark>::new(),
         }
     }
@@ -48,14 +48,14 @@ impl Axis {
         Axis {
             local_start: start.clone(),
             local_end: end.clone(),
-            global_start: coord::Coord::new(0.0, 0.0),
-            global_end: coord::Coord::new(0.0, 0.0),
+            global_start: coord::Coord::new(),
+            global_end: coord::Coord::new(),
             direction: start.unit_direction_to(&end),
             color: Rgba::new(0.0, 0.0, 0.0, 1.0),
             line_width: 0.005,
             data_range: [0.0, 1.0],
-            label: text::Text::new(""),
-            ca_num_marks: 6,
+            label: label::Label::new(),
+            ca_num_marks: 7,
             marks: Vec::<mark::Mark>::new(),
         }
     }
@@ -93,12 +93,24 @@ impl Axis {
         self.line_width = val;
     }
 
-    pub fn set_label(&mut self, content: &str) {
+    pub fn set_label(&mut self, label: &label::Label) {
+        self.label = label.clone();
+    }
+
+    pub fn set_label_content(&mut self, content: &str) {
         self.label.set_content(content);
     }
 
     pub fn set_label_angle(&mut self, angle: f64) {
         self.label.set_angle(angle);
+    }
+
+    pub fn set_label_centroid(&mut self, x_coord: f64, y_coord: f64) {
+        self.label.set_centroid(x_coord, y_coord)
+    }
+
+    pub fn set_label_font_size(&mut self, val: f64) {
+        self.label.set_font_size(val);
     }
 
     pub fn set_num_ticks(&mut self, val: usize) {
@@ -117,15 +129,23 @@ impl Axis {
         }
     }
 
-    pub fn set_tick_font_size(&mut self, val: f64) {
+    pub fn set_tick_label_font_size(&mut self, val: f64) {
         for mark in self.marks.iter_mut() {
             mark.set_font_size(val);
         }
     }
 
-    pub fn set_tick_label_offset(&mut self, hor: f64, ver: f64) {
+    pub fn set_tick_label_offset(&mut self, val: f64) {
         for mark in self.marks.iter_mut() {
-            mark.set_label_offset(hor, ver);
+            mark.set_label_offset(val);
+        }
+    }
+
+    /// Set the gaps around the tick label, for all tick labels on this axis. See the Label struct
+    /// for reference.
+    pub fn set_tick_label_frame_gaps(&mut self, left: f64, right: f64, bottom: f64, top: f64) {
+        for mark in self.marks.iter_mut() {
+            mark.set_label_frame_gaps(left, right, bottom, top);
         }
     }
 
@@ -133,18 +153,10 @@ impl Axis {
         self.data_range = [data_min, data_max];
     }
 
-    pub fn set_label_offset(&mut self, hor: f64, ver: f64) {
-        self.label.set_offset(hor, ver);
-    }
-
-    pub fn scale_label_offset(&mut self, factor: f64) {
-        self.label.scale_offset(factor);
-    }
-
-    pub fn scale_tick_label_offset(&mut self, factor: f64) {
-        for mark in self.marks.iter_mut() {
-            mark.scale_label_offset(factor);
-        }
+    /// Set the gaps around the tick label, for all tick labels on this axis. See the Label struct
+    /// for reference.
+    pub fn set_label_frame_gaps(&mut self, left: f64, right: f64, bottom: f64, top: f64) {
+        self.label.set_frame_gaps(left, right, bottom, top);
     }
 
     pub fn data_min(&self) -> f64 {
@@ -227,7 +239,7 @@ impl Axis {
                                           self.local_start.x(), self.local_end.x());
             let mark_y = utils::map_range(data_location, min_data, max_data,
                                           self.local_start.y(), self.local_end.y());
-            let mark_location = coord::Coord::new(mark_x, mark_y);
+            let mark_location = coord::Coord::new_from(mark_x, mark_y);
             let mut mark_k = mark::Mark::new(mark_location);
             mark_k.set_label_content(&utils::prettify(data_location));
 
@@ -242,7 +254,6 @@ impl Axis {
 
     fn scale_size(&mut self, factor: f64) {
         self.line_width *= factor;
-        self.label.scale_size(factor);
     }
 
     /// Fit
@@ -257,8 +268,13 @@ impl Axis {
         let scale_factor = canvas_frame.diag_len() / 2f64.sqrt();
         self.scale_size(scale_factor);
 
+        self.label.fit(canvas_frame);
+
         for mark in self.marks.iter_mut() {
             mark.set_tick_direction(&unit_perp_direction);
+            let label_x = mark.local_x() + unit_perp_direction.x().abs() * mark.label_offset();
+            let label_y = mark.local_y() + unit_perp_direction.y().abs() * mark.label_offset();
+            mark.set_label_centroid(label_x, label_y);
             mark.fit(canvas_frame);
         }
     }
@@ -280,9 +296,6 @@ impl Axis {
         cr.stroke();
 
         // Draw axis label
-        let mid_point_x = (self.global_start.x() + self.global_end.x()) / 2.0;
-        let mid_point_y = (self.global_start.y() + self.global_end.y()) / 2.0;
-        cr.move_to(mid_point_x + self.label.hor_offset(), mid_point_y + self.label.ver_offset());
         self.label.draw(cr, fig_rel_height, fig_rel_width);
     }
 }

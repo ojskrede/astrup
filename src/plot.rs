@@ -7,7 +7,7 @@ use failure::Error;
 use cairo::Context;
 use palette::Rgba;
 
-use ::{canvas, chart, shape, text};
+use ::{canvas, chart, shape, label};
 
 
 /// ## Plot
@@ -17,7 +17,7 @@ use ::{canvas, chart, shape, text};
 /// tick labels.
 #[derive(Clone, Debug)]
 pub struct Plot {
-    title: text::Text,
+    title: label::Label,
     color: Rgba,
     local_frame: shape::Rectangle,
     canvas: canvas::Canvas,
@@ -30,7 +30,7 @@ impl Plot {
         local_frame.display_border(true);
         local_frame.set_thickness(0.001);
         Plot {
-            title: text::Text::new(""),
+            title: label::Label::new(),
             color: Rgba::new(240.0/255.0, 242.0/255.0, 255.0/255.0, 1.0),
             local_frame: local_frame,
             canvas: canvas::Canvas::new(),
@@ -169,6 +169,30 @@ impl Plot {
     /// Set the line width of the border around the plot
     pub fn set_border_thickness(mut self, val: f64) -> Self {
         self.local_frame.set_thickness(val);
+        self
+    }
+
+    /// Set the label content on the default horisontal axis
+    pub fn set_x_label(mut self, content: &str) -> Self {
+        self.canvas.set_default_x_axis_label_content(content);
+        self
+    }
+
+    /// Set the label content on the default vertical axis
+    pub fn set_y_label(mut self, content: &str) -> Self {
+        self.canvas.set_default_y_axis_label_content(content);
+        self
+    }
+
+    /// Set the angle of the label on the default horisontal axis
+    pub fn set_x_label_angle(mut self, val: f64) -> Self {
+        self.canvas.set_default_x_axis_label_angle(val);
+        self
+    }
+
+    /// Set the angle of the label on the default vertical axis
+    pub fn set_y_label_angle(mut self, val: f64) -> Self {
+        self.canvas.set_default_y_axis_label_angle(val);
         self
     }
 

@@ -75,8 +75,8 @@ fn main() {
                             .add(&Chart::Line(line2))
                             .set_y_min(-1.2);
 
-    let fig2 = Figure::new().add(&plot21)
-                            .save("multiple_figures.png").expect("Could not save multiple_figures.png");
+    let fig2 = Figure::new().add(&plot21);
+                            //.save("assets/multiple_figures.png").expect("Could not save multiple_figures.png");
 
     // Display on screen
     View::new_from(fig1).expect("Could not add fig1 to view")

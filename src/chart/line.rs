@@ -259,7 +259,7 @@ impl utils::Drawable for Line {
         cr.set_dash(&[self.dash_pattern.on_length(), self.dash_pattern.off_length()],
                       self.dash_pattern.offset());
         cr.set_line_cap(self.dash_pattern.line_cap());
-        let mut prev_coord = coord::Coord::new(0.0, 0.0);
+        let mut prev_coord = coord::Coord::new();
         match self.line_style {
             LineStyle::Plain => {
                 for data_point in self.data_points.iter() {

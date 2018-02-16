@@ -4,7 +4,7 @@
 use cairo::{Context, LineCap};
 use palette::Rgba;
 
-use ::{shape, coord, text};
+use ::{shape, coord, label};
 
 /// Mark
 ///
@@ -15,7 +15,8 @@ use ::{shape, coord, text};
 pub struct Mark {
     local: coord::Coord,
     global: coord::Coord,
-    label: text::Text,
+    label: label::Label,
+    label_offset: f64,
     tick: Tick,
 }
 
@@ -24,8 +25,9 @@ impl Mark {
     pub fn new(coord: coord::Coord) -> Mark {
         Mark {
             local: coord,
-            global: coord::Coord::new(0.0, 0.0),
-            label: text::Text::new(""),
+            global: coord::Coord::new(),
+            label: label::Label::new(),
+            label_offset: 0.0,
             tick: Tick::new(),
         }
     }
@@ -45,14 +47,26 @@ impl Mark {
         self.label.set_content(content);
     }
 
+    /// Set label offset, relative to a local frame. It specifies where to put the centroid of the
+    /// tick label. A positive offset puts it along the tick in the positive x / y direction,
+    /// relative to the mark position, and vice versa for a negative offset.
+    pub fn set_label_offset(&mut self, val: f64) {
+        self.label_offset = val;
+    }
+
     /// Set label font size
     pub fn set_font_size(&mut self, val: f64) {
         self.label.set_font_size(val);
     }
 
-    /// Set label offset in vertical and horisontal direction
-    pub fn set_label_offset(&mut self, hor: f64, ver: f64) {
-        self.label.set_offset(hor, ver);
+    /// Set gaps around the label frame
+    pub fn set_label_frame_gaps(&mut self, left: f64, right: f64, bottom: f64, top: f64) {
+        self.label.set_frame_gaps(left, right, bottom, top);
+    }
+
+    /// Set the centroid of the associated tick label.
+    pub fn set_label_centroid(&mut self, x_coord: f64, y_coord: f64) {
+        self.label.set_centroid(x_coord, y_coord);
     }
 
     pub fn set_tick_color(&mut self, color: Rgba) {
@@ -85,6 +99,21 @@ impl Mark {
         self.tick.set_direction(direction);
     }
 
+    /// Return the local coordinate
+    pub fn local_coord(&self) -> coord::Coord {
+        self.local.clone()
+    }
+
+    /// Return the first element of the local coordinate
+    pub fn local_x(&self) -> f64 {
+        self.local.x()
+    }
+
+    /// Return the second element of the local coordinate
+    pub fn local_y(&self) -> f64 {
+        self.local.y()
+    }
+
     /// Return the global coordinate
     pub fn global_coord(&self) -> coord::Coord {
         self.global.clone()
@@ -101,28 +130,37 @@ impl Mark {
     }
 
     /// Return the label
-    pub fn label(&self) -> text::Text {
+    pub fn label(&self) -> label::Label {
         self.label.clone()
     }
 
-    /// Return the label horisontal offset
-    pub fn label_hor_offset(&self) -> f64 {
-        self.label.hor_offset()
+    /// Return the label
+    pub fn label_offset(&self) -> f64 {
+        self.label_offset
     }
 
-    /// Return the label vertical offset
-    pub fn label_ver_offset(&self) -> f64 {
-        self.label.ver_offset()
+    /// Return the gap to the left of the label
+    pub fn label_left_gap(&self) -> f64 {
+        self.label.rel_left_gap()
     }
 
-    /// Scale the vertical and horisontal label offset
-    pub fn scale_label_offset(&mut self, factor: f64) {
-        self.label.scale_offset(factor);
+    /// Return the gap to the right of the label
+    pub fn label_right_gap(&self) -> f64 {
+        self.label.rel_right_gap()
+    }
+
+    /// Return the gap below the label
+    pub fn label_bottom_gap(&self) -> f64 {
+        self.label.rel_bottom_gap()
+    }
+
+    /// Return the gap above the label
+    pub fn label_top_gap(&self) -> f64 {
+        self.label.rel_top_gap()
     }
 
     /// Scale the size of the label
     fn scale_size(&mut self, factor: f64) {
-        self.label.scale_size(factor);
         self.tick.scale_size(factor);
     }
 
@@ -130,16 +168,12 @@ impl Mark {
     pub fn fit(&mut self, parent_frame: &shape::Rectangle) {
         self.global = self.local.relative_to(parent_frame);
         self.scale_size(parent_frame.diag_len() / 2f64.sqrt());
+        self.label.fit(parent_frame);
     }
 
     /// Draw ticks and labels
     pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
-        // Draw tick
-        self.tick.draw(cr, fig_rel_height, fig_rel_width, self.global_x(), self.global_y());
-
-        // Draw label
-        cr.move_to(self.global_x() + self.label.hor_offset(),
-                   self.global_y() + self.label.ver_offset());
+        self.tick.draw(cr, fig_rel_height, fig_rel_width, self.global.x(), self.global.y());
 
         self.label.draw(cr, fig_rel_height, fig_rel_width);
     }
@@ -167,7 +201,7 @@ impl Tick {
             width: 0.005,
             positive_length: 0.01,
             negative_length: 0.01,
-            direction: coord::Coord::new(0.0, 0.0),
+            direction: coord::Coord::new(),
         }
     }
 
@@ -265,6 +299,7 @@ impl Tick {
 
     /// Draw the tick mark
     pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64, x_root: f64, y_root: f64) {
+        cr.move_to(x_root, y_root);
         cr.set_line_cap(LineCap::Square);
         cr.set_source_rgba(self.color.red as f64, self.color.green as f64,
                            self.color.blue as f64, self.color.alpha as f64);
@@ -277,7 +312,6 @@ impl Tick {
         // With the tick direction
         let pos_length = self.positive_length * (self.direction.x().abs() * fig_rel_height +
                                                  self.direction.y().abs() * fig_rel_width);
-        cr.move_to(x_root, y_root);
         cr.line_to(x_root + self.direction.x().abs() * pos_length,
                    y_root + self.direction.y().abs() * pos_length);
         cr.stroke();
@@ -360,7 +394,8 @@ impl GridLine {
         cr.set_source_rgba(self.color.red as f64, self.color.green as f64, self.color.blue as f64,
                            self.color.alpha as f64);
 
-        let width = self.width * (self.direction.x().abs() * fig_rel_width + self.direction.y().abs() * fig_rel_height);
+        let width = self.width * (self.direction.x().abs() * fig_rel_width +
+                                  self.direction.y().abs() * fig_rel_height);
         cr.set_line_width(width);
         cr.move_to(self.global_start.x(), self.global_start.y());
         cr.line_to(self.global_end.x(), self.global_end.y());

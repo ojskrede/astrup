@@ -33,6 +33,8 @@ fn main() {
     let line_plot = Plot::new().add(&Chart::Line(line1))
                                .add(&Chart::Line(line2))
                                .set_y_min(-1.2)
+                               .set_x_label("x")
+                               .set_y_label("y")
                                .set_local_frame(0.0, 0.7, 0.51, 1.0);
 
     // Create a seedable rng so that the scatter points are equal from run to run
@@ -53,6 +55,8 @@ fn main() {
 
     // Add scatter points to a new plot
     let scatter_plot = Plot::new().set_local_frame(0.3, 1.0, 0.0, 0.49)
+                                  .set_x_label("x")
+                                  .set_y_label("y")
                                   .add(&Chart::Scatter(scatter));
 
     // Add the plots to a figure, and save it

@@ -20,7 +20,6 @@ pub struct Rectangle {
     is_bottom_updated: bool,
     is_top_updated: bool,
     display_border: bool,
-    angle: f64,
     color: Rgba,
     thickness: f64
 }
@@ -38,7 +37,6 @@ impl Rectangle {
             is_bottom_updated: false,
             is_top_updated: false,
             display_border: false,
-            angle: 0.0,
             color: Rgba::new(0.0, 0.0, 0.0, 1.0),
             thickness: 0.0,
         }
@@ -56,7 +54,6 @@ impl Rectangle {
             is_bottom_updated: false,
             is_top_updated: false,
             display_border: false,
-            angle: 0.0,
             color: Rgba::new(0.0, 0.0, 0.0, 1.0),
             thickness: 0.0,
         }
@@ -155,6 +152,11 @@ impl Rectangle {
         (delta_x * delta_x + delta_y * delta_y).sqrt()
     }
 
+    /// Return the line width of the border
+    pub fn thickness(&self) -> f64 {
+        self.thickness
+    }
+
     /// Whether or not to display the border (equivalent to thickness = 0.0)
     pub fn display_border(&mut self, val: bool) {
         self.display_border = val;
@@ -168,6 +170,9 @@ impl Rectangle {
     /// Set the line width of the frame border
     pub fn set_thickness(&mut self, val: f64) {
         self.thickness = val;
+        if val > 0.0 {
+            self.display_border = true;
+        }
     }
 
     /// Returns this frame mapped to a different `reference_frame`. This is useful when one wants
@@ -189,7 +194,21 @@ impl Rectangle {
         let new_right = reference.left() + reference.width() * self.right();
         let new_bottom = reference.bottom() + reference.height() * self.bottom();
         let new_top = reference.bottom() + reference.height() * self.top();
-        Rectangle::from_sides(new_left, new_right, new_bottom, new_top)
+        //Rectangle::from_sides(new_left, new_right, new_bottom, new_top)
+
+        Rectangle {
+            left: new_left,
+            right: new_right,
+            bottom: new_bottom,
+            top: new_top,
+            is_left_updated: false,
+            is_right_updated: false,
+            is_bottom_updated: false,
+            is_top_updated: false,
+            display_border: self.display_border,
+            color: self.color.clone(),
+            thickness: self.thickness,
+        }
     }
 
     /// Scale the frame border thickness with factor
@@ -199,7 +218,7 @@ impl Rectangle {
 
     /// Draw a border around the frame
     pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
-        if self.display_border {
+        if self.display_border { // TODO: Remove this and let thickness decide
             cr.set_source_rgba(self.color.red as f64, self.color.green as f64,
                                self.color.blue as f64, self.color.alpha as f64);
             // Move to bottom left corner
@@ -218,6 +237,7 @@ impl Rectangle {
             cr.close_path();
             //cr.rectangle(self.left(), self.bottom(), self.width(), self.height());
             cr.stroke();
+            cr.move_to(self.left, self.bottom); // Needed because of close_path() (See cairo-rs docs)
         }
     }
 }
@@ -237,11 +257,11 @@ pub struct Quadrilateral {
 impl Quadrilateral {
     pub fn new() -> Quadrilateral {
         Quadrilateral {
-            vertex_a: coord::Coord::new(0.0, 0.0),
-            vertex_b: coord::Coord::new(1.0, 0.0),
-            vertex_c: coord::Coord::new(1.0, 1.0),
-            vertex_d: coord::Coord::new(0.0, 1.0),
-            centroid: coord::Coord::new(0.5, 0.5),
+            vertex_a: coord::Coord::new_from(0.0, 0.0),
+            vertex_b: coord::Coord::new_from(1.0, 0.0),
+            vertex_c: coord::Coord::new_from(1.0, 1.0),
+            vertex_d: coord::Coord::new_from(0.0, 1.0),
+            centroid: coord::Coord::new_from(0.5, 0.5),
         }
     }
 }

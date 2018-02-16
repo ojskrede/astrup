@@ -7,7 +7,7 @@ use failure::Error;
 use cairo::Context;
 use palette::Rgba;
 
-use ::{axis, mark, chart, shape, coord};
+use ::{axis, mark, chart, shape, coord, label};
 use utils::{Drawable, Plottable};
 
 
@@ -31,14 +31,20 @@ pub struct Canvas {
     ver_marks: Vec<mark::Mark>,
     axes: Vec<axis::Axis>,
     charts: Vec<chart::Chart>,
+    default_x_axis_label: label::Label, // For convenience: plot.set_label() etc.
+    default_y_axis_label: label::Label,
 }
 
 impl Canvas {
     /// Create and return a new canvas
     pub fn new() -> Canvas {
+        let mut x_axis_label = label::Label::new_from_centroid(0.5, -0.11);
+        x_axis_label.set_font_size(0.025);
+        let mut y_axis_label = label::Label::new_from_centroid(-0.13, 0.5);
+        y_axis_label.set_font_size(0.025);
         Canvas {
             color: Rgba::new(230.0/255.0, 235.0/255.0, 245.0/255.0, 1.0),
-            local_frame: shape::Rectangle::from_sides(0.15, 0.95, 0.15, 0.95), // TODO: Update w.r.t. the width of axis labels and tick labels
+            local_frame: shape::Rectangle::from_sides(0.15, 0.95, 0.15, 0.95),
             global_frame: shape::Rectangle::new(),
             data_frame: shape::Rectangle::new(),
             user_data_frame: shape::Rectangle::new(),
@@ -51,6 +57,8 @@ impl Canvas {
             ver_marks: Vec::<mark::Mark>::new(),
             axes: Vec::<axis::Axis>::new(),
             charts: Vec::<chart::Chart>::new(),
+            default_x_axis_label: x_axis_label,
+            default_y_axis_label: y_axis_label,
         }
     }
 
@@ -156,6 +164,26 @@ impl Canvas {
         self.user_data_frame.set_top(y_max);
     }
 
+    /// Set the label content of the default horisontal axis
+    pub fn set_default_x_axis_label_content(&mut self, content: &str) {
+        self.default_x_axis_label.set_content(content);
+    }
+
+    /// Set the label content of the default vertical axis
+    pub fn set_default_y_axis_label_content(&mut self, content: &str) {
+        self.default_y_axis_label.set_content(content);
+    }
+
+    /// Set the label content of the default horisontal axis
+    pub fn set_default_x_axis_label_angle(&mut self, val: f64) {
+        self.default_x_axis_label.set_angle(val);
+    }
+
+    /// Set the label content of the default vertical axis
+    pub fn set_default_y_axis_label_angle(&mut self, val: f64) {
+        self.default_y_axis_label.set_angle(val);
+    }
+
     /// Whether or not to display axes
     pub fn display_axes(&mut self, val: bool) {
         self.display_axes = val;
@@ -192,7 +220,7 @@ impl Canvas {
         //let scale_factor = self.global_frame.height().min(self.global_frame.width());
         for coord in ver_axis.mark_coords() {
             let mut gridline = mark::GridLine::new(coord.clone(),
-                                                   coord::Coord::new(self.global_frame.right(), coord.y()));
+                                                   coord::Coord::new_from(self.global_frame.right(), coord.y()));
             gridline.set_color(self.grid_color);
             gridline.set_width(self.grid_width);
             gridline.scale_size(scale_factor);
@@ -200,7 +228,7 @@ impl Canvas {
         }
         for coord in hor_axis.mark_coords() {
             let mut gridline = mark::GridLine::new(coord.clone(),
-                                                   coord::Coord::new(coord.x(), self.global_frame.top()));
+                                                   coord::Coord::new_from(coord.x(), self.global_frame.top()));
             gridline.set_color(self.grid_color);
             gridline.set_width(self.grid_width);
             gridline.scale_size(scale_factor);
@@ -267,26 +295,44 @@ impl Canvas {
     /// solution to this.
     ///
     /// In the meantime, the possibility to not draw the axes have to suffice.
-    fn set_default_axis(&mut self, data_frame: shape::Rectangle) -> Result<(axis::Axis, axis::Axis), Error> {
-        let mut hor_axis = axis::Axis::from_coord(coord::Coord::new(0.0, 0.0), coord::Coord::new(1.0, 0.0));
+    fn set_default_axes(&mut self, data_frame: shape::Rectangle) -> Result<(axis::Axis, axis::Axis), Error> {
+        let mut hor_axis = axis::Axis::from_coord(coord::Coord::new_from(0.0, 0.0), coord::Coord::new_from(1.0, 0.0));
         hor_axis.set_data_range(data_frame.left(), data_frame.right());
-        hor_axis.set_label("x");
         hor_axis.compute_marks()?;
+
         hor_axis.set_positive_tick_length(0.0);
         hor_axis.set_negative_tick_length(0.01);
-        hor_axis.set_label_offset(-0.01, -0.13);
-        hor_axis.set_tick_label_offset(-0.02, -0.07);
-        hor_axis.set_tick_font_size(0.025);
+        hor_axis.set_tick_label_font_size(0.02);
+        hor_axis.set_tick_label_frame_gaps(0.0, 0.0, 0.0, 0.0);
+        hor_axis.set_tick_label_offset(-0.05);
 
-        let mut ver_axis = axis::Axis::from_coord(coord::Coord::new(0.0, 0.0), coord::Coord::new(0.0, 1.0));
+        hor_axis.set_label(&self.default_x_axis_label);
+        /*
+        hor_axis.set_label_content(&self.default_x_label.content());
+        hor_axis.set_label_font_size(0.025);
+        hor_axis.set_label_centroid(0.5, -0.11);
+        hor_axis.set_label_frame_gaps(0.0, 0.0, 0.0, 0.0);
+        */
+
+        let mut ver_axis = axis::Axis::from_coord(coord::Coord::new_from(0.0, 0.0), coord::Coord::new_from(0.0, 1.0));
         ver_axis.set_data_range(data_frame.bottom(), data_frame.top());
-        ver_axis.set_label("y");
         ver_axis.compute_marks()?;
+
         ver_axis.set_positive_tick_length(0.0);
         ver_axis.set_negative_tick_length(0.01);
-        ver_axis.set_label_offset(-0.14, -0.01);
-        ver_axis.set_tick_label_offset(-0.10, -0.01);
-        ver_axis.set_tick_font_size(0.025);
+        ver_axis.set_tick_label_font_size(0.02);
+        ver_axis.set_tick_label_frame_gaps(0.0, 0.0, 0.0, 0.0);
+        ver_axis.set_tick_label_offset(-0.05);
+
+        ver_axis.set_label(&self.default_y_axis_label);
+
+        /*
+        ver_axis.set_label_content(&self.default_y_axis_label_content);
+        ver_axis.set_label_font_size(0.025);
+        ver_axis.set_label_angle(f64::consts::PI / 2.0);
+        ver_axis.set_label_centroid(-0.13, 0.5);
+        ver_axis.set_label_frame_gaps(0.0, 0.0, 0.0, 0.0);
+        */
 
         Ok((hor_axis, ver_axis))
     }
@@ -296,13 +342,14 @@ impl Canvas {
     -> Result<(), Error> {
         // First, we update the global_frame relative to the parent's global_frame.
         // After this is called, both local_frame and global_frame should not be altered.
+        self.local_frame.scale_size(plot_frame.diag_len()); //JIC we want to display the border
         self.global_frame = self.local_frame.relative_to(&plot_frame);
 
         // Second, we update the data_frame
         let data_frame = self.compute_data_frame();
 
         // Then we compute one horizontal and one vertical axis.
-        let (mut hor_axis, mut ver_axis) = self.set_default_axis(data_frame)?;
+        let (mut hor_axis, mut ver_axis) = self.set_default_axes(data_frame)?;
 
         // We can now define our updated data_frame.
         // TODO: Ord for f64 equivalent
