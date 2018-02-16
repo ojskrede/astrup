@@ -28,7 +28,7 @@ impl Plot {
     pub fn new() -> Plot {
         let mut local_frame = shape::Rectangle::new();
         local_frame.display_border(true);
-        local_frame.set_thickness(0.001);
+        local_frame.set_border_thickness(0.001);
         Plot {
             title: label::Label::new(),
             color: Rgba::new(240.0/255.0, 242.0/255.0, 255.0/255.0, 1.0),
@@ -168,7 +168,7 @@ impl Plot {
 
     /// Set the line width of the border around the plot
     pub fn set_border_thickness(mut self, val: f64) -> Self {
-        self.local_frame.set_thickness(val);
+        self.local_frame.set_border_thickness(val);
         self
     }
 

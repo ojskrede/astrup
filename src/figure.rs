@@ -118,7 +118,7 @@ impl Figure {
     /// Set the line width of the border around the figure
     pub fn set_border_thickness(mut self, val: f64) -> Self {
         self.local_frame.display_border(true);
-        self.local_frame.set_thickness(val);
+        self.local_frame.set_border_thickness(val);
         self
     }
 

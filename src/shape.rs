@@ -21,7 +21,7 @@ pub struct Rectangle {
     is_top_updated: bool,
     display_border: bool,
     color: Rgba,
-    thickness: f64
+    border_thickness: f64
 }
 
 impl Rectangle {
@@ -38,7 +38,7 @@ impl Rectangle {
             is_top_updated: false,
             display_border: false,
             color: Rgba::new(0.0, 0.0, 0.0, 1.0),
-            thickness: 0.0,
+            border_thickness: 0.0,
         }
     }
 
@@ -55,7 +55,7 @@ impl Rectangle {
             is_top_updated: false,
             display_border: false,
             color: Rgba::new(0.0, 0.0, 0.0, 1.0),
-            thickness: 0.0,
+            border_thickness: 0.0,
         }
     }
 
@@ -153,11 +153,11 @@ impl Rectangle {
     }
 
     /// Return the line width of the border
-    pub fn thickness(&self) -> f64 {
-        self.thickness
+    pub fn border_thickness(&self) -> f64 {
+        self.border_thickness
     }
 
-    /// Whether or not to display the border (equivalent to thickness = 0.0)
+    /// Whether or not to display the border (equivalent to border_thickness = 0.0)
     pub fn display_border(&mut self, val: bool) {
         self.display_border = val;
     }
@@ -168,8 +168,8 @@ impl Rectangle {
     }
 
     /// Set the line width of the frame border
-    pub fn set_thickness(&mut self, val: f64) {
-        self.thickness = val;
+    pub fn set_border_thickness(&mut self, val: f64) {
+        self.border_thickness = val;
         if val > 0.0 {
             self.display_border = true;
         }
@@ -207,33 +207,33 @@ impl Rectangle {
             is_top_updated: false,
             display_border: self.display_border,
             color: self.color.clone(),
-            thickness: self.thickness,
+            border_thickness: self.border_thickness,
         }
     }
 
     /// Scale the frame border thickness with factor
     pub fn scale_size(&mut self, factor: f64) {
-        self.thickness *= factor;
+        self.border_thickness *= factor;
     }
 
     /// Draw a border around the frame
     pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
-        if self.display_border { // TODO: Remove this and let thickness decide
+        if self.display_border { // TODO: Remove this and let border_thickness decide
             cr.set_source_rgba(self.color.red as f64, self.color.green as f64,
                                self.color.blue as f64, self.color.alpha as f64);
             // Move to bottom left corner
             cr.move_to(self.left, self.bottom);
             // Bottom left to bottom right
-            cr.set_line_width(self.thickness * fig_rel_width);
+            cr.set_line_width(self.border_thickness * fig_rel_width);
             cr.rel_line_to(self.width(), 0.0);
             // Bottom right to top right
-            cr.set_line_width(self.thickness * fig_rel_height);
+            cr.set_line_width(self.border_thickness * fig_rel_height);
             cr.rel_line_to(0.0, self.height());
             // Top right to top left
-            cr.set_line_width(self.thickness * fig_rel_width);
+            cr.set_line_width(self.border_thickness * fig_rel_width);
             cr.rel_line_to(-self.width(), 0.0);
             // Top left to bottom left
-            cr.set_line_width(self.thickness * fig_rel_height);
+            cr.set_line_width(self.border_thickness * fig_rel_height);
             cr.close_path();
             //cr.rectangle(self.left(), self.bottom(), self.width(), self.height());
             cr.stroke();
