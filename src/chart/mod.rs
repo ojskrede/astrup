@@ -2,7 +2,7 @@
 
 pub mod scatter;
 pub mod line;
-pub mod point;
+mod point;
 
 use cairo::Context;
 use palette::Rgba;
