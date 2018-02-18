@@ -245,8 +245,8 @@ impl Plot {
     /// This method is called by figure after all plots are added, and all plot adjustment is made.
     /// This happend right before the plot is drawn on the figure.
     ///
-    /// The function scales various elements within the plot, and calls a similar plot for its
-    /// canvasses.
+    /// The function scales various elements within the plot, and calls a similar function for its
+    /// canvas.
     pub fn fit(&mut self) -> Result<(), Error> {
         let scale_factor = self.local_frame.diag_len();
         self.scale_size(scale_factor);
@@ -268,6 +268,8 @@ impl Plot {
 
         // Draw frame border
         self.local_frame.draw(cr, fig_rel_height, fig_rel_width);
+
+
 
         // Draw canvas
         self.canvas.draw(cr, fig_rel_height, fig_rel_width);

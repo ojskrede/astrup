@@ -196,16 +196,6 @@
 //! Much the same as a tick, but stretches across the whole canvas, perpendicular on the axis it
 //! belongs to.
 //!
-//! ## TODO:
-//!
-//! ### Close future
-//! - Implement the above plot variants
-//! - Minor ticks and grid lines
-//! - Dotted gridlines
-//! - Add legend
-//! - Fix the use of PlotType in the api, hide it somehow.
-//! - Implement convenience funcions to enable prototyping with "one-line plotting"
-//!
 extern crate cairo;
 extern crate gio;
 extern crate gtk;
