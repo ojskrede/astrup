@@ -1,10 +1,10 @@
 //! Definition of geometrical shapes
 //!
 
+use failure::Error;
 use cairo::Context;
-use palette::Rgba;
 
-use ::coord;
+use ::{color, coord};
 
 /// ## Rectangle
 ///
@@ -20,7 +20,7 @@ pub struct Rectangle {
     is_bottom_updated: bool,
     is_top_updated: bool,
     display_border: bool,
-    color: Rgba,
+    color: color::Color,
     border_thickness: f64
 }
 
@@ -37,7 +37,7 @@ impl Rectangle {
             is_bottom_updated: false,
             is_top_updated: false,
             display_border: false,
-            color: Rgba::new(0.0, 0.0, 0.0, 1.0),
+            color: color::Color::new(),
             border_thickness: 0.0,
         }
     }
@@ -54,7 +54,7 @@ impl Rectangle {
             is_bottom_updated: false,
             is_top_updated: false,
             display_border: false,
-            color: Rgba::new(0.0, 0.0, 0.0, 1.0),
+            color: color::Color::new(),
             border_thickness: 0.0,
         }
     }
@@ -162,9 +162,35 @@ impl Rectangle {
         self.display_border = val;
     }
 
-    /// Set the color of the frame border
-    pub fn set_color(&mut self, color: Rgba) {
-        self.color = color;
+    /// Set border color
+    pub fn set_color(&mut self, color_name: &str) {
+        self.color.set_color_default(color_name);
+    }
+
+    /// Set border color
+    pub fn set_color_rgb(&mut self, red: f32, green: f32, blue: f32) {
+        self.color.set_color_rgb(red, green, blue);
+    }
+
+    /// Set border color
+    pub fn set_color_rgba(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
+        self.color.set_color_rgba(red, green, blue, alpha);
+    }
+
+    /// Set border color
+    pub fn set_color_rgb_u8(&mut self, red: u8, green: u8, blue: u8) {
+        self.color.set_color_rgb_u8(red, green, blue);
+    }
+
+    /// Set border color
+    pub fn set_color_rgba_u8(&mut self, red: u8, green: u8, blue: u8, alpha: u8) {
+        self.color.set_color_rgba_u8(red, green, blue, alpha);
+    }
+
+    /// Set border color
+    pub fn set_color_str(&mut self, color_name: &str) -> Result<(), Error> {
+        self.color.set_color_str(color_name)?;
+        Ok(())
     }
 
     /// Set the line width of the frame border
@@ -218,9 +244,10 @@ impl Rectangle {
 
     /// Draw a border around the frame
     pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
-        if self.display_border { // TODO: Remove this and let border_thickness decide
-            cr.set_source_rgba(self.color.red as f64, self.color.green as f64,
-                               self.color.blue as f64, self.color.alpha as f64);
+        if self.display_border {
+            let border_color = self.color.as_rgba();
+            cr.set_source_rgba(border_color.red as f64, border_color.green as f64,
+                               border_color.blue as f64, border_color.alpha as f64);
             // Move to bottom left corner
             cr.move_to(self.left, self.bottom);
             // Bottom left to bottom right

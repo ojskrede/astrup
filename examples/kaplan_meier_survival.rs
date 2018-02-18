@@ -13,7 +13,6 @@ extern crate serde;
 #[macro_use] extern crate serde_derive;
 extern crate astrup;
 
-use std::f64::consts::PI;
 use std::path::Path;
 use failure::{Error};
 
@@ -112,7 +111,6 @@ fn main() {
                                            .add(&Chart::Scatter(cens_stage_4.clone()))
                                            .set_x_label("Time")
                                            .set_y_label("Survival")
-                                           .set_y_label_angle(PI / 2.0)
                                            .set_local_frame(0.0, 1.0, 0.5, 1.0);
 
             let (lower_stage_1, upper_stage_1) = ci_charts(&data, 1, 224.0, 52.0, 11.0);
@@ -130,7 +128,6 @@ fn main() {
                                      .add(&Chart::Scatter(cens_stage_4))
                                      .set_x_label("Time")
                                      .set_y_label("Survival")
-                                     .set_y_label_angle(PI / 2.0)
                                      .set_local_frame(0.0, 1.0, 0.0, 0.5);
 
             let fig = Figure::new().add(&survival_plot)

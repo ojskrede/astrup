@@ -5,9 +5,8 @@ use std::f64;
 use failure::Error;
 
 use cairo::Context;
-use palette::Rgba;
 
-use ::{axis, mark, chart, shape, coord, label};
+use ::{axis, mark, chart, shape, coord, label, color};
 use utils::{Drawable, Plottable};
 
 
@@ -17,7 +16,7 @@ use utils::{Drawable, Plottable};
 /// ``main axes''.
 #[derive(Clone, Debug)]
 pub struct Canvas {
-    color: Rgba,
+    color: color::Color,
     local_frame: shape::Rectangle,
     global_frame: shape::Rectangle,
     data_frame: shape::Rectangle,
@@ -25,7 +24,7 @@ pub struct Canvas {
     display_axes: bool,
     display_grid: bool,
     grid_width: f64,
-    grid_color: Rgba,
+    grid_color: color::Color,
     grid: Vec<mark::GridLine>,
     hor_marks: Vec<mark::Mark>, // TODO: Use these in stead of axis
     ver_marks: Vec<mark::Mark>,
@@ -42,8 +41,9 @@ impl Canvas {
         x_axis_label.set_font_size(0.025);
         let mut y_axis_label = label::Label::new_from_centroid(-0.13, 0.5);
         y_axis_label.set_font_size(0.025);
+        y_axis_label.set_angle(f64::consts::PI / 2.0);
         Canvas {
-            color: Rgba::new(230.0/255.0, 235.0/255.0, 245.0/255.0, 1.0),
+            color: color::Color::new_rgb_u8(230, 235, 245),
             local_frame: shape::Rectangle::new_from(0.15, 0.95, 0.15, 0.95),
             global_frame: shape::Rectangle::new(),
             data_frame: shape::Rectangle::new(),
@@ -51,7 +51,7 @@ impl Canvas {
             display_axes: true,
             display_grid: true,
             grid_width: 0.0025,
-            grid_color: Rgba::new(1.0, 1.0, 1.0, 0.9),
+            grid_color: color::Color::new_rgba(1.0, 1.0, 1.0, 0.9),
             grid: Vec::<mark::GridLine>::new(),
             hor_marks: Vec::<mark::Mark>::new(),
             ver_marks: Vec::<mark::Mark>::new(),
@@ -62,33 +62,36 @@ impl Canvas {
         }
     }
 
-    /// Set the background color of the canvas.
-    pub fn set_color(&mut self, color: Rgba) {
-        self.color = color;
+    /// Set the canvas background color using the default, built in colors
+    pub fn set_color(&mut self, color_name: &str) {
+        self.color.set_color_default(color_name);
     }
 
-    /// Set the background color of the canvas.
+    /// Set the canvas background color
     pub fn set_color_rgb(&mut self, red: f32, green: f32, blue: f32) {
-        let red = red.max(0.0);
-        let red = red.min(1.0);
-        let green = green.max(0.0);
-        let green = green.min(1.0);
-        let blue = blue.max(0.0);
-        let blue = blue.min(1.0);
-        self.color = Rgba::new(red, green, blue, 1.0);
+        self.color.set_color_rgb(red, green, blue);
     }
 
-    /// Set the background color of the canvas.
+    /// Set the canvas background color
     pub fn set_color_rgba(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
-        let red = red.max(0.0);
-        let red = red.min(1.0);
-        let green = green.max(0.0);
-        let green = green.min(1.0);
-        let blue = blue.max(0.0);
-        let blue = blue.min(1.0);
-        let alpha = alpha.max(0.0);
-        let alpha = alpha.min(1.0);
-        self.color = Rgba::new(red, green, blue, alpha);
+        self.color.set_color_rgba(red, green, blue, alpha);
+    }
+
+    /// Set the canvas background color
+    pub fn set_color_rgb_u8(&mut self, red: u8, green: u8, blue: u8) {
+        self.color.set_color_rgb_u8(red, green, blue);
+    }
+
+    /// Set the canvas background color
+    pub fn set_color_rgba_u8(&mut self, red: u8, green: u8, blue: u8, alpha: u8) {
+        self.color.set_color_rgba_u8(red, green, blue, alpha);
+    }
+
+    /// Set the canvas background color from name. See the [palette
+    /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
+    pub fn set_color_str(&mut self, color_name: &str) -> Result<(), Error> {
+        self.color.set_color_str(color_name)?;
+        Ok(())
     }
 
     /// Set local frame coordinates.
@@ -199,9 +202,29 @@ impl Canvas {
         self.grid_width = val;
     }
 
-    /// Set the color of the grid lines
-    pub fn set_grid_color(&mut self, color: Rgba) {
-        self.grid_color = color;
+    pub fn set_grid_color(&mut self, color_name: &str) {
+        self.grid_color.set_color_default(color_name);
+    }
+
+    pub fn set_grid_color_rgb(&mut self, red: f32, green: f32, blue: f32) {
+        self.grid_color.set_color_rgb(red, green, blue);
+    }
+
+    pub fn set_grid_color_rgba(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
+        self.grid_color.set_color_rgba(red, green, blue, alpha);
+    }
+
+    pub fn set_grid_color_rgb_u8(&mut self, red: u8, green: u8, blue: u8) {
+        self.grid_color.set_color_rgb_u8(red, green, blue);
+    }
+
+    pub fn set_grid_color_rgba_u8(&mut self, red: u8, green: u8, blue: u8, alpha: u8) {
+        self.grid_color.set_color_rgba_u8(red, green, blue, alpha);
+    }
+
+    pub fn set_grid_color_str(&mut self, color_name: &str) -> Result<(), Error> {
+        self.grid_color.set_color_str(color_name)?;
+        Ok(())
     }
 
     /// Add an additional axis to the canvas
@@ -218,10 +241,12 @@ impl Canvas {
     fn compute_grid(&mut self, ver_axis: &axis::Axis, hor_axis: &axis::Axis) {
         let scale_factor = self.global_frame.diag_len();
         //let scale_factor = self.global_frame.height().min(self.global_frame.width());
+        let grid_color = self.grid_color.as_rgba();
         for coord in ver_axis.mark_coords() {
             let mut gridline = mark::GridLine::new_from(coord.clone(),
                                                         coord::Coord::new_from(self.global_frame.right(), coord.y()));
-            gridline.set_color(self.grid_color);
+            gridline.set_color_rgba(grid_color.red, grid_color.green, grid_color.blue,
+                                    grid_color.alpha);
             gridline.set_width(self.grid_width);
             gridline.scale_size(scale_factor);
             self.grid.push(gridline);
@@ -229,7 +254,8 @@ impl Canvas {
         for coord in hor_axis.mark_coords() {
             let mut gridline = mark::GridLine::new_from(coord.clone(),
                                                         coord::Coord::new_from(coord.x(), self.global_frame.top()));
-            gridline.set_color(self.grid_color);
+            gridline.set_color_rgba(grid_color.red, grid_color.green, grid_color.blue,
+                                    grid_color.alpha);
             gridline.set_width(self.grid_width);
             gridline.scale_size(scale_factor);
             self.grid.push(gridline);
@@ -307,12 +333,6 @@ impl Canvas {
         hor_axis.set_tick_label_offset(-0.05);
 
         hor_axis.set_label(&self.default_x_axis_label);
-        /*
-        hor_axis.set_label_content(&self.default_x_label.content());
-        hor_axis.set_label_font_size(0.025);
-        hor_axis.set_label_centroid(0.5, -0.11);
-        hor_axis.set_label_frame_gaps(0.0, 0.0, 0.0, 0.0);
-        */
 
         let mut ver_axis = axis::Axis::new_from(coord::Coord::new_from(0.0, 0.0), coord::Coord::new_from(0.0, 1.0));
         ver_axis.set_data_range(data_frame.bottom(), data_frame.top());
@@ -325,14 +345,6 @@ impl Canvas {
         ver_axis.set_tick_label_offset(-0.05);
 
         ver_axis.set_label(&self.default_y_axis_label);
-
-        /*
-        ver_axis.set_label_content(&self.default_y_axis_label_content);
-        ver_axis.set_label_font_size(0.025);
-        ver_axis.set_label_angle(f64::consts::PI / 2.0);
-        ver_axis.set_label_centroid(-0.13, 0.5);
-        ver_axis.set_label_frame_gaps(0.0, 0.0, 0.0, 0.0);
-        */
 
         Ok((hor_axis, ver_axis))
     }
@@ -385,8 +397,9 @@ impl Canvas {
     pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
 
         // Background
-        cr.set_source_rgba(self.color.red as f64, self.color.green as f64, self.color.blue as f64,
-                           self.color.alpha as f64);
+        let bg_color = self.color.as_rgba();
+        cr.set_source_rgba(bg_color.red as f64, bg_color.green as f64, bg_color.blue as f64,
+                           bg_color.alpha as f64);
         cr.rectangle(self.global_frame.left(), self.global_frame.bottom(),
                      self.global_frame.width(), self.global_frame.height());
         cr.fill();
@@ -403,7 +416,12 @@ impl Canvas {
             }
         }
 
-        for chart in self.charts.iter() {
+        let mut color_generator = color::DefaultColors::new();
+        for chart in self.charts.clone().iter_mut() {
+            if !chart.is_color_updated() {
+                let color = color_generator.next();
+                chart.set_color_internal(color.expect("Something wrong"));
+            }
             chart.draw(cr, fig_rel_height, fig_rel_width);
         }
 

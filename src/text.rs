@@ -1,9 +1,11 @@
 //! Definition of the Text struct
 //!
 
+use failure::Error;
 use cairo::{Context, Matrix, MatrixTrait};
 use cairo::enums::{FontSlant, FontWeight};
-use palette::Rgba;
+
+use ::color;
 
 /// A structure for text to be used in labels
 #[derive(Clone, Debug)]
@@ -11,7 +13,7 @@ pub struct Text {
     content: String,
     font_size: f64,
     font_matrix: Matrix,
-    color: Rgba,
+    color: color::Color,
 }
 
 impl Text {
@@ -21,7 +23,7 @@ impl Text {
             content: String::from(""),
             font_size: 0.03,
             font_matrix: Matrix::new(1.0, 0.0, 0.0, 1.0, 0.0, 0.0),
-            color: Rgba::new(0.0, 0.0, 0.0, 1.0),
+            color: color::Color::new(),
         }
     }
 
@@ -31,7 +33,7 @@ impl Text {
             content: String::from(content),
             font_size: 0.03,
             font_matrix: Matrix::new(1.0, 0.0, 0.0, 1.0, 0.0, 0.0),
-            color: Rgba::new(0.0, 0.0, 0.0, 1.0),
+            color: color::Color::new(),
         }
     }
 
@@ -55,9 +57,29 @@ impl Text {
         self.font_size = size;
     }
 
-    /// Set the color of the text
-    pub fn set_color(&mut self, color: Rgba) {
-        self.color = color;
+    pub fn set_color(&mut self, color_name: &str) {
+        self.color.set_color_default(color_name);
+    }
+
+    pub fn set_color_rgb(&mut self, red: f32, green: f32, blue: f32) {
+        self.color.set_color_rgb(red, green, blue);
+    }
+
+    pub fn set_color_rgba(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
+        self.color.set_color_rgba(red, green, blue, alpha);
+    }
+
+    pub fn set_color_rgb_u8(&mut self, red: u8, green: u8, blue: u8) {
+        self.color.set_color_rgb_u8(red, green, blue);
+    }
+
+    pub fn set_color_rgba_u8(&mut self, red: u8, green: u8, blue: u8, alpha: u8) {
+        self.color.set_color_rgba_u8(red, green, blue, alpha);
+    }
+
+    pub fn set_color_str(&mut self, color_name: &str) -> Result<(), Error> {
+        self.color.set_color_str(color_name)?;
+        Ok(())
     }
 
     /// Scale the font size and of the text
@@ -76,8 +98,9 @@ impl Text {
         // is not square.
 
         cr.select_font_face("Serif", FontSlant::Normal, FontWeight::Normal);
-        cr.set_source_rgba(self.color.red as f64, self.color.green as f64,
-                           self.color.blue as f64, self.color.alpha as f64);
+        let text_color = self.color.as_rgba();
+        cr.set_source_rgba(text_color.red as f64, text_color.green as f64,
+                           text_color.blue as f64, text_color.alpha as f64);
 
         // Adjust font size
         cr.set_font_size(self.font_size);

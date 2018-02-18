@@ -5,9 +5,8 @@ use std::f64;
 use failure::{Error, err_msg};
 
 use cairo::{Context};
-use palette::Rgba;
 
-use ::{utils, coord, shape, label, mark};
+use ::{utils, coord, shape, label, mark, color};
 
 /// ## Axis
 ///
@@ -19,7 +18,7 @@ pub struct Axis {
     global_start: coord::Coord,
     global_end: coord::Coord,
     direction: coord::Coord,
-    color: Rgba,
+    color: color::Color,
     line_width: f64,
     data_range: [f64; 2],
     label: label::Label,
@@ -35,7 +34,7 @@ impl Axis {
             global_start: coord::Coord::new(),
             global_end: coord::Coord::new(),
             direction: coord::Coord::new(),
-            color: Rgba::new(0.0, 0.0, 0.0, 1.0),
+            color: color::Color::new(),
             line_width: 0.0025,
             data_range: [0.0, 1.0],
             label: label::Label::new(),
@@ -51,7 +50,7 @@ impl Axis {
             global_start: coord::Coord::new(),
             global_end: coord::Coord::new(),
             direction: start.unit_direction_to(&end),
-            color: Rgba::new(0.0, 0.0, 0.0, 1.0),
+            color: color::Color::new(),
             line_width: 0.0025,
             data_range: [0.0, 1.0],
             label: label::Label::new(),
@@ -60,33 +59,29 @@ impl Axis {
         }
     }
 
-    /// Set the axis color
-    pub fn set_color(&mut self, color: Rgba) {
-        self.color = color;
+    pub fn set_color(&mut self, color_name: &str) {
+        self.color.set_color_default(color_name);
     }
 
-    /// Set the axis color
     pub fn set_color_rgb(&mut self, red: f32, green: f32, blue: f32) {
-        let red = red.max(0.0);
-        let red = red.min(1.0);
-        let green = green.max(0.0);
-        let green = green.min(1.0);
-        let blue = blue.max(0.0);
-        let blue = blue.min(1.0);
-        self.color = Rgba::new(red, green, blue, 1.0);
+        self.color.set_color_rgb(red, green, blue);
     }
 
-    /// Set the axis color
     pub fn set_color_rgba(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
-        let red = red.max(0.0);
-        let red = red.min(1.0);
-        let green = green.max(0.0);
-        let green = green.min(1.0);
-        let blue = blue.max(0.0);
-        let blue = blue.min(1.0);
-        let alpha = alpha.max(0.0);
-        let alpha = alpha.min(1.0);
-        self.color = Rgba::new(red, green, blue, alpha);
+        self.color.set_color_rgba(red, green, blue, alpha);
+    }
+
+    pub fn set_color_rgb_u8(&mut self, red: u8, green: u8, blue: u8) {
+        self.color.set_color_rgb_u8(red, green, blue);
+    }
+
+    pub fn set_color_rgba_u8(&mut self, red: u8, green: u8, blue: u8, alpha: u8) {
+        self.color.set_color_rgba_u8(red, green, blue, alpha);
+    }
+
+    pub fn set_color_str(&mut self, color_name: &str) -> Result<(), Error> {
+        self.color.set_color_str(color_name)?;
+        Ok(())
     }
 
     pub fn set_line_width(&mut self, val: f64) {
@@ -287,8 +282,9 @@ impl Axis {
         }
 
         // Draw axis line
-        cr.set_source_rgba(self.color.red as f64, self.color.green as f64,
-                           self.color.blue as f64, self.color.alpha as f64);
+        let line_color = self.color.as_rgba();
+        cr.set_source_rgba(line_color.red as f64, line_color.green as f64,
+                           line_color.blue as f64, line_color.alpha as f64);
         cr.set_line_width(self.line_width * (self.direction.x().abs() * fig_rel_width +
                                              self.direction.y().abs() * fig_rel_height));
         cr.move_to(self.global_start.x(), self.global_start.y());

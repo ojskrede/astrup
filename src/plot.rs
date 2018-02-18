@@ -5,9 +5,8 @@ use std::f64;
 use failure::Error;
 
 use cairo::Context;
-use palette::Rgba;
 
-use ::{canvas, chart, shape, label};
+use ::{canvas, chart, shape, label, color};
 
 
 /// ## Plot
@@ -18,7 +17,7 @@ use ::{canvas, chart, shape, label};
 #[derive(Clone, Debug)]
 pub struct Plot {
     title: label::Label,
-    color: Rgba,
+    color: color::Color,
     local_frame: shape::Rectangle,
     canvas: canvas::Canvas,
 }
@@ -31,7 +30,7 @@ impl Plot {
         local_frame.set_border_thickness(0.001);
         Plot {
             title: label::Label::new(),
-            color: Rgba::new(240.0/255.0, 242.0/255.0, 255.0/255.0, 1.0),
+            color: color::Color::new_rgb_u8(240, 242, 255),
             local_frame: local_frame,
             canvas: canvas::Canvas::new(),
         }
@@ -43,36 +42,41 @@ impl Plot {
         self
     }
 
-    /// Set plot background color. **Note**: This is different from the canvas background color.
-    pub fn set_color(mut self, color: Rgba) -> Self {
-        self.color = color;
+    /// Set the background color using the default, built in colors
+    pub fn set_color(mut self, color_name: &str) -> Self {
+        self.color.set_color_default(color_name);
         self
     }
 
-    /// Set the plot background color. **Note**: This is different from the canvas background color.
+    /// Set the background color
     pub fn set_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
-        let red = red.max(0.0);
-        let red = red.min(1.0);
-        let green = green.max(0.0);
-        let green = green.min(1.0);
-        let blue = blue.max(0.0);
-        let blue = blue.min(1.0);
-        self.color = Rgba::new(red, green, blue, 1.0);
+        self.color.set_color_rgb(red, green, blue);
         self
     }
 
-    /// Set the plot background color. **Note**: This is different from the canvas background color.
+    /// Set the background color
     pub fn set_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
-        let red = red.max(0.0);
-        let red = red.min(1.0);
-        let green = green.max(0.0);
-        let green = green.min(1.0);
-        let blue = blue.max(0.0);
-        let blue = blue.min(1.0);
-        let alpha = alpha.max(0.0);
-        let alpha = alpha.min(1.0);
-        self.color = Rgba::new(red, green, blue, alpha);
+        self.color.set_color_rgba(red, green, blue, alpha);
         self
+    }
+
+    /// Set the background color
+    pub fn set_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
+        self.color.set_color_rgb_u8(red, green, blue);
+        self
+    }
+
+    /// Set the background color
+    pub fn set_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
+        self.color.set_color_rgba_u8(red, green, blue, alpha);
+        self
+    }
+
+    /// Set the background color from name. See the [palette
+    /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
+    pub fn set_color_str(mut self, color_name: &str) -> Result<Self, Error> {
+        self.color.set_color_str(color_name)?;
+        Ok(self)
     }
 
     /// Set local plot coordinates, relative to the figure it belongs to.
@@ -160,10 +164,41 @@ impl Plot {
         self
     }
 
-    /// Set the color of the border around the plot
-    pub fn set_border_color(mut self, color: Rgba) -> Self {
-        self.local_frame.set_color(color);
+    /// Set the border color using the default, built in colors
+    pub fn set_border_color(mut self, color_name: &str) -> Self {
+        self.local_frame.set_color(color_name);
         self
+    }
+
+    /// Set the border color
+    pub fn set_border_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
+        self.local_frame.set_color_rgb(red, green, blue);
+        self
+    }
+
+    /// Set the border color
+    pub fn set_border_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
+        self.local_frame.set_color_rgba(red, green, blue, alpha);
+        self
+    }
+
+    /// Set the border color
+    pub fn set_border_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
+        self.local_frame.set_color_rgb_u8(red, green, blue);
+        self
+    }
+
+    /// Set the border color
+    pub fn set_border_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
+        self.local_frame.set_color_rgba_u8(red, green, blue, alpha);
+        self
+    }
+
+    /// Set the border color from name. See the [palette
+    /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
+    pub fn set_border_color_str(mut self, color_name: &str) -> Result<Self, Error> {
+        self.local_frame.set_color_str(color_name)?;
+        Ok(self)
     }
 
     /// Set the line width of the border around the plot
@@ -196,7 +231,7 @@ impl Plot {
         self
     }
 
-    /// Add a canvas to the plot
+    /// Add a chart to the plot
     pub fn add(mut self, chart: &chart::Chart) -> Self {
         self.canvas.add_chart(chart.clone());
         self
@@ -224,8 +259,9 @@ impl Plot {
     pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
 
         // Fill background
-        cr.set_source_rgba(self.color.red as f64, self.color.green as f64, self.color.blue as f64,
-                           self.color.alpha as f64);
+        let bg_color = self.color.as_rgba();
+        cr.set_source_rgba(bg_color.red as f64, bg_color.green as f64, bg_color.blue as f64,
+                           bg_color.alpha as f64);
         cr.rectangle(self.local_frame.left(), self.local_frame.bottom(),
                      self.local_frame.width(), self.local_frame.height());
         cr.fill();

@@ -1,11 +1,12 @@
 //! Module that defines the Line struct
 //!
 
+use failure::Error;
 use cairo::{Context, LineCap};
 use palette::Rgba;
 use ndarray::AsArray;
 
-use ::{chart, utils, shape, coord};
+use ::{chart, utils, shape, coord, color};
 
 #[derive(Clone, Debug)]
 enum LineStyle {
@@ -112,7 +113,8 @@ pub struct Line {
     data_points: Vec<chart::point::Point>,
     data_frame: shape::Rectangle,
     global_frame: shape::Rectangle,
-    color: Rgba,
+    color: color::Color,
+    is_color_updated: bool,
     line_width: f64,
     line_style: LineStyle,
     stroke_style: StrokeStyle,
@@ -144,7 +146,8 @@ impl Line {
             data_frame: shape::Rectangle::new_from(x_data_min.val(), x_data_max.val(),
                                                    y_data_min.val(), y_data_max.val()),
             global_frame: shape::Rectangle::new(),
-            color: Rgba::new(0.1, 0.2, 0.5, 0.9),
+            color: color::Color::new_default("blue"),
+            is_color_updated: false,
             line_width: 0.0035,
             line_style: LineStyle::Plain,
             stroke_style: stroke_style,
@@ -152,36 +155,47 @@ impl Line {
         }
     }
 
-    /// Set the line color
-    pub fn set_color(mut self, color: Rgba) -> Self {
-        self.color = color;
+    /// Set the line color using the default, built in colors
+    pub fn set_color(mut self, color_name: &str) -> Self {
+        self.color.set_color_default(color_name);
+        self.is_color_updated = true;
         self
     }
 
     /// Set the line color
     pub fn set_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
-        let red = red.max(0.0);
-        let red = red.min(1.0);
-        let green = green.max(0.0);
-        let green = green.min(1.0);
-        let blue = blue.max(0.0);
-        let blue = blue.min(1.0);
-        self.color = Rgba::new(red, green, blue, 1.0);
+        self.color.set_color_rgb(red, green, blue);
+        self.is_color_updated = true;
         self
     }
 
     /// Set the line color
     pub fn set_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
-        let red = red.max(0.0);
-        let red = red.min(1.0);
-        let green = green.max(0.0);
-        let green = green.min(1.0);
-        let blue = blue.max(0.0);
-        let blue = blue.min(1.0);
-        let alpha = alpha.max(0.0);
-        let alpha = alpha.min(1.0);
-        self.color = Rgba::new(red, green, blue, alpha);
+        self.color.set_color_rgba(red, green, blue, alpha);
+        self.is_color_updated = true;
         self
+    }
+
+    /// Set the line color
+    pub fn set_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
+        self.color.set_color_rgb_u8(red, green, blue);
+        self.is_color_updated = true;
+        self
+    }
+
+    /// Set the line color
+    pub fn set_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
+        self.color.set_color_rgba_u8(red, green, blue, alpha);
+        self.is_color_updated = true;
+        self
+    }
+
+    /// Set the line color from name. See the [palette
+    /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
+    pub fn set_color_str(mut self, color_name: &str) -> Result<Self, Error> {
+        self.color.set_color_str(color_name)?;
+        self.is_color_updated = true;
+        Ok(self)
     }
 
     /// Set the line width
@@ -238,6 +252,15 @@ impl Line {
 }
 
 impl utils::Drawable for Line {
+    fn set_color_internal(&mut self, color: Rgba) {
+        self.color.set_color(color);
+        self.is_color_updated = true;
+    }
+
+    fn is_color_updated(&self) -> bool {
+        self.is_color_updated
+    }
+
     fn scale_size(&mut self, factor: f64) {
         self.line_width *= factor;
         self.dash_pattern.scale_size(factor);
@@ -260,6 +283,7 @@ impl utils::Drawable for Line {
                       self.dash_pattern.offset());
         cr.set_line_cap(self.dash_pattern.line_cap());
         let mut prev_coord = coord::Coord::new();
+        let line_color = self.color.as_rgba();
         match self.line_style {
             LineStyle::Plain => {
                 for data_point in self.data_points.iter() {
@@ -276,8 +300,8 @@ impl utils::Drawable for Line {
                     if !first_point {
                         let curr_coord = canvas_point.coord();
                         let direction = prev_coord.unit_direction_to(&curr_coord);
-                        cr.set_source_rgba(self.color.red as f64, self.color.green as f64,
-                                           self.color.blue as f64, self.color.alpha as f64);
+                        cr.set_source_rgba(line_color.red as f64, line_color.green as f64,
+                                           line_color.blue as f64, line_color.alpha as f64);
                         let line_width = self.line_width * (direction.x().abs() * fig_rel_width + direction.y().abs() * fig_rel_height);
                         cr.set_line_width(line_width);
                         cr.line_to(canvas_point.x_coord(), canvas_point.y_coord());
@@ -313,8 +337,8 @@ impl utils::Drawable for Line {
                         // no original point attached to it, therefore we do not draw it.
                         canvas_point.draw(cr, fig_rel_height, fig_rel_width);
                     } else {
-                        cr.set_source_rgba(self.color.red as f64, self.color.green as f64,
-                                           self.color.blue as f64, self.color.alpha as f64);
+                        cr.set_source_rgba(line_color.red as f64, line_color.green as f64,
+                                           line_color.blue as f64, line_color.alpha as f64);
                         cr.set_line_width(self.line_width);
                         cr.line_to(canvas_point.x_coord(), canvas_point.y_coord());
                         cr.stroke();
@@ -324,8 +348,8 @@ impl utils::Drawable for Line {
                     if !first_point {
                         canvas_point.set_x_coord(canvas_x);
 
-                        cr.set_source_rgba(self.color.red as f64, self.color.green as f64,
-                                           self.color.blue as f64, self.color.alpha as f64);
+                        cr.set_source_rgba(line_color.red as f64, line_color.green as f64,
+                                           line_color.blue as f64, line_color.alpha as f64);
                         cr.set_line_width(self.line_width);
                         cr.line_to(canvas_point.x_coord(), canvas_point.y_coord());
                         cr.stroke();
@@ -363,8 +387,8 @@ impl utils::Drawable for Line {
                         // no original point attached to it, therefore we do not draw it.
                         canvas_point.draw(cr, fig_rel_height, fig_rel_width);
                     } else {
-                        cr.set_source_rgba(self.color.red as f64, self.color.green as f64,
-                                           self.color.blue as f64, self.color.alpha as f64);
+                        cr.set_source_rgba(line_color.red as f64, line_color.green as f64,
+                                           line_color.blue as f64, line_color.alpha as f64);
                         cr.set_line_width(self.line_width);
                         cr.line_to(canvas_point.x_coord(), canvas_point.y_coord());
                         cr.stroke();
@@ -374,8 +398,8 @@ impl utils::Drawable for Line {
                     if !first_point {
                         canvas_point.set_y_coord(canvas_y);
 
-                        cr.set_source_rgba(self.color.red as f64, self.color.green as f64,
-                                           self.color.blue as f64, self.color.alpha as f64);
+                        cr.set_source_rgba(line_color.red as f64, line_color.green as f64,
+                                           line_color.blue as f64, line_color.alpha as f64);
                         cr.set_line_width(self.line_width);
                         cr.line_to(canvas_point.x_coord(), canvas_point.y_coord());
                         cr.stroke();

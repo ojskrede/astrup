@@ -4,11 +4,10 @@
 
 use std::fs::File;
 use failure::{Error, err_msg};
-use palette::Rgba;
 
 use cairo::{Context, Format, ImageSurface, Matrix, MatrixTrait};
 
-use ::{plot, shape};
+use ::{plot, shape, color};
 
 #[derive(Clone)]
 pub struct Figure {
@@ -17,7 +16,7 @@ pub struct Figure {
     window_title: String,
     height: usize,
     width: usize,
-    color: Rgba,
+    color: color::Color,
     local_frame: shape::Rectangle,
 }
 
@@ -31,7 +30,7 @@ impl Figure {
             window_title: String::from("Astrup"),
             height: 800,
             width: 1000,
-            color: Rgba::new(1.0, 1.0, 1.0, 0.0),
+            color: color::Color::new_rgba(1.0, 1.0, 1.0, 0.0),
             local_frame: local_frame,
         }
     }
@@ -56,35 +55,41 @@ impl Figure {
         self
     }
 
-    pub fn set_color(mut self, color: Rgba) -> Self {
-        self.color = color;
+    /// Set the figure background color using the default, built in colors
+    pub fn set_color(mut self, color_name: &str) -> Self {
+        self.color.set_color_default(color_name);
         self
     }
 
     /// Set the figure background color
     pub fn set_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
-        let red = red.max(0.0);
-        let red = red.min(1.0);
-        let green = green.max(0.0);
-        let green = green.min(1.0);
-        let blue = blue.max(0.0);
-        let blue = blue.min(1.0);
-        self.color = Rgba::new(red, green, blue, 1.0);
+        self.color.set_color_rgb(red, green, blue);
         self
     }
 
     /// Set the figure background color
     pub fn set_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
-        let red = red.max(0.0);
-        let red = red.min(1.0);
-        let green = green.max(0.0);
-        let green = green.min(1.0);
-        let blue = blue.max(0.0);
-        let blue = blue.min(1.0);
-        let alpha = alpha.max(0.0);
-        let alpha = alpha.min(1.0);
-        self.color = Rgba::new(red, green, blue, alpha);
+        self.color.set_color_rgba(red, green, blue, alpha);
         self
+    }
+
+    /// Set the figure background color
+    pub fn set_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
+        self.color.set_color_rgb_u8(red, green, blue);
+        self
+    }
+
+    /// Set the figure background color
+    pub fn set_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
+        self.color.set_color_rgba_u8(red, green, blue, alpha);
+        self
+    }
+
+    /// Set the figure background color from name. See the [palette
+    /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
+    pub fn set_color_str(mut self, color_name: &str) -> Result<Self, Error> {
+        self.color.set_color_str(color_name)?;
+        Ok(self)
     }
 
     pub fn title(&self) -> String {
@@ -109,10 +114,41 @@ impl Figure {
         self
     }
 
-    /// Set the color of the border around the figure
-    pub fn set_border_color(mut self, color: Rgba) -> Self {
-        self.local_frame.set_color(color);
+    /// Set the border color using the default, built in colors
+    pub fn set_border_color(mut self, color_name: &str) -> Self {
+        self.local_frame.set_color(color_name);
         self
+    }
+
+    /// Set the border color
+    pub fn set_border_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
+        self.local_frame.set_color_rgb(red, green, blue);
+        self
+    }
+
+    /// Set the border color
+    pub fn set_border_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
+        self.local_frame.set_color_rgba(red, green, blue, alpha);
+        self
+    }
+
+    /// Set the border color
+    pub fn set_border_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
+        self.local_frame.set_color_rgb_u8(red, green, blue);
+        self
+    }
+
+    /// Set the border color
+    pub fn set_border_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
+        self.local_frame.set_color_rgba_u8(red, green, blue, alpha);
+        self
+    }
+
+    /// Set the border color from name. See the [palette
+    /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
+    pub fn set_border_color_str(mut self, color_name: &str) -> Result<Self, Error> {
+        self.local_frame.set_color_str(color_name)?;
+        Ok(self)
     }
 
     /// Set the line width of the border around the figure
@@ -183,8 +219,9 @@ impl Figure {
         let relative_height = self.height() as f64 / self.height().max(self.width()) as f64;
         let relative_width = self.width() as f64 / self.height().max(self.width()) as f64;
 
-        cr.set_source_rgba(self.color.red as f64, self.color.green as f64, self.color.blue as f64,
-                           self.color.alpha as f64);
+        let color_srgb = self.color.as_srgb();
+        cr.set_source_rgba(color_srgb.red as f64, color_srgb.green as f64,
+                           color_srgb.blue as f64, color_srgb.alpha as f64);
         cr.paint();
 
         // By default, the origin is in the top left corner, x is increasing to the right, and y is

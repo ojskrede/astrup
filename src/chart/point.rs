@@ -4,11 +4,12 @@
 //!
 
 use std::f64::consts::PI;
+use failure::Error;
 
 use cairo::Context;
 use palette::Rgba;
 
-use ::{utils, shape, coord};
+use ::{utils, shape, coord, color};
 
 #[derive(Clone, Debug)]
 pub enum Shape {
@@ -22,7 +23,8 @@ pub enum Shape {
 #[derive(Clone, Debug)]
 pub struct Point {
     coord: coord::Coord,
-    color: Rgba,
+    color: color::Color,
+    is_color_updated: bool,
     size: f64,
     shape: Shape,
 }
@@ -31,7 +33,8 @@ impl Point {
     pub fn new(x_coord: f64, y_coord: f64) -> Point {
         Point {
             coord: coord::Coord::new_from(x_coord, y_coord),
-            color: Rgba::new(0.5, 0.2, 0.1, 0.9),
+            color: color::Color::new_default("blue"),
+            is_color_updated: false,
             size: 0.003,
             shape: Shape::Circle,
         }
@@ -50,33 +53,42 @@ impl Point {
         self.coord.set_y(val);
     }
 
-    /// Set the color of the point
-    pub fn set_color(&mut self, color: Rgba) {
-        self.color = color;
+    /// Set the point color using the default, built in colors
+    pub fn set_color(&mut self, color_name: &str) {
+        self.color.set_color_default(color_name);
+        self.is_color_updated = true;
     }
 
-    /// Set the color of the point
+    /// Set the point color
     pub fn set_color_rgb(&mut self, red: f32, green: f32, blue: f32) {
-        let red = red.max(0.0);
-        let red = red.min(1.0);
-        let green = green.max(0.0);
-        let green = green.min(1.0);
-        let blue = blue.max(0.0);
-        let blue = blue.min(1.0);
-        self.color = Rgba::new(red, green, blue, 1.0);
+        self.color.set_color_rgb(red, green, blue);
+        self.is_color_updated = true;
     }
 
-    /// Set the plot background color. **Note**: This is different from the canvas background color.
+    /// Set the point color
     pub fn set_color_rgba(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
-        let red = red.max(0.0);
-        let red = red.min(1.0);
-        let green = green.max(0.0);
-        let green = green.min(1.0);
-        let blue = blue.max(0.0);
-        let blue = blue.min(1.0);
-        let alpha = alpha.max(0.0);
-        let alpha = alpha.min(1.0);
-        self.color = Rgba::new(red, green, blue, alpha);
+        self.color.set_color_rgba(red, green, blue, alpha);
+        self.is_color_updated = true;
+    }
+
+    /// Set the point color
+    pub fn set_color_rgb_u8(&mut self, red: u8, green: u8, blue: u8) {
+        self.color.set_color_rgb_u8(red, green, blue);
+        self.is_color_updated = true;
+    }
+
+    /// Set the point color
+    pub fn set_color_rgba_u8(&mut self, red: u8, green: u8, blue: u8, alpha: u8) {
+        self.color.set_color_rgba_u8(red, green, blue, alpha);
+        self.is_color_updated = true;
+    }
+
+    /// Set the point color from name. See the [palette
+    /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
+    pub fn set_color_str(&mut self, color_name: &str) -> Result<(), Error> {
+        self.color.set_color_str(color_name)?;
+        self.is_color_updated = true;
+        Ok(())
     }
 
     pub fn set_shape(&mut self, shape: Shape) {
@@ -111,6 +123,15 @@ impl Point {
 }
 
 impl utils::Drawable for Point {
+    fn set_color_internal(&mut self, color: Rgba) {
+        self.color.set_color(color);
+        self.is_color_updated = true;
+    }
+
+    fn is_color_updated(&self) -> bool {
+        self.is_color_updated
+    }
+
     fn scale_size(&mut self, factor: f64) {
         self.size *= factor;
     }
@@ -120,8 +141,9 @@ impl utils::Drawable for Point {
     }
 
     fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
-        cr.set_source_rgba(self.color.red as f64, self.color.green as f64,
-                           self.color.blue as f64, self.color.alpha as f64);
+        let point_color = self.color.as_rgba();
+        cr.set_source_rgba(point_color.red as f64, point_color.green as f64,
+                           point_color.blue as f64, point_color.alpha as f64);
         match self.shape {
             // TODO: Scale size of circle and square
             Shape::Circle => cr.arc(self.coord.x(), self.coord.y(), self.size, 0., 2.0*PI),

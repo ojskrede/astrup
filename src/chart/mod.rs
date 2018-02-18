@@ -5,6 +5,7 @@ pub mod line;
 pub mod point;
 
 use cairo::Context;
+use palette::Rgba;
 
 use ::{utils, shape, chart};
 
@@ -30,6 +31,20 @@ impl Chart {
 */
 
 impl utils::Drawable for Chart {
+    fn set_color_internal(&mut self, color: Rgba) {
+        match *self {
+            Chart::Scatter(ref mut s) => s.set_color_internal(color),
+            Chart::Line(ref mut l) => l.set_color_internal(color),
+        }
+    }
+
+    fn is_color_updated(&self) -> bool {
+        match *self {
+            Chart::Scatter(ref s) => s.is_color_updated(),
+            Chart::Line(ref l) => l.is_color_updated(),
+        }
+    }
+
     fn scale_size(&mut self, factor: f64) {
         match *self {
             Chart::Scatter(ref mut s) => s.scale_size(factor),

@@ -10,6 +10,7 @@ repository = "https://github.com/ojskrede/astrup"
 num = "0.1"
 chrono = "0.4"
 failure = "0.1"
+#palette = { version = "0.2", features = ["named_from_string"] }
 palette = "0.2"
 time = "0.1"
 ndarray = "0.11"

@@ -1,10 +1,11 @@
 //! Definition of the Mark, Tick, and GridLine structs.
 //!
 
+use failure::Error;
 use cairo::{Context, LineCap};
 use palette::Rgba;
 
-use ::{shape, coord, label};
+use ::{shape, coord, label, color};
 
 /// Mark
 ///
@@ -80,8 +81,29 @@ impl Mark {
         self.label.set_centroid(x_coord, y_coord);
     }
 
-    pub fn set_tick_color(&mut self, color: Rgba) {
-        self.tick.set_color(color);
+    pub fn set_tick_color(&mut self, color_name: &str) {
+        self.tick.set_color(color_name);
+    }
+
+    pub fn set_tick_color_rgb(&mut self, red: f32, green: f32, blue: f32) {
+        self.tick.set_color_rgb(red, green, blue);
+    }
+
+    pub fn set_tick_color_rgba(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
+        self.tick.set_color_rgba(red, green, blue, alpha);
+    }
+
+    pub fn set_tick_color_rgb_u8(&mut self, red: u8, green: u8, blue: u8) {
+        self.tick.set_color_rgb_u8(red, green, blue);
+    }
+
+    pub fn set_tick_color_rgba_u8(&mut self, red: u8, green: u8, blue: u8, alpha: u8) {
+        self.tick.set_color_rgba_u8(red, green, blue, alpha);
+    }
+
+    pub fn set_tick_color_str(&mut self, color_name: &str) -> Result<(), Error> {
+        self.tick.set_color_str(color_name)?;
+        Ok(())
     }
 
     pub fn set_tick_width(&mut self, val: f64) {
@@ -197,7 +219,7 @@ impl Mark {
 /// both sides of the mark it is associated with.
 #[derive(Clone, Debug)]
 pub struct Tick {
-    color: Rgba,
+    color: color::Color,
     width: f64,
     positive_length: f64, // Length from root mark in the direction of increasing x and/or y
     negative_length: f64, // Length from root mark in the direction of decreasing x and/or y
@@ -208,7 +230,7 @@ impl Tick {
     /// Create and return a new Tick
     pub fn new() -> Tick {
         Tick {
-            color: Rgba::new(0.0, 0.0, 0.0, 1.0),
+            color: color::Color::new(),
             width: 0.0025,
             positive_length: 0.005,
             negative_length: 0.005,
@@ -242,38 +264,34 @@ impl Tick {
         self.direction = direction.clone()
     }
 
-    /// Set the tick color
-    pub fn set_color(&mut self, color: Rgba) {
-        self.color = color;
+    pub fn set_color(&mut self, color_name: &str) {
+        self.color.set_color_default(color_name);
     }
 
-    /// Set the tick color
     pub fn set_color_rgb(&mut self, red: f32, green: f32, blue: f32) {
-        let red = red.max(0.0);
-        let red = red.min(1.0);
-        let green = green.max(0.0);
-        let green = green.min(1.0);
-        let blue = blue.max(0.0);
-        let blue = blue.min(1.0);
-        self.color = Rgba::new(red, green, blue, 1.0);
+        self.color.set_color_rgb(red, green, blue);
     }
 
-    /// Set the tick color
     pub fn set_color_rgba(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
-        let red = red.max(0.0);
-        let red = red.min(1.0);
-        let green = green.max(0.0);
-        let green = green.min(1.0);
-        let blue = blue.max(0.0);
-        let blue = blue.min(1.0);
-        let alpha = alpha.max(0.0);
-        let alpha = alpha.min(1.0);
-        self.color = Rgba::new(red, green, blue, alpha);
+        self.color.set_color_rgba(red, green, blue, alpha);
+    }
+
+    pub fn set_color_rgb_u8(&mut self, red: u8, green: u8, blue: u8) {
+        self.color.set_color_rgb_u8(red, green, blue);
+    }
+
+    pub fn set_color_rgba_u8(&mut self, red: u8, green: u8, blue: u8, alpha: u8) {
+        self.color.set_color_rgba_u8(red, green, blue, alpha);
+    }
+
+    pub fn set_color_str(&mut self, color_name: &str) -> Result<(), Error> {
+        self.color.set_color_str(color_name)?;
+        Ok(())
     }
 
     /// Return the tick color
     pub fn color(&self) -> Rgba {
-        self.color
+        self.color.as_rgba()
     }
 
     /// Return the tick direction
@@ -312,8 +330,9 @@ impl Tick {
     pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64, x_root: f64, y_root: f64) {
         cr.move_to(x_root, y_root);
         cr.set_line_cap(LineCap::Square);
-        cr.set_source_rgba(self.color.red as f64, self.color.green as f64,
-                           self.color.blue as f64, self.color.alpha as f64);
+        let tick_color = self.color.as_rgba();
+        cr.set_source_rgba(tick_color.red as f64, tick_color.green as f64,
+                           tick_color.blue as f64, tick_color.alpha as f64);
 
         // Perpendicular on the tick direction
         let width = self.width * (self.direction.y().abs() * fig_rel_height +
@@ -346,7 +365,7 @@ pub struct GridLine {
     global_end: coord::Coord,
     direction: coord::Coord,
     width: f64,
-    color: Rgba,
+    color: color::Color,
 }
 
 impl GridLine {
@@ -357,7 +376,7 @@ impl GridLine {
             global_end: coord::Coord::new(),
             direction: coord::Coord::new(),
             width: 0.001,
-            color: Rgba::new(1.0, 1.0, 1.0, 1.0),
+            color: color::Color::new_default("white"),
         }
     }
 
@@ -368,7 +387,7 @@ impl GridLine {
             global_end: end.clone(),
             direction: start.unit_direction_to(&end),
             width: 0.001,
-            color: Rgba::new(1.0, 1.0, 1.0, 1.0),
+            color: color::Color::new_default("white"),
         }
     }
 
@@ -377,33 +396,29 @@ impl GridLine {
         self.width = width;
     }
 
-    /// Set the color of a gridline
-    pub fn set_color(&mut self, color: Rgba) {
-        self.color = color;
+    pub fn set_color(&mut self, color_name: &str) {
+        self.color.set_color_default(color_name);
     }
 
-    /// Set the color of a gridline
     pub fn set_color_rgb(&mut self, red: f32, green: f32, blue: f32) {
-        let red = red.max(0.0);
-        let red = red.min(1.0);
-        let green = green.max(0.0);
-        let green = green.min(1.0);
-        let blue = blue.max(0.0);
-        let blue = blue.min(1.0);
-        self.color = Rgba::new(red, green, blue, 1.0);
+        self.color.set_color_rgb(red, green, blue);
     }
 
-    /// Set the color of a gridline
     pub fn set_color_rgba(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
-        let red = red.max(0.0);
-        let red = red.min(1.0);
-        let green = green.max(0.0);
-        let green = green.min(1.0);
-        let blue = blue.max(0.0);
-        let blue = blue.min(1.0);
-        let alpha = alpha.max(0.0);
-        let alpha = alpha.min(1.0);
-        self.color = Rgba::new(red, green, blue, alpha);
+        self.color.set_color_rgba(red, green, blue, alpha);
+    }
+
+    pub fn set_color_rgb_u8(&mut self, red: u8, green: u8, blue: u8) {
+        self.color.set_color_rgb_u8(red, green, blue);
+    }
+
+    pub fn set_color_rgba_u8(&mut self, red: u8, green: u8, blue: u8, alpha: u8) {
+        self.color.set_color_rgba_u8(red, green, blue, alpha);
+    }
+
+    pub fn set_color_str(&mut self, color_name: &str) -> Result<(), Error> {
+        self.color.set_color_str(color_name)?;
+        Ok(())
     }
 
     /// Scale the width of a gridline
@@ -413,8 +428,9 @@ impl GridLine {
 
     /// Draw the gridline
     pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
-        cr.set_source_rgba(self.color.red as f64, self.color.green as f64, self.color.blue as f64,
-                           self.color.alpha as f64);
+        let line_color = self.color.as_rgba();
+        cr.set_source_rgba(line_color.red as f64, line_color.green as f64, line_color.blue as f64,
+                           line_color.alpha as f64);
 
         let width = self.width * (self.direction.x().abs() * fig_rel_width +
                                   self.direction.y().abs() * fig_rel_height);

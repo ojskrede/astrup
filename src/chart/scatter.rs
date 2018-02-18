@@ -3,11 +3,13 @@
 //! Module that defines the Scatter struct
 //!
 
+use failure::Error;
 use cairo::Context;
 use ndarray::AsArray;
 use palette::Rgba;
 
-use ::{utils, chart, shape};
+use ::{utils, chart, shape, color};
+use utils::Drawable;
 
 /// Scatter chart
 ///
@@ -18,7 +20,8 @@ pub struct Scatter {
     data_points: Vec<chart::point::Point>,
     global_frame: shape::Rectangle,
     data_frame: shape::Rectangle,
-    color: Rgba,
+    color: color::Color,
+    is_color_updated: bool,
     shape: chart::point::Shape,
     point_size: f64,
 }
@@ -33,13 +36,13 @@ impl Scatter {
         let ref y_data_min = y_view.iter().min().expect("Could not find y min");
         let ref y_data_max = y_view.iter().max().expect("Could not find y max");
 
-        let color = Rgba::new(0.1, 0.1, 0.8, 0.9);
+        let point_color = color::Color::new_default("blue");
         let shape = chart::point::Shape::Circle;
         let point_size = 0.008;
         let mut data_points = Vec::<chart::point::Point>::new();
         for (ref x, ref y) in x_view.iter().zip(y_view.iter()) {
             let mut point = chart::point::Point::new(x.val(), y.val());
-            point.set_color(color);
+            point.set_color_internal(point_color.as_rgba());
             point.set_shape(shape.clone());
             point.set_size(point_size);
             data_points.push(chart::point::Point::new(x.val(), y.val()));
@@ -49,42 +52,54 @@ impl Scatter {
             global_frame: shape::Rectangle::new(),
             data_frame: shape::Rectangle::new_from(x_data_min.val(), x_data_max.val(),
                                                    y_data_min.val(), y_data_max.val()),
-            color: color,
+            color: point_color,
+            is_color_updated: false,
             shape: shape,
             point_size: point_size,
         }
     }
 
-    /// Set the scatter point color
-    pub fn set_color(mut self, color: Rgba) -> Self {
-        self.color = color;
+    /// Set the point color using the default, built in colors
+    pub fn set_color(mut self, color_name: &str) -> Self {
+        self.color.set_color_default(color_name);
+        self.is_color_updated = true;
         self
     }
 
-    /// Set the scatter point color
+    /// Set the point color
     pub fn set_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
-        let red = red.max(0.0);
-        let red = red.min(1.0);
-        let green = green.max(0.0);
-        let green = green.min(1.0);
-        let blue = blue.max(0.0);
-        let blue = blue.min(1.0);
-        self.color = Rgba::new(red, green, blue, 1.0);
+        self.color.set_color_rgb(red, green, blue);
+        self.is_color_updated = true;
         self
     }
 
-    /// Set the scatter point color
+    /// Set the point color
     pub fn set_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
-        let red = red.max(0.0);
-        let red = red.min(1.0);
-        let green = green.max(0.0);
-        let green = green.min(1.0);
-        let blue = blue.max(0.0);
-        let blue = blue.min(1.0);
-        let alpha = alpha.max(0.0);
-        let alpha = alpha.min(1.0);
-        self.color = Rgba::new(red, green, blue, alpha);
+        self.color.set_color_rgba(red, green, blue, alpha);
+        self.is_color_updated = true;
         self
+    }
+
+    /// Set the point color
+    pub fn set_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
+        self.color.set_color_rgb_u8(red, green, blue);
+        self.is_color_updated = true;
+        self
+    }
+
+    /// Set the point color
+    pub fn set_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
+        self.color.set_color_rgba_u8(red, green, blue, alpha);
+        self.is_color_updated = true;
+        self
+    }
+
+    /// Set the point color from name. See the [palette
+    /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
+    pub fn set_color_str(mut self, color_name: &str) -> Result<Self, Error> {
+        self.color.set_color_str(color_name)?;
+        self.is_color_updated = true;
+        Ok(self)
     }
 
     /// Set the scatter point size
@@ -116,6 +131,15 @@ impl Scatter {
 }
 
 impl utils::Drawable for Scatter {
+    fn set_color_internal(&mut self, color: Rgba) {
+        self.color.set_color(color);
+        self.is_color_updated = true;
+    }
+
+    fn is_color_updated(&self) -> bool {
+        self.is_color_updated
+    }
+
     fn scale_size(&mut self, factor: f64) {
         self.point_size *= factor;
     }
@@ -125,7 +149,7 @@ impl utils::Drawable for Scatter {
         self.data_frame = canvas_data_frame.clone();
 
         for data_point in self.data_points.iter_mut() {
-            data_point.set_color(self.color);
+            data_point.set_color_internal(self.color.as_rgba());
             data_point.set_shape(self.shape.clone());
             data_point.set_size(self.point_size);
             data_point.fit(canvas_global_frame, canvas_data_frame);

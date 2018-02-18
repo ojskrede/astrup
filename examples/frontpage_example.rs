@@ -27,7 +27,7 @@ fn main() {
 
     // Plot lines
     let line1 = Line::new(&x_data, &y_data1).set_stroke_style("dotted");
-    let line2 = Line::new(&x_data, &y_data2).set_color_rgba(0.9, 0.2, 0.2, 0.9);
+    let line2 = Line::new(&x_data, &y_data2);
 
     // Add lines to a plot
     let line_plot = Plot::new().add(&Chart::Line(line1))
@@ -50,13 +50,14 @@ fn main() {
     let y_data: Vec<f64> = (0..1000)
                            .map(|_| normal_0_2.ind_sample(&mut seeded_rng) as f64)
                            .collect();
-    let scatter = Scatter::new(&x_data, &y_data).set_color_rgba(0.1, 0.8, 0.3, 0.9)
+    let scatter = Scatter::new(&x_data, &y_data).set_color("green")
                                                 .set_point_size(0.003);
 
     // Add scatter points to a new plot
     let scatter_plot = Plot::new().set_local_frame(0.3, 1.0, 0.0, 0.49)
                                   .set_x_label("x")
                                   .set_y_label("y")
+                                  .set_y_label_angle(0.0)
                                   .add(&Chart::Scatter(scatter));
 
     // Add the plots to a figure, and save it
@@ -65,8 +66,8 @@ fn main() {
                            .set_width(1000)
                            .set_height(800)
                            .set_border_thickness(0.001)
-                           .save("assets/frontpage_example.png").expect("Could not save frontpage_example.png")
-                           .save("target/doc/astrup/frontpage_example.png").expect("Could not save doc frontpage_example.png");
+                           .save("target/doc/astrup/frontpage_example.png").expect("Could not save doc frontpage_example.png")
+                           .save("assets/frontpage_example.png").expect("Could not save frontpage_example.png");
 
     // Display the result on screen
     View::new_from(fig).expect("Could not add figure to view")
