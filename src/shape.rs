@@ -1,10 +1,10 @@
 //! Definition of geometrical shapes
 //!
 
-use failure::Error;
 use cairo::Context;
+use palette::Srgba;
 
-use ::{color, coord};
+use ::{color};
 
 /// ## Rectangle
 ///
@@ -153,6 +153,7 @@ impl Rectangle {
     }
 
     /// Return the line width of the border
+    #[allow(dead_code)]
     pub fn border_thickness(&self) -> f64 {
         self.border_thickness
     }
@@ -163,34 +164,8 @@ impl Rectangle {
     }
 
     /// Set border color
-    pub fn set_color(&mut self, color_name: &str) {
-        self.color.set_color_default(color_name);
-    }
-
-    /// Set border color
-    pub fn set_color_rgb(&mut self, red: f32, green: f32, blue: f32) {
-        self.color.set_color_rgb(red, green, blue);
-    }
-
-    /// Set border color
-    pub fn set_color_rgba(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
-        self.color.set_color_rgba(red, green, blue, alpha);
-    }
-
-    /// Set border color
-    pub fn set_color_rgb_u8(&mut self, red: u8, green: u8, blue: u8) {
-        self.color.set_color_rgb_u8(red, green, blue);
-    }
-
-    /// Set border color
-    pub fn set_color_rgba_u8(&mut self, red: u8, green: u8, blue: u8, alpha: u8) {
-        self.color.set_color_rgba_u8(red, green, blue, alpha);
-    }
-
-    /// Set border color
-    pub fn set_color_str(&mut self, color_name: &str) -> Result<(), Error> {
-        self.color.set_color_str(color_name)?;
-        Ok(())
+    pub fn set_color_internal(&mut self, color: Srgba) {
+        self.color.set_color(color);
     }
 
     /// Set the line width of the frame border
@@ -265,30 +240,6 @@ impl Rectangle {
             //cr.rectangle(self.left(), self.bottom(), self.width(), self.height());
             cr.stroke();
             cr.move_to(self.left, self.bottom); // Needed because of close_path() (See cairo-rs docs)
-        }
-    }
-}
-
-/// ## Quadrilateral
-///
-/// A quadrilateral defined by its vertices
-#[derive(Clone, Debug)]
-pub struct Quadrilateral {
-    vertex_a: coord::Coord,
-    vertex_b: coord::Coord,
-    vertex_c: coord::Coord,
-    vertex_d: coord::Coord,
-    centroid: coord::Coord,
-}
-
-impl Quadrilateral {
-    pub fn new() -> Quadrilateral {
-        Quadrilateral {
-            vertex_a: coord::Coord::new_from(0.0, 0.0),
-            vertex_b: coord::Coord::new_from(1.0, 0.0),
-            vertex_c: coord::Coord::new_from(1.0, 1.0),
-            vertex_d: coord::Coord::new_from(0.0, 1.0),
-            centroid: coord::Coord::new_from(0.5, 0.5),
         }
     }
 }

@@ -5,6 +5,7 @@ use std::f64;
 use failure::Error;
 
 use cairo::Context;
+use palette::Srgba;
 
 use ::{axis, mark, chart, shape, coord, label, color};
 use utils::{Drawable, Plottable};
@@ -62,42 +63,23 @@ impl Canvas {
         }
     }
 
-    /// Set the canvas background color using the default, built in colors
-    pub fn set_color(&mut self, color_name: &str) {
-        self.color.set_color_default(color_name);
-    }
-
-    /// Set the canvas background color
-    pub fn set_color_rgb(&mut self, red: f32, green: f32, blue: f32) {
-        self.color.set_color_rgb(red, green, blue);
-    }
-
-    /// Set the canvas background color
-    pub fn set_color_rgba(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
-        self.color.set_color_rgba(red, green, blue, alpha);
-    }
-
-    /// Set the canvas background color
-    pub fn set_color_rgb_u8(&mut self, red: u8, green: u8, blue: u8) {
-        self.color.set_color_rgb_u8(red, green, blue);
-    }
-
-    /// Set the canvas background color
-    pub fn set_color_rgba_u8(&mut self, red: u8, green: u8, blue: u8, alpha: u8) {
-        self.color.set_color_rgba_u8(red, green, blue, alpha);
-    }
-
-    /// Set the canvas background color from name. See the [palette
-    /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
-    pub fn set_color_str(&mut self, color_name: &str) -> Result<(), Error> {
-        self.color.set_color_str(color_name)?;
-        Ok(())
-    }
+    // ----------------- FRAME --------------------------------------------- //
 
     /// Set local frame coordinates.
-    pub fn set_local_frame(&mut self, frame: shape::Rectangle) {
-        self.local_frame = frame;
+    pub fn set_local_frame(&mut self, left: f64, right: f64, bottom: f64, top: f64) {
+        self.local_frame.set(left, right, bottom, top);
     }
+
+    // TODO: local frame appearance and possibility to draw it.
+
+    // ----------------- BACKGROUND COLOR ---------------------------------- //
+
+    /// Set the canvas background color using the default, built in colors
+    pub fn set_color_internal(&mut self, color: Srgba) {
+        self.color.set_color(color);
+    }
+
+    // ----------------- DATA RANGE ---------------------------------------- //
 
     /// Set data range.
     ///
@@ -167,14 +149,37 @@ impl Canvas {
         self.user_data_frame.set_top(y_max);
     }
 
+    // ----------------- AXES APPEARANCE ----------------------------------- //
+
+    /// Whether or not to display axes
+    pub fn display_axes(&mut self, val: bool) {
+        self.display_axes = val;
+    }
+
+    /// Set the color of all axes on the canvas
+    pub fn set_axes_color_internal(&mut self, color: Srgba) {
+        for axis in self.axes.iter_mut() {
+            axis.set_color_internal(color);
+        }
+    }
+
+    pub fn set_axes_line_width(&mut self, val: f64) {
+        for axis in self.axes.iter_mut() {
+            axis.set_line_width(val);
+        }
+    }
+
+    pub fn set_axes_label_font_size(&mut self, val: f64) {
+        for axis in self.axes.iter_mut() {
+            axis.set_label_font_size(val);
+        }
+    }
+
+    // ----------------- AXIS LABELS --------------------------------------- //
+
     /// Set the label content of the default horisontal axis
     pub fn set_default_x_axis_label_content(&mut self, content: &str) {
         self.default_x_axis_label.set_content(content);
-    }
-
-    /// Set the label content of the default vertical axis
-    pub fn set_default_y_axis_label_content(&mut self, content: &str) {
-        self.default_y_axis_label.set_content(content);
     }
 
     /// Set the label content of the default horisontal axis
@@ -182,15 +187,70 @@ impl Canvas {
         self.default_x_axis_label.set_angle(val);
     }
 
+    /// Set the center location of the label on the default horisontal axis
+    pub fn set_default_x_axis_label_centroid(&mut self, x_coord: f64, y_coord: f64) {
+        self.default_x_axis_label.set_centroid(x_coord, y_coord);
+    }
+
+    /// Set the frame gaps around the label of the default horisontal axis
+    pub fn set_default_x_axis_label_frame_gaps(&mut self, left: f64, right: f64, bottom: f64, top: f64) {
+        self.default_x_axis_label.set_frame_gaps(left, right, bottom, top);
+    }
+
+    /// Set the axis label color
+    pub fn set_default_x_axis_label_color_internal(&mut self, color: Srgba) {
+        self.default_x_axis_label.set_color_internal(color);
+    }
+
+    /// Set the label content of the default vertical axis
+    pub fn set_default_y_axis_label_content(&mut self, content: &str) {
+        self.default_y_axis_label.set_content(content);
+    }
+
     /// Set the label content of the default vertical axis
     pub fn set_default_y_axis_label_angle(&mut self, val: f64) {
         self.default_y_axis_label.set_angle(val);
     }
 
-    /// Whether or not to display axes
-    pub fn display_axes(&mut self, val: bool) {
-        self.display_axes = val;
+    /// Set the center location of the label on the default vertical axis
+    pub fn set_default_y_axis_label_centroid(&mut self, x_coord: f64, y_coord: f64) {
+        self.default_y_axis_label.set_centroid(x_coord, y_coord);
     }
+
+    /// Set the frame gaps around the label of the default vertical axis
+    pub fn set_default_y_axis_label_frame_gaps(&mut self, left: f64, right: f64, bottom: f64, top: f64) {
+        self.default_y_axis_label.set_frame_gaps(left, right, bottom, top);
+    }
+
+    /// Set the axis label color
+    pub fn set_default_y_axis_label_color_internal(&mut self, color: Srgba) {
+        self.default_y_axis_label.set_color_internal(color);
+    }
+
+    // ----------------- TICKS --------------------------------------------- //
+
+    /// Set tick color
+    pub fn set_tick_color_internal(&mut self, color: Srgba) {
+        for axis in self.axes.iter_mut() {
+            axis.set_tick_color_internal(color);
+        }
+    }
+
+    /// Set tick label color
+    pub fn set_tick_label_color_internal(&mut self, color: Srgba) {
+        for axis in self.axes.iter_mut() {
+            axis.set_tick_label_color_internal(color);
+        }
+    }
+
+    /// Set the tick font size
+    pub fn set_tick_label_font_size(&mut self, val: f64) {
+        for axis in self.axes.iter_mut() {
+            axis.set_tick_label_font_size(val);
+        }
+    }
+
+    // ----------------- GRID ---------------------------------------------- //
 
     /// Whether or not to display grid
     pub fn display_grid(&mut self, val: bool) {
@@ -202,35 +262,30 @@ impl Canvas {
         self.grid_width = val;
     }
 
-    pub fn set_grid_color(&mut self, color_name: &str) {
-        self.grid_color.set_color_default(color_name);
+    pub fn set_grid_color_internal(&mut self, color: Srgba) {
+        self.grid_color.set_color(color);
     }
 
-    pub fn set_grid_color_rgb(&mut self, red: f32, green: f32, blue: f32) {
-        self.grid_color.set_color_rgb(red, green, blue);
-    }
+    // ----------------- GENERAL INTERNAL ---------------------------------- //
 
-    pub fn set_grid_color_rgba(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
-        self.grid_color.set_color_rgba(red, green, blue, alpha);
-    }
-
-    pub fn set_grid_color_rgb_u8(&mut self, red: u8, green: u8, blue: u8) {
-        self.grid_color.set_color_rgb_u8(red, green, blue);
-    }
-
-    pub fn set_grid_color_rgba_u8(&mut self, red: u8, green: u8, blue: u8, alpha: u8) {
-        self.grid_color.set_color_rgba_u8(red, green, blue, alpha);
-    }
-
-    pub fn set_grid_color_str(&mut self, color_name: &str) -> Result<(), Error> {
-        self.grid_color.set_color_str(color_name)?;
-        Ok(())
-    }
-
-    /// Add an additional axis to the canvas
-    pub fn add_axis(&mut self, axis: axis::Axis) {
-        self.axes.push(axis);
-    }
+    // /// Add an additional axis to the canvas
+    // #[allow(dead_code)]
+    // pub fn add_axis(&mut self, axis: axis::Axis) {
+    //     In order to create an axis, one have to specify a start and end point of the axis. This
+    //     start and end point should be in data coordinates, and the axis should be fitted with
+    //     the rest.
+    //
+    //     To be consistent, the default x and y axis should be fitted in the same way. This means
+    //     that they sould be decoupled from the data range determination in set_default_axes()
+    //     It should suffice to use marks in this funciton. set_default_axes() could be substituted
+    //     with something like set_default_marks().
+    //
+    //     Given a known data_frame and local_frame, it should be possible to add new axis with
+    //     let axis = Axis::new(start_x, start_y, end_x, end_y); and fit this to the existing
+    //     canvas.
+    //
+    //     self.axes.push(axis);
+    // }
 
     /// Add an additional chart to the canvas
     pub fn add_chart(&mut self, chart: chart::Chart) {
@@ -243,19 +298,17 @@ impl Canvas {
         //let scale_factor = self.global_frame.height().min(self.global_frame.width());
         let grid_color = self.grid_color.as_srgba();
         for coord in ver_axis.mark_coords() {
-            let mut gridline = mark::GridLine::new_from(coord.clone(),
-                                                        coord::Coord::new_from(self.global_frame.right(), coord.y()));
-            gridline.set_color_rgba(grid_color.red, grid_color.green, grid_color.blue,
-                                    grid_color.alpha);
+            let mut gridline = mark::GridLine::new_from(coord.x(), coord.y(),
+                                                        self.global_frame.right(), coord.y());
+            gridline.set_color_internal(grid_color);
             gridline.set_width(self.grid_width);
             gridline.scale_size(scale_factor);
             self.grid.push(gridline);
         }
         for coord in hor_axis.mark_coords() {
-            let mut gridline = mark::GridLine::new_from(coord.clone(),
-                                                        coord::Coord::new_from(coord.x(), self.global_frame.top()));
-            gridline.set_color_rgba(grid_color.red, grid_color.green, grid_color.blue,
-                                    grid_color.alpha);
+            let mut gridline = mark::GridLine::new_from(coord.x(), coord.y(),
+                                                        coord.x(), self.global_frame.top());
+            gridline.set_color_internal(grid_color);
             gridline.set_width(self.grid_width);
             gridline.scale_size(scale_factor);
             self.grid.push(gridline);
@@ -316,11 +369,11 @@ impl Canvas {
     /// data_frame of this canvas. The reason for this is that the data frame changes with these
     /// axes, because of nice tick labeling.
     ///
-    /// There is really no reason for these to be axis, but we need to compute the marks in order
+    /// There is really no reason for these to be axes, but we need to compute the marks in order
     /// to determine the data_frame of the canvas. In the future, there might be a more elegant
     /// solution to this.
     ///
-    /// In the meantime, the possibility to not draw the axes have to suffice.
+    /// In the meantime, the possibility to not display the axes will have to suffice.
     fn set_default_axes(&mut self, data_frame: shape::Rectangle) -> Result<(axis::Axis, axis::Axis), Error> {
         let mut hor_axis = axis::Axis::new_from(coord::Coord::new_from(0.0, 0.0), coord::Coord::new_from(1.0, 0.0));
         hor_axis.set_data_range(data_frame.left(), data_frame.right());

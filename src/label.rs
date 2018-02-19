@@ -1,6 +1,7 @@
 //! Definition of the Label struct
 //!
 
+use palette::Srgba;
 use cairo::{Context, Matrix, MatrixTrait};
 
 use ::{shape, text, coord};
@@ -62,6 +63,7 @@ impl Label {
         }
     }
 
+    #[allow(dead_code)] // TODO: When axis becomes public
     pub fn new_from_content(content: &str) -> Label {
         Label {
             text: text::Text::new_from(content),
@@ -98,6 +100,10 @@ impl Label {
         self.text.set_font_size(val);
     }
 
+    pub fn set_color_internal(&mut self, color: Srgba) {
+        self.text.set_color_internal(color);
+    }
+
     pub fn set_angle(&mut self, angle: f64) {
         self.angle = angle
     }
@@ -113,22 +119,27 @@ impl Label {
         self.rel_top_gap = top;
     }
 
+    #[allow(dead_code)] // TODO: Issue #13
     pub fn set_border_thickness(&mut self, val: f64) {
         self.border_thickness = val;
     }
 
+    #[allow(dead_code)] // TODO: Issue #13
     pub fn rel_left_gap(&self) -> f64 {
         self.rel_left_gap
     }
 
+    #[allow(dead_code)] // TODO: Issue #13
     pub fn rel_right_gap(&self) -> f64 {
         self.rel_right_gap
     }
 
+    #[allow(dead_code)] // TODO: Issue #13
     pub fn rel_bottom_gap(&self) -> f64 {
         self.rel_bottom_gap
     }
 
+    #[allow(dead_code)] // TODO: Issue #13
     pub fn rel_top_gap(&self) -> f64 {
         self.rel_top_gap
     }

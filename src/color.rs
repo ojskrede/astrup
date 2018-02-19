@@ -129,7 +129,7 @@ impl Color {
         }
     }
 
-    pub fn new_str(&mut self, color_name: &str) -> Result<Color, Error> {
+    pub fn new_str(color_name: &str) -> Result<Color, Error> {
         let color_srgb = named::from_str(color_name).ok_or(err_msg("Unknown color name"))?;
         Ok(Color {
             color: Srgba::from_pixel(&color_srgb).into(),

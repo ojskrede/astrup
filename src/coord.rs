@@ -56,6 +56,7 @@ impl Coord {
     }
 
     /// Return the distance between this coordinate and the origin
+    #[allow(dead_code)]
     pub fn len(&self) -> f64 {
         (self.x * self.x + self.y * self.y).sqrt()
     }
@@ -70,6 +71,7 @@ impl Coord {
 
     /// Returns a coordinate that is in the middle between self and other, and shifted a distance
     /// to the left of the line going from self to other.
+    #[allow(dead_code)]
     pub fn perp_bisector(&self, other: &Coord, scale_factor: f64) -> Coord {
         let dx = other.x() - self.x();
         let dy = other.y() - self.y();

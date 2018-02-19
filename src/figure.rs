@@ -117,38 +117,44 @@ impl Figure {
 
     /// Set the border color using the default, built in colors
     pub fn set_border_color(mut self, color_name: &str) -> Self {
-        self.local_frame.set_color(color_name);
+        let color = color::Color::new_default(color_name);
+        self.local_frame.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the border color
     pub fn set_border_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
-        self.local_frame.set_color_rgb(red, green, blue);
+        let color = color::Color::new_rgb(red, green, blue);
+        self.local_frame.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the border color
     pub fn set_border_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
-        self.local_frame.set_color_rgba(red, green, blue, alpha);
+        let color = color::Color::new_rgba(red, green, blue, alpha);
+        self.local_frame.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the border color
     pub fn set_border_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
-        self.local_frame.set_color_rgb_u8(red, green, blue);
+        let color = color::Color::new_rgb_u8(red, green, blue);
+        self.local_frame.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the border color
     pub fn set_border_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
-        self.local_frame.set_color_rgba_u8(red, green, blue, alpha);
+        let color = color::Color::new_rgba_u8(red, green, blue, alpha);
+        self.local_frame.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the border color from name. See the [palette
     /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
     pub fn set_border_color_str(mut self, color_name: &str) -> Result<Self, Error> {
-        self.local_frame.set_color_str(color_name)?;
+        let color = color::Color::new_str(color_name)?;
+        self.local_frame.set_color_internal(color.as_srgba());
         Ok(self)
     }
 

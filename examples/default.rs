@@ -11,6 +11,7 @@ use astrup::{View, Figure, Plot, Chart, Line};
 
 /// Create curves on the form *an - a* where *a* is the unit circle. The parameter t_vec is assumed
 /// to hold values in [0, 1].
+#[allow(dead_code)]
 fn unit_circles(n: f64) -> (Vec<f64>, Vec<f64>) {
     let num_elements = 1000;
     let t_vec: Vec<f64> = (0..num_elements).map(|t| t as f64 / num_elements as f64).collect();
@@ -20,6 +21,7 @@ fn unit_circles(n: f64) -> (Vec<f64>, Vec<f64>) {
 }
 
 /// Partial sums of Fourier series of a sawtooth-function
+#[allow(dead_code)]
 fn fourier_series(num_terms: f64) -> (Vec<f64>, Vec<f64>) {
     let num_elements = 1000;
     let x_vec: Vec<f64> = (0..num_elements).map(|x| -2.0 * PI + 4.0 * PI * x as f64 / num_elements as f64).collect();

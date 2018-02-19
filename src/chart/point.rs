@@ -4,7 +4,6 @@
 //!
 
 use std::f64::consts::PI;
-use failure::Error;
 
 use cairo::Context;
 use palette::Srgba;
@@ -40,6 +39,7 @@ impl Point {
         }
     }
 
+    #[allow(dead_code)]
     pub fn set_coord(&mut self, x_val: f64, y_val: f64) {
         self.coord.set_x(x_val);
         self.coord.set_y(y_val);
@@ -51,44 +51,6 @@ impl Point {
 
     pub fn set_y_coord(&mut self, val: f64) {
         self.coord.set_y(val);
-    }
-
-    /// Set the point color using the default, built in colors
-    pub fn set_color(&mut self, color_name: &str) {
-        self.color.set_color_default(color_name);
-        self.is_color_updated = true;
-    }
-
-    /// Set the point color
-    pub fn set_color_rgb(&mut self, red: f32, green: f32, blue: f32) {
-        self.color.set_color_rgb(red, green, blue);
-        self.is_color_updated = true;
-    }
-
-    /// Set the point color
-    pub fn set_color_rgba(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
-        self.color.set_color_rgba(red, green, blue, alpha);
-        self.is_color_updated = true;
-    }
-
-    /// Set the point color
-    pub fn set_color_rgb_u8(&mut self, red: u8, green: u8, blue: u8) {
-        self.color.set_color_rgb_u8(red, green, blue);
-        self.is_color_updated = true;
-    }
-
-    /// Set the point color
-    pub fn set_color_rgba_u8(&mut self, red: u8, green: u8, blue: u8, alpha: u8) {
-        self.color.set_color_rgba_u8(red, green, blue, alpha);
-        self.is_color_updated = true;
-    }
-
-    /// Set the point color from name. See the [palette
-    /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
-    pub fn set_color_str(&mut self, color_name: &str) -> Result<(), Error> {
-        self.color.set_color_str(color_name)?;
-        self.is_color_updated = true;
-        Ok(())
     }
 
     pub fn set_shape(&mut self, shape: Shape) {
@@ -111,6 +73,7 @@ impl Point {
         self.coord.y()
     }
 
+    #[allow(dead_code)]
     pub fn map_range(&mut self, old_frame: &shape::Rectangle, new_frame: &shape::Rectangle) {
         let new_x = utils::map_range(self.x_coord(),
                                      old_frame.left(), old_frame.right(),

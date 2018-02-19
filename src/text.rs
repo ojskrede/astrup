@@ -1,7 +1,7 @@
 //! Definition of the Text struct
 //!
 
-use failure::Error;
+use palette::Srgba;
 use cairo::{Context, Matrix, MatrixTrait};
 use cairo::enums::{FontSlant, FontWeight};
 
@@ -28,6 +28,7 @@ impl Text {
     }
 
     /// Create and return a new Text struct
+    #[allow(dead_code)] // TODO: Issue #13
     pub fn new_from(content: &str) -> Text {
         Text {
             content: String::from(content),
@@ -38,11 +39,13 @@ impl Text {
     }
 
     /// Return the content of the text
+    #[allow(dead_code)] // TODO: Issue #13
     pub fn content(&self) -> String {
         self.content.clone()
     }
 
     /// Return the text font size
+    #[allow(dead_code)] // TODO: Issue #13
     pub fn font_size(&self) -> f64 {
         self.font_size
     }
@@ -57,29 +60,9 @@ impl Text {
         self.font_size = size;
     }
 
-    pub fn set_color(&mut self, color_name: &str) {
-        self.color.set_color_default(color_name);
-    }
-
-    pub fn set_color_rgb(&mut self, red: f32, green: f32, blue: f32) {
-        self.color.set_color_rgb(red, green, blue);
-    }
-
-    pub fn set_color_rgba(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
-        self.color.set_color_rgba(red, green, blue, alpha);
-    }
-
-    pub fn set_color_rgb_u8(&mut self, red: u8, green: u8, blue: u8) {
-        self.color.set_color_rgb_u8(red, green, blue);
-    }
-
-    pub fn set_color_rgba_u8(&mut self, red: u8, green: u8, blue: u8, alpha: u8) {
-        self.color.set_color_rgba_u8(red, green, blue, alpha);
-    }
-
-    pub fn set_color_str(&mut self, color_name: &str) -> Result<(), Error> {
-        self.color.set_color_str(color_name)?;
-        Ok(())
+    /// Set text color
+    pub fn set_color_internal(&mut self, color: Srgba) {
+        self.color.set_color(color);
     }
 
     /// Scale the font size and of the text

@@ -34,11 +34,81 @@ impl Plot {
         }
     }
 
+    // ----------------- PLOT TITLE ---------------------------------------- //
+
     /// Set plot title
     pub fn set_title(mut self, title: &str) -> Self {
         self.title.set_content(title);
         self
     }
+
+    pub fn set_title_font_size(mut self, val: f64) -> Self {
+        self.title.set_font_size(val);
+        self
+    }
+
+    pub fn set_title_angle(mut self, val: f64) -> Self {
+        self.title.set_angle(val);
+        self
+    }
+
+    pub fn set_title_centroid(mut self, x_coord: f64, y_coord: f64) -> Self {
+        self.title.set_centroid(x_coord, y_coord);
+        self
+    }
+
+    /// Set gaps around plot title.
+    ///
+    /// NOTE: This has currently no visible effect
+    pub fn set_title_frame_gaps(mut self, left: f64, right: f64, bottom: f64, top: f64) -> Self {
+        self.title.set_frame_gaps(left, right, bottom, top);
+        self
+    }
+
+    /// Set the title color using the default, built in colors
+    pub fn set_title_color(mut self, color_name: &str) -> Self {
+        let color = color::Color::new_default(color_name);
+        self.title.set_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the title color
+    pub fn set_title_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
+        let color = color::Color::new_rgb(red, green, blue);
+        self.title.set_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the title color
+    pub fn set_title_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
+        let color = color::Color::new_rgba(red, green, blue, alpha);
+        self.title.set_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the title color
+    pub fn set_title_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
+        let color = color::Color::new_rgb_u8(red, green, blue);
+        self.title.set_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the title color
+    pub fn set_title_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
+        let color = color::Color::new_rgba_u8(red, green, blue, alpha);
+        self.title.set_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the title color from name. See the [palette
+    /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
+    pub fn set_title_color_str(mut self, color_name: &str) -> Result<Self, Error> {
+        let color = color::Color::new_str(color_name)?;
+        self.title.set_color_internal(color.as_srgba());
+        Ok(self)
+    }
+
+    // ----------------- PLOT APPEARANCE ----------------------------------- //
 
     /// Set the background color using the default, built in colors
     pub fn set_color(mut self, color_name: &str) -> Self {
@@ -77,6 +147,8 @@ impl Plot {
         Ok(self)
     }
 
+    // ----------------- PLOT FRAME ---------------------------------------- //
+
     /// Set local plot coordinates, relative to the figure it belongs to.
     ///
     /// A value of 0.0 is the minimum figure coordinate, and a value of 1.0 is the maximum figure
@@ -85,6 +157,63 @@ impl Plot {
         self.local_frame.set(left, right, bottom, top);
         self
     }
+
+    /// Whether or not to display a border around the plot
+    pub fn display_border(mut self, val: bool) -> Self {
+        self.local_frame.display_border(val);
+        self
+    }
+
+    /// Set the border color using the default, built in colors
+    pub fn set_border_color(mut self, color_name: &str) -> Self {
+        let color = color::Color::new_default(color_name);
+        self.local_frame.set_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the border color
+    pub fn set_border_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
+        let color = color::Color::new_rgb(red, green, blue);
+        self.local_frame.set_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the border color
+    pub fn set_border_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
+        let color = color::Color::new_rgba(red, green, blue, alpha);
+        self.local_frame.set_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the border color
+    pub fn set_border_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
+        let color = color::Color::new_rgb_u8(red, green, blue);
+        self.local_frame.set_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the border color
+    pub fn set_border_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
+        let color = color::Color::new_rgba_u8(red, green, blue, alpha);
+        self.local_frame.set_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the border color from name. See the [palette
+    /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
+    pub fn set_border_color_str(mut self, color_name: &str) -> Result<Self, Error> {
+        let color = color::Color::new_str(color_name)?;
+        self.local_frame.set_color_internal(color.as_srgba());
+        Ok(self)
+    }
+
+    /// Set the line width of the border around the plot
+    pub fn set_border_thickness(mut self, val: f64) -> Self {
+        self.local_frame.set_border_thickness(val);
+        self
+    }
+
+    // ----------------- DATA RANGE ---------------------------------------- //
 
     /// Set the data range of the plot
     ///
@@ -156,64 +285,125 @@ impl Plot {
         self
     }
 
-    /// Whether or not to display a border around the plot
-    pub fn display_border(mut self, val: bool) -> Self {
-        self.local_frame.display_border(val);
+    // ----------------- CANVAS -------------------------------------------- //
+
+    /// Set local frame coordinates of the canvas (relative to its plot).
+    pub fn set_canvas_local_frame(mut self, left: f64, right: f64, bottom: f64, top: f64) -> Self {
+        self.canvas.set_local_frame(left, right, bottom, top);
         self
     }
 
-    /// Set the border color using the default, built in colors
-    pub fn set_border_color(mut self, color_name: &str) -> Self {
-        self.local_frame.set_color(color_name);
+    /// Set the canvas background color using the default, built in colors
+    pub fn set_canvas_color(mut self, color_name: &str) -> Self {
+        let color = color::Color::new_default(color_name);
+        self.canvas.set_color_internal(color.as_srgba());
         self
     }
 
-    /// Set the border color
-    pub fn set_border_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
-        self.local_frame.set_color_rgb(red, green, blue);
+    /// Set the canvas background color
+    pub fn set_canvas_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
+        let color = color::Color::new_rgb(red, green, blue);
+        self.canvas.set_color_internal(color.as_srgba());
         self
     }
 
-    /// Set the border color
-    pub fn set_border_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
-        self.local_frame.set_color_rgba(red, green, blue, alpha);
+    /// Set the canvas background color
+    pub fn set_canvas_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
+        let color = color::Color::new_rgba(red, green, blue, alpha);
+        self.canvas.set_color_internal(color.as_srgba());
         self
     }
 
-    /// Set the border color
-    pub fn set_border_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
-        self.local_frame.set_color_rgb_u8(red, green, blue);
+    /// Set the canvas background color
+    pub fn set_canvas_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
+        let color = color::Color::new_rgb_u8(red, green, blue);
+        self.canvas.set_color_internal(color.as_srgba());
         self
     }
 
-    /// Set the border color
-    pub fn set_border_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
-        self.local_frame.set_color_rgba_u8(red, green, blue, alpha);
+    /// Set the canvas background color
+    pub fn set_canvas_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
+        let color = color::Color::new_rgba_u8(red, green, blue, alpha);
+        self.canvas.set_color_internal(color.as_srgba());
         self
     }
 
-    /// Set the border color from name. See the [palette
+    /// Set the canvas background color from name. See the [palette
     /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
-    pub fn set_border_color_str(mut self, color_name: &str) -> Result<Self, Error> {
-        self.local_frame.set_color_str(color_name)?;
+    pub fn set_canvas_color_str(mut self, color_name: &str) -> Result<Self, Error> {
+        let color = color::Color::new_str(color_name)?;
+        self.canvas.set_color_internal(color.as_srgba());
         Ok(self)
     }
 
-    /// Set the line width of the border around the plot
-    pub fn set_border_thickness(mut self, val: f64) -> Self {
-        self.local_frame.set_border_thickness(val);
+    // ----------------- AXES ---------------------------------------------- //
+
+    /// Whether or not to display axes
+    pub fn display_axes(mut self, val: bool) -> Self {
+        self.canvas.display_axes(val);
         self
     }
+
+    /// Set the line width of all axes
+    pub fn set_axes_line_width(mut self, val: f64) -> Self {
+        self.canvas.set_axes_line_width(val);
+        self
+    }
+
+    /// Set the font size of all axis labels
+    pub fn set_axes_label_font_size(mut self, val: f64) -> Self {
+        self.canvas.set_axes_label_font_size(val);
+        self
+    }
+
+    /// Set the axes color using the default, built in colors
+    pub fn set_axes_color(mut self, color_name: &str) -> Self {
+        let color = color::Color::new_default(color_name);
+        self.canvas.set_axes_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the axes color
+    pub fn set_axes_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
+        let color = color::Color::new_rgb(red, green, blue);
+        self.canvas.set_axes_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the axes color
+    pub fn set_axes_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
+        let color = color::Color::new_rgba(red, green, blue, alpha);
+        self.canvas.set_axes_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the axes color
+    pub fn set_axes_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
+        let color = color::Color::new_rgb_u8(red, green, blue);
+        self.canvas.set_axes_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the axes color
+    pub fn set_axes_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
+        let color = color::Color::new_rgba_u8(red, green, blue, alpha);
+        self.canvas.set_axes_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the axes color from name. See the [palette
+    /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
+    pub fn set_axes_color_str(mut self, color_name: &str) -> Result<Self, Error> {
+        let color = color::Color::new_str(color_name)?;
+        self.canvas.set_axes_color_internal(color.as_srgba());
+        Ok(self)
+    }
+
+    // ----------------- DEFAULT HORISONTAL AXIS --------------------------- //
 
     /// Set the label content on the default horisontal axis
     pub fn set_x_label(mut self, content: &str) -> Self {
         self.canvas.set_default_x_axis_label_content(content);
-        self
-    }
-
-    /// Set the label content on the default vertical axis
-    pub fn set_y_label(mut self, content: &str) -> Self {
-        self.canvas.set_default_y_axis_label_content(content);
         self
     }
 
@@ -223,11 +413,275 @@ impl Plot {
         self
     }
 
+    /// Set the center location of the label on the default horisontal axis
+    pub fn set_x_label_centroid(mut self, x_coord: f64, y_coord: f64) -> Self {
+        self.canvas.set_default_x_axis_label_centroid(x_coord, y_coord);
+        self
+    }
+
+    /// Set the frame gaps around the label of the default horisontal axis
+    pub fn set_x_label_frame_gaps(mut self, left: f64, right: f64, bottom: f64, top: f64) -> Self {
+        self.canvas.set_default_x_axis_label_frame_gaps(left, right, bottom, top);
+        self
+    }
+
+    /// Set the x label color using the default, built in colors
+    pub fn set_x_label_color(mut self, color_name: &str) -> Self {
+        let color = color::Color::new_default(color_name);
+        self.canvas.set_default_x_axis_label_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the x label color
+    pub fn set_x_label_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
+        let color = color::Color::new_rgb(red, green, blue);
+        self.canvas.set_default_x_axis_label_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the x label color
+    pub fn set_x_label_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
+        let color = color::Color::new_rgba(red, green, blue, alpha);
+        self.canvas.set_default_x_axis_label_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the x label color
+    pub fn set_x_label_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
+        let color = color::Color::new_rgb_u8(red, green, blue);
+        self.canvas.set_default_x_axis_label_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the x label color
+    pub fn set_x_label_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
+        let color = color::Color::new_rgba_u8(red, green, blue, alpha);
+        self.canvas.set_default_x_axis_label_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the x label color from name. See the [palette
+    /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
+    pub fn set_x_label_color_str(mut self, color_name: &str) -> Result<Self, Error> {
+        let color = color::Color::new_str(color_name)?;
+        self.canvas.set_default_x_axis_label_color_internal(color.as_srgba());
+        Ok(self)
+    }
+
+    // ----------------- DEFAULT VERTICAL AXIS ----------------------------- //
+
+    /// Set the label content on the default vertical axis
+    pub fn set_y_label(mut self, content: &str) -> Self {
+        self.canvas.set_default_y_axis_label_content(content);
+        self
+    }
+
     /// Set the angle of the label on the default vertical axis
     pub fn set_y_label_angle(mut self, val: f64) -> Self {
         self.canvas.set_default_y_axis_label_angle(val);
         self
     }
+
+    /// Set the center location of the label on the default vertical axis
+    pub fn set_y_label_centroid(mut self, x_coord: f64, y_coord: f64) -> Self {
+        self.canvas.set_default_y_axis_label_centroid(x_coord, y_coord);
+        self
+    }
+
+    /// Set the frame gaps around the label of the default vertical axis
+    pub fn set_y_label_frame_gaps(mut self, left: f64, right: f64, bottom: f64, top: f64) -> Self {
+        self.canvas.set_default_y_axis_label_frame_gaps(left, right, bottom, top);
+        self
+    }
+
+    /// Set the y label color using the default, built in colors
+    pub fn set_y_label_color(mut self, color_name: &str) -> Self {
+        let color = color::Color::new_default(color_name);
+        self.canvas.set_default_y_axis_label_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the y label color
+    pub fn set_y_label_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
+        let color = color::Color::new_rgb(red, green, blue);
+        self.canvas.set_default_y_axis_label_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the y label color
+    pub fn set_y_label_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
+        let color = color::Color::new_rgba(red, green, blue, alpha);
+        self.canvas.set_default_y_axis_label_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the y label color
+    pub fn set_y_label_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
+        let color = color::Color::new_rgb_u8(red, green, blue);
+        self.canvas.set_default_y_axis_label_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the y label color
+    pub fn set_y_label_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
+        let color = color::Color::new_rgba_u8(red, green, blue, alpha);
+        self.canvas.set_default_y_axis_label_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the y label color from name. See the [palette
+    /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
+    pub fn set_y_label_color_str(mut self, color_name: &str) -> Result<Self, Error> {
+        let color = color::Color::new_str(color_name)?;
+        self.canvas.set_default_y_axis_label_color_internal(color.as_srgba());
+        Ok(self)
+    }
+
+    // ----------------- TICKS --------------------------------------------- //
+
+    /// Set the tick color using the default, built in colors
+    pub fn set_tick_color(mut self, color_name: &str) -> Self {
+        let color = color::Color::new_default(color_name);
+        self.canvas.set_tick_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the tick color
+    pub fn set_tick_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
+        let color = color::Color::new_rgb(red, green, blue);
+        self.canvas.set_tick_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the tick color
+    pub fn set_tick_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
+        let color = color::Color::new_rgba(red, green, blue, alpha);
+        self.canvas.set_tick_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the y label color
+    pub fn set_tick_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
+        let color = color::Color::new_rgb_u8(red, green, blue);
+        self.canvas.set_tick_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the tick color
+    pub fn set_tick_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
+        let color = color::Color::new_rgba_u8(red, green, blue, alpha);
+        self.canvas.set_tick_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the tick color from name. See the [palette
+    /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
+    pub fn set_tick_color_str(mut self, color_name: &str) -> Result<Self, Error> {
+        let color = color::Color::new_str(color_name)?;
+        self.canvas.set_tick_color_internal(color.as_srgba());
+        Ok(self)
+    }
+
+    /// Set the tick label color using the default, built in colors
+    pub fn set_tick_label_color(mut self, color_name: &str) -> Self {
+        let color = color::Color::new_default(color_name);
+        self.canvas.set_tick_label_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the tick label color
+    pub fn set_tick_label_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
+        let color = color::Color::new_rgb(red, green, blue);
+        self.canvas.set_tick_label_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the tick label color
+    pub fn set_tick_label_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
+        let color = color::Color::new_rgba(red, green, blue, alpha);
+        self.canvas.set_tick_label_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the tick label color
+    pub fn set_tick_label_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
+        let color = color::Color::new_rgb_u8(red, green, blue);
+        self.canvas.set_tick_label_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the tick label color
+    pub fn set_tick_label_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
+        let color = color::Color::new_rgba_u8(red, green, blue, alpha);
+        self.canvas.set_tick_label_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the tick label color from name. See the [palette
+    /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
+    pub fn set_tick_label_color_str(mut self, color_name: &str) -> Result<Self, Error> {
+        let color = color::Color::new_str(color_name)?;
+        self.canvas.set_tick_label_color_internal(color.as_srgba());
+        Ok(self)
+    }
+
+    /// Set the tick font size
+    pub fn set_tick_label_font_size(mut self, val: f64) -> Self {
+        self.canvas.set_tick_label_font_size(val);
+        self
+    }
+
+    // ----------------- CANVAS GRID --------------------------------------- //
+
+    /// Whether or not to display grid
+    pub fn display_grid(mut self, val: bool) -> Self {
+        self.canvas.display_grid(val);
+        self
+    }
+
+    /// Set the line width of the gridlines
+    pub fn set_gridline_width(mut self, val: f64) -> Self {
+        self.canvas.set_gridline_width(val);
+        self
+    }
+
+    pub fn set_grid_color(mut self, color_name: &str) -> Self {
+        let color = color::Color::new_default(color_name);
+        self.canvas.set_grid_color_internal(color.as_srgba());
+        self
+    }
+
+    pub fn set_grid_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
+        let color = color::Color::new_rgb(red, green, blue);
+        self.canvas.set_grid_color_internal(color.as_srgba());
+        self
+    }
+
+    pub fn set_grid_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
+        let color = color::Color::new_rgba(red, green, blue, alpha);
+        self.canvas.set_grid_color_internal(color.as_srgba());
+        self
+    }
+
+    pub fn set_grid_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
+        let color = color::Color::new_rgb_u8(red, green, blue);
+        self.canvas.set_grid_color_internal(color.as_srgba());
+        self
+    }
+
+    pub fn set_grid_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
+        let color = color::Color::new_rgba_u8(red, green, blue, alpha);
+        self.canvas.set_grid_color_internal(color.as_srgba());
+        self
+    }
+
+    pub fn set_grid_color_str(mut self, color_name: &str) -> Result<Self, Error> {
+        let color = color::Color::new_str(color_name)?;
+        self.canvas.set_grid_color_internal(color.as_srgba());
+        Ok(self)
+    }
+
+    // ----------------- GENERAL ------------------------------------------- //
 
     /// Add a chart to the plot
     pub fn add(mut self, chart: &chart::Chart) -> Self {

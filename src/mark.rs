@@ -1,7 +1,6 @@
 //! Definition of the Mark, Tick, and GridLine structs.
 //!
 
-use failure::Error;
 use cairo::{Context, LineCap};
 use palette::Srgba;
 
@@ -23,6 +22,7 @@ pub struct Mark {
 
 impl Mark {
     /// Create and return a new mark
+    #[allow(dead_code)]
     pub fn new() -> Mark {
         Mark {
             local: coord::Coord::new(),
@@ -45,11 +45,13 @@ impl Mark {
     }
 
     /// Set local mark coordinate
+    #[allow(dead_code)]
     pub fn set_local(&mut self, coord: coord::Coord) {
         self.local = coord;
     }
 
     /// Set global mark coordinate
+    #[allow(dead_code)]
     pub fn set_global(&mut self, coord: coord::Coord) {
         self.global = coord;
     }
@@ -71,6 +73,11 @@ impl Mark {
         self.label.set_font_size(val);
     }
 
+    /// Set the color of the tick label
+    pub fn set_label_color_internal(&mut self, color: Srgba) {
+        self.label.set_color_internal(color);
+    }
+
     /// Set gaps around the label frame
     pub fn set_label_frame_gaps(&mut self, left: f64, right: f64, bottom: f64, top: f64) {
         self.label.set_frame_gaps(left, right, bottom, top);
@@ -81,36 +88,17 @@ impl Mark {
         self.label.set_centroid(x_coord, y_coord);
     }
 
-    pub fn set_tick_color(&mut self, color_name: &str) {
-        self.tick.set_color(color_name);
+    pub fn set_tick_color_internal(&mut self, color: Srgba) {
+        self.tick.set_color_internal(color);
     }
 
-    pub fn set_tick_color_rgb(&mut self, red: f32, green: f32, blue: f32) {
-        self.tick.set_color_rgb(red, green, blue);
-    }
-
-    pub fn set_tick_color_rgba(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
-        self.tick.set_color_rgba(red, green, blue, alpha);
-    }
-
-    pub fn set_tick_color_rgb_u8(&mut self, red: u8, green: u8, blue: u8) {
-        self.tick.set_color_rgb_u8(red, green, blue);
-    }
-
-    pub fn set_tick_color_rgba_u8(&mut self, red: u8, green: u8, blue: u8, alpha: u8) {
-        self.tick.set_color_rgba_u8(red, green, blue, alpha);
-    }
-
-    pub fn set_tick_color_str(&mut self, color_name: &str) -> Result<(), Error> {
-        self.tick.set_color_str(color_name)?;
-        Ok(())
-    }
-
+    #[allow(dead_code)] // TODO: When axis becomes public
     pub fn set_tick_width(&mut self, val: f64) {
         self.tick.set_width(val);
     }
 
     /// Set the length of the tick, in both positive and negative extent
+    #[allow(dead_code)] // TODO: When axis becomes public
     pub fn set_tick_length(&mut self, val: f64) {
         self.tick.set_length(val);
     }
@@ -133,6 +121,7 @@ impl Mark {
     }
 
     /// Return the local coordinate
+    #[allow(dead_code)] // TODO: When axis becomes public
     pub fn local_coord(&self) -> coord::Coord {
         self.local.clone()
     }
@@ -153,16 +142,19 @@ impl Mark {
     }
 
     /// Return the first element of the global coordinate
+    #[allow(dead_code)] // TODO: When axis becomes public
     pub fn global_x(&self) -> f64 {
         self.global.x()
     }
 
     /// Return the second element of the global coordinate
+    #[allow(dead_code)] // TODO: When axis becomes public
     pub fn global_y(&self) -> f64 {
         self.global.y()
     }
 
     /// Return the label
+    #[allow(dead_code)] // TODO: Issue #13
     pub fn label(&self) -> label::Label {
         self.label.clone()
     }
@@ -173,21 +165,25 @@ impl Mark {
     }
 
     /// Return the gap to the left of the label
+    #[allow(dead_code)] // TODO: Issue #13
     pub fn label_left_gap(&self) -> f64 {
         self.label.rel_left_gap()
     }
 
     /// Return the gap to the right of the label
+    #[allow(dead_code)] // TODO: Issue #13
     pub fn label_right_gap(&self) -> f64 {
         self.label.rel_right_gap()
     }
 
     /// Return the gap below the label
+    #[allow(dead_code)] // TODO: Issue #13
     pub fn label_bottom_gap(&self) -> f64 {
         self.label.rel_bottom_gap()
     }
 
     /// Return the gap above the label
+    #[allow(dead_code)] // TODO: Issue #13
     pub fn label_top_gap(&self) -> f64 {
         self.label.rel_top_gap()
     }
@@ -202,6 +198,7 @@ impl Mark {
         self.global = self.local.relative_to(parent_frame);
         self.scale_size(parent_frame.diag_len());
         self.label.fit(parent_frame);
+        self.tick.fit(parent_frame);
     }
 
     /// Draw ticks and labels
@@ -239,11 +236,13 @@ impl Tick {
     }
 
     /// Set the tick width
+    #[allow(dead_code)] // TODO: When axis becomes public
     pub fn set_width(&mut self, val: f64) {
         self.width = val;
     }
 
     /// Set both the positive and negative tick length
+    #[allow(dead_code)] // TODO: When axis becomes public
     pub fn set_length(&mut self, val: f64) {
         self.positive_length = val;
         self.negative_length = val;
@@ -264,52 +263,36 @@ impl Tick {
         self.direction = direction.clone()
     }
 
-    pub fn set_color(&mut self, color_name: &str) {
-        self.color.set_color_default(color_name);
-    }
-
-    pub fn set_color_rgb(&mut self, red: f32, green: f32, blue: f32) {
-        self.color.set_color_rgb(red, green, blue);
-    }
-
-    pub fn set_color_rgba(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
-        self.color.set_color_rgba(red, green, blue, alpha);
-    }
-
-    pub fn set_color_rgb_u8(&mut self, red: u8, green: u8, blue: u8) {
-        self.color.set_color_rgb_u8(red, green, blue);
-    }
-
-    pub fn set_color_rgba_u8(&mut self, red: u8, green: u8, blue: u8, alpha: u8) {
-        self.color.set_color_rgba_u8(red, green, blue, alpha);
-    }
-
-    pub fn set_color_str(&mut self, color_name: &str) -> Result<(), Error> {
-        self.color.set_color_str(color_name)?;
-        Ok(())
+    pub fn set_color_internal(&mut self, color: Srgba) {
+        self.color.set_color(color);
     }
 
     /// Return the tick color
+    #[allow(dead_code)] // TODO: Implement tick coloring
     pub fn color(&self) -> Srgba {
         self.color.as_srgba()
     }
 
     /// Return the tick direction
+    #[allow(dead_code)] // TODO: Why
     pub fn direction(&self) -> coord::Coord {
         self.direction.clone()
     }
 
     /// Return the tick width
+    #[allow(dead_code)] // TODO: Why
     pub fn width(&self) -> f64 {
         self.width
     }
 
     /// Return the positive tick length
+    #[allow(dead_code)] // TODO: Why
     pub fn positive_length(&self) -> f64 {
         self.positive_length
     }
 
     /// Return the negative tick length
+    #[allow(dead_code)] // TODO: Why
     pub fn negative_length(&self) -> f64 {
         self.negative_length
     }
@@ -322,7 +305,7 @@ impl Tick {
     }
 
     /// Fit the tick to a parent mark frame
-    pub fn fit(&mut self, mark_frame: shape::Rectangle) {
+    pub fn fit(&mut self, mark_frame: &shape::Rectangle) {
         self.scale_size(mark_frame.diag_len());
     }
 
@@ -370,6 +353,7 @@ pub struct GridLine {
 
 impl GridLine {
     /// Create and return a new GridLine
+    #[allow(dead_code)]
     pub fn new() -> GridLine {
         GridLine {
             global_start: coord::Coord::new(),
@@ -381,11 +365,13 @@ impl GridLine {
     }
 
     /// Create and return a new GridLine
-    pub fn new_from(start: coord::Coord, end: coord::Coord) -> GridLine {
+    pub fn new_from(x_start: f64, y_start: f64, x_end: f64, y_end: f64) -> GridLine {
+        let start = coord::Coord::new_from(x_start, y_start);
+        let end = coord::Coord::new_from(x_end, y_end);
         GridLine {
-            global_start: start.clone(),
-            global_end: end.clone(),
             direction: start.unit_direction_to(&end),
+            global_start: start,
+            global_end: end,
             width: 0.001,
             color: color::Color::new_default("white"),
         }
@@ -396,29 +382,8 @@ impl GridLine {
         self.width = width;
     }
 
-    pub fn set_color(&mut self, color_name: &str) {
-        self.color.set_color_default(color_name);
-    }
-
-    pub fn set_color_rgb(&mut self, red: f32, green: f32, blue: f32) {
-        self.color.set_color_rgb(red, green, blue);
-    }
-
-    pub fn set_color_rgba(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
-        self.color.set_color_rgba(red, green, blue, alpha);
-    }
-
-    pub fn set_color_rgb_u8(&mut self, red: u8, green: u8, blue: u8) {
-        self.color.set_color_rgb_u8(red, green, blue);
-    }
-
-    pub fn set_color_rgba_u8(&mut self, red: u8, green: u8, blue: u8, alpha: u8) {
-        self.color.set_color_rgba_u8(red, green, blue, alpha);
-    }
-
-    pub fn set_color_str(&mut self, color_name: &str) -> Result<(), Error> {
-        self.color.set_color_str(color_name)?;
-        Ok(())
+    pub fn set_color_internal(&mut self, color: Srgba) {
+        self.color.set_color(color);
     }
 
     /// Scale the width of a gridline

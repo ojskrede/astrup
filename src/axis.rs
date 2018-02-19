@@ -3,6 +3,7 @@
 
 use std::f64;
 use failure::{Error, err_msg};
+use palette::Srgba;
 
 use cairo::{Context};
 
@@ -27,6 +28,7 @@ pub struct Axis {
 }
 
 impl Axis {
+    #[allow(dead_code)]
     pub fn new() -> Axis {
         Axis {
             local_start: coord::Coord::new(),
@@ -59,47 +61,33 @@ impl Axis {
         }
     }
 
-    pub fn set_color(&mut self, color_name: &str) {
-        self.color.set_color_default(color_name);
-    }
+    // ----------------- APPEARANCE ---------------------------------------- //
 
-    pub fn set_color_rgb(&mut self, red: f32, green: f32, blue: f32) {
-        self.color.set_color_rgb(red, green, blue);
-    }
-
-    pub fn set_color_rgba(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
-        self.color.set_color_rgba(red, green, blue, alpha);
-    }
-
-    pub fn set_color_rgb_u8(&mut self, red: u8, green: u8, blue: u8) {
-        self.color.set_color_rgb_u8(red, green, blue);
-    }
-
-    pub fn set_color_rgba_u8(&mut self, red: u8, green: u8, blue: u8, alpha: u8) {
-        self.color.set_color_rgba_u8(red, green, blue, alpha);
-    }
-
-    pub fn set_color_str(&mut self, color_name: &str) -> Result<(), Error> {
-        self.color.set_color_str(color_name)?;
-        Ok(())
+    pub fn set_color_internal(&mut self, color: Srgba) {
+        self.color.set_color(color);
     }
 
     pub fn set_line_width(&mut self, val: f64) {
         self.line_width = val;
     }
 
+    // ----------------- LABELS -------------------------------------------- //
+
     pub fn set_label(&mut self, label: &label::Label) {
         self.label = label.clone();
     }
 
+    #[allow(dead_code)] // TODO: When axis becomes public
     pub fn set_label_content(&mut self, content: &str) {
         self.label.set_content(content);
     }
 
+    #[allow(dead_code)] // TODO: When axis becomes public
     pub fn set_label_angle(&mut self, angle: f64) {
         self.label.set_angle(angle);
     }
 
+    #[allow(dead_code)] // TODO: When axis becomes public
     pub fn set_label_centroid(&mut self, x_coord: f64, y_coord: f64) {
         self.label.set_centroid(x_coord, y_coord)
     }
@@ -108,6 +96,15 @@ impl Axis {
         self.label.set_font_size(val);
     }
 
+    /// Set the gaps around the axis label. See the Label struct for reference.
+    #[allow(dead_code)] // TODO: When axis becomes public
+    pub fn set_label_frame_gaps(&mut self, left: f64, right: f64, bottom: f64, top: f64) {
+        self.label.set_frame_gaps(left, right, bottom, top);
+    }
+
+    // ----------------- TICKS --------------------------------------------- //
+
+    #[allow(dead_code)] // TODO: When axis becomes public
     pub fn set_num_ticks(&mut self, val: usize) {
         self.ca_num_marks = val;
     }
@@ -124,9 +121,21 @@ impl Axis {
         }
     }
 
+    pub fn set_tick_color_internal(&mut self, color: Srgba) {
+        for mark in self.marks.iter_mut() {
+            mark.set_tick_color_internal(color);
+        }
+    }
+
     pub fn set_tick_label_font_size(&mut self, val: f64) {
         for mark in self.marks.iter_mut() {
             mark.set_font_size(val);
+        }
+    }
+
+    pub fn set_tick_label_color_internal(&mut self, color: Srgba) {
+        for mark in self.marks.iter_mut() {
+            mark.set_label_color_internal(color);
         }
     }
 
@@ -144,14 +153,10 @@ impl Axis {
         }
     }
 
+    // ----------------- DATA RANGE ---------------------------------------- //
+
     pub fn set_data_range(&mut self, data_min: f64, data_max: f64) {
         self.data_range = [data_min, data_max];
-    }
-
-    /// Set the gaps around the tick label, for all tick labels on this axis. See the Label struct
-    /// for reference.
-    pub fn set_label_frame_gaps(&mut self, left: f64, right: f64, bottom: f64, top: f64) {
-        self.label.set_frame_gaps(left, right, bottom, top);
     }
 
     pub fn data_min(&self) -> f64 {
@@ -162,6 +167,10 @@ impl Axis {
         self.data_range[1]
     }
 
+    // ----------------- GENERAL INTERNAL ---------------------------------- //
+
+    /// Return the coordinates of the marks of this axis. Coordinates are relative to the global
+    /// figure frame.
     pub fn mark_coords(&self) -> Vec<coord::Coord> {
         let mut coords = Vec::<coord::Coord>::new();
         for mark in self.marks.iter() {

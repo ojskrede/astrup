@@ -203,6 +203,7 @@ impl<T: Num + PartialOrd> DataContainer<T> for Array3<T> {
 /// of order of magnitude `omagn`.
 ///
 /// Examples:
+#[allow(dead_code)]
 pub fn round_up(number: f64, omagn: i32, nearest: f64) -> f64 {
     let nearest_pow = nearest * 10.0_f64.powi(omagn);
     number - number % nearest_pow + nearest_pow
