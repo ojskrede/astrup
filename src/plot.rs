@@ -9,11 +9,9 @@ use cairo::Context;
 use ::{canvas, chart, shape, label, color};
 
 
-/// ## Plot
-///
 /// Determines a single plot. A plot is part of a figure, and contains a canvas where things are
-/// drawn. By default, there is some space around the canvas, to make space for labels, ticks, and
-/// tick labels.
+/// drawn. By default, there is some space around the canvas, to make space for labels, ticks,
+/// tick labels and plot title.
 #[derive(Clone, Debug)]
 pub struct Plot {
     title: label::Label,

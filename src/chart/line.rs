@@ -98,16 +98,11 @@ impl DashPattern {
     }
 }
 
-/// Line struct
+/// Line chart
 ///
 /// With this chart, one is able to display data using lines. Straight lines are drawn between
 /// coordinates, determined by the input data points. You can e.g. alter the line color, the dash
 /// pattern, and the stroke style.
-///
-/// **Note** The input can be any data container that implements the AsArray trait (e.g. a Vec, or
-/// ndarray Array), but the contained data must be f64. Ideally, this should be any integer or
-/// float, but I have not been able to implement a generic over them also. This is perhaps
-/// connected to things like higher kinded types and the like, which I think will come soon.
 #[derive(Clone, Debug)]
 pub struct Line {
     data_points: Vec<chart::point::Point>,

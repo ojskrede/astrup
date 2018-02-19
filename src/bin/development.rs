@@ -8,13 +8,7 @@ use std::f64::consts::PI;
 
 use ndarray::Array;
 
-use astrup::view::View;
-use astrup::figure::Figure;
-use astrup::plot::Plot;
-use astrup::chart::Chart;
-use astrup::chart::line::Line;
-
-
+use astrup::{View, Figure, Plot, Chart, Line};
 
 fn main() {
 

@@ -4,14 +4,9 @@
 extern crate astrup;
 
 use std::f64::consts::PI;
-//use num_traits::float::Float;
+//use num_traits::float::Float; FIXME
 
-use astrup::view::View;
-use astrup::figure::Figure;
-use astrup::plot::Plot;
-use astrup::chart::Chart;
-use astrup::chart::scatter::Scatter;
-use astrup::chart::line::Line;
+use astrup::{View, Figure, Plot, Chart, Line};
 
 /// Create curves on the form *an - a* where *a* is the unit circle. The parameter t_vec is assumed
 /// to hold values in [0, 1].

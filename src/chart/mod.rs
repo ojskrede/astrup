@@ -1,7 +1,10 @@
 //! Definition of the Chart enum
 
-pub mod scatter;
-pub mod line;
+pub use self::scatter::Scatter;
+pub use self::line::Line;
+
+mod scatter;
+mod line;
 mod point;
 
 use cairo::Context;
@@ -9,9 +12,7 @@ use palette::Rgba;
 
 use ::{utils, shape, chart};
 
-/// ## Chart
-///
-/// A chart is a graphical representation of data.
+/// A graphical representation of data.
 #[derive(Clone, Debug)]
 pub enum Chart {
     Scatter(chart::scatter::Scatter),

@@ -11,12 +11,7 @@ use ndarray::Array;
 use rand::distributions::{IndependentSample, Normal};
 use rand::{StdRng, SeedableRng};
 
-use astrup::view::View;
-use astrup::figure::Figure;
-use astrup::plot::Plot;
-use astrup::chart::Chart;
-use astrup::chart::scatter::Scatter;
-use astrup::chart::line::Line;
+use astrup::{View, Figure, Plot, Chart, Scatter, Line};
 
 fn main() {
 

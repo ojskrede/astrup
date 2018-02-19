@@ -9,6 +9,7 @@ use cairo::{Context, Format, ImageSurface, Matrix, MatrixTrait};
 
 use ::{plot, shape, color};
 
+/// A Figure holds plots, and can be viewed on screen or saved as a png image.
 #[derive(Clone)]
 pub struct Figure {
     plots: Vec<plot::Plot>,

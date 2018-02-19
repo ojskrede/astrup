@@ -1,5 +1,3 @@
-//! # Astrup
-//!
 //! A rust plotting library using [gtk-rs](https://github.com/gtk-rs/gtk) as a backend. This is
 //! *still* very much a small hobby project.
 //!
@@ -24,12 +22,8 @@
 //! use rand::distributions::{IndependentSample, Normal};
 //! use rand::{StdRng, SeedableRng};
 //!
-//! use astrup::view::View;
-//! use astrup::figure::Figure;
-//! use astrup::plot::Plot;
-//! use astrup::chart::Chart;
-//! use astrup::chart::scatter::Scatter;
-//! use astrup::chart::line::Line;
+//! use astrup::{View, Figure, Plot, Chart, Scatter, Line};
+//!
 //!
 //! fn main() {
 //!
@@ -90,7 +84,7 @@
 //!
 //! ![Plot](frontpage_example.png)
 //!
-//! ## Gloals:
+//! ## Goals:
 //! - Input `Vec` and `ndarray` containers and slices
 //! - It should be intuitive to build plots, but not as ``easy as possible''. It will probably be
 //! quite verbose and explicit.
@@ -172,18 +166,19 @@
 //! internally by the library to determine the data range of an axis, but can be visualised through
 //! ticks and/or gridlines. Normally, one just want *< 10* marks on an axis (to reduce visual
 //! noise), and also, it is common to let the marks be placed at data points *n х {1, 2, 5} х 10^p*
-//! for some integer $n$ and integer power $p$.
+//! for some integer *n* and integer power *p*.
 //!
-//! ```text,no_run
-//! Example:
+//! **Example**:
 //!
 //! Data range in [-5.2345, 8.41234], gives something like the following default marks
 //!
+//! ```text,no_run
 //!     |--------|--------|--------|--------|--------|--------|--------|--------|-->
 //!   -6.0     -4.0     -2.0      0.0      2.0      4.0      6.0      8.0     10.0
 //! ```
 //!
-//! Note that it is possible to set min and max data ranges, but they will (currently) be
+//! **Note**
+//! It is possible to set min and max data ranges, but they will (currently) be
 //! considered as ``soft suggestions'', as the above aestetic rules will overrule the exact
 //! suggestion.
 //!
@@ -204,13 +199,18 @@ extern crate failure;
 extern crate palette;
 extern crate ndarray;
 
-pub mod view;
-pub mod figure;
-pub mod plot;
+pub use view::View;
+pub use figure::Figure;
+pub use plot::Plot;
+pub use chart::{Chart, Line, Scatter};
+
+mod view;
+mod figure;
+mod plot;
 mod canvas;
 mod axis;
 mod mark;
-pub mod chart;
+mod chart;
 mod utils;
 mod shape;
 mod coord;
