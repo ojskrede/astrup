@@ -2,15 +2,19 @@
 name = "astrup"
 version = "0.0.9"
 authors = ["Ole-Johan Skrede <ojskrede@gmail.com>"]
+exclude = ["src/bin/"]
+
 description = "A simple plotting library"
-license = "MIT/Apache-2.0"
 repository = "https://github.com/ojskrede/astrup"
+readme = "README.md"
+keywords = ["plot", "scientific", "data", "visualization", "graphing"]
+categories = ["science", "visualization"]
+license = "MIT/Apache-2.0"
+
 
 [dependencies]
-num = "0.1"
 chrono = "0.4"
 failure = "0.1"
-#palette = { version = "0.2", features = ["named_from_string"] }
 palette = "0.2"
 time = "0.1"
 ndarray = "0.11"
@@ -22,3 +26,4 @@ rand = "0.4"
 csv = "1.0.0-beta.5"
 serde = "1.0"
 serde_derive = "1.0"
+num-traits = "0.2"

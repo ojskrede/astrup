@@ -1,10 +1,11 @@
 //! Example showing the result using the default settings
 //!
 
+extern crate num_traits;
 extern crate astrup;
 
 use std::f64::consts::PI;
-//use num_traits::float::Float; FIXME
+use num_traits::float::Float;
 
 use astrup::{View, Figure, Plot, Chart, Line};
 
@@ -25,8 +26,8 @@ fn fourier_series(num_terms: f64) -> (Vec<f64>, Vec<f64>) {
     let mut y_vec: Vec<f64> = vec![0.0; num_elements];
     for n in 1..num_terms as usize {
         for (ind, x) in x_vec.iter().enumerate() {
-            let plus_minus = if (n + 1) / 2 == 0 { 1.0 } else { -1.0 };
-            let term_val = 2.0 / PI * plus_minus / (n as f64) * (n as f64 * x).sin();
+            //let plus_minus = if (n + 1) / 2 == 0 { 1.0 } else { -1.0 };
+            let term_val = 2.0 / PI * (-1.0).powi(n as i32 + 1) / (n as f64) * (n as f64 * x).sin();
             y_vec[ind] += term_val;
         }
     }

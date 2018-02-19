@@ -194,7 +194,6 @@
 extern crate cairo;
 extern crate gio;
 extern crate gtk;
-extern crate num;
 extern crate failure;
 extern crate palette;
 extern crate ndarray;
