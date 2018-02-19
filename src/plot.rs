@@ -257,7 +257,7 @@ impl Plot {
     pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
 
         // Fill background
-        let bg_color = self.color.as_rgba();
+        let bg_color = self.color.as_srgba();
         cr.set_source_rgba(bg_color.red as f64, bg_color.green as f64, bg_color.blue as f64,
                            bg_color.alpha as f64);
         cr.rectangle(self.local_frame.left(), self.local_frame.bottom(),

@@ -282,7 +282,7 @@ impl Axis {
         }
 
         // Draw axis line
-        let line_color = self.color.as_rgba();
+        let line_color = self.color.as_srgba();
         cr.set_source_rgba(line_color.red as f64, line_color.green as f64,
                            line_color.blue as f64, line_color.alpha as f64);
         cr.set_line_width(self.line_width * (self.direction.x().abs() * fig_rel_width +

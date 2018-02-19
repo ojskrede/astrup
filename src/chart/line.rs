@@ -3,7 +3,7 @@
 
 use failure::Error;
 use cairo::{Context, LineCap};
-use palette::Rgba;
+use palette::Srgba;
 use ndarray::AsArray;
 
 use ::{chart, utils, shape, coord, color};
@@ -247,7 +247,7 @@ impl Line {
 }
 
 impl utils::Drawable for Line {
-    fn set_color_internal(&mut self, color: Rgba) {
+    fn set_color_internal(&mut self, color: Srgba) {
         self.color.set_color(color);
         self.is_color_updated = true;
     }
@@ -278,7 +278,7 @@ impl utils::Drawable for Line {
                       self.dash_pattern.offset());
         cr.set_line_cap(self.dash_pattern.line_cap());
         let mut prev_coord = coord::Coord::new();
-        let line_color = self.color.as_rgba();
+        let line_color = self.color.as_srgba();
         match self.line_style {
             LineStyle::Plain => {
                 for data_point in self.data_points.iter() {

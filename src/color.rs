@@ -2,45 +2,45 @@
 //!
 
 use failure::{Error, err_msg};
-use palette::{Rgba, pixel, named};
+use palette::{Srgba, named};
 
 /// ## DefaultColors
 ///
 /// Simple struct used to hold and generate default colors used in this library.
 pub struct DefaultColors {
-    blue: Rgba,
-    red: Rgba,
-    green: Rgba,
-    yellow: Rgba,
-    violet: Rgba,
-    cyan: Rgba,
-    orange: Rgba,
-    magenta: Rgba,
-    black: Rgba,
-    gray: Rgba,
-    white: Rgba,
+    blue: Srgba,
+    red: Srgba,
+    green: Srgba,
+    yellow: Srgba,
+    violet: Srgba,
+    cyan: Srgba,
+    orange: Srgba,
+    magenta: Srgba,
+    black: Srgba,
+    gray: Srgba,
+    white: Srgba,
     internal_index: usize,
 }
 
 impl DefaultColors {
     pub fn new() -> DefaultColors {
         DefaultColors {
-            blue: Rgba::new_u8(23, 108, 190, 255),
-            red: Rgba::new_u8(224, 52, 11, 255),
-            green: Rgba::new_u8(34, 174, 51, 255),
-            yellow: Rgba::new_u8(255, 200, 14, 255),
-            violet: Rgba::new_u8(136, 60, 177, 255),
-            cyan: Rgba::new_u8(0, 198, 198, 255),
-            orange: Rgba::new_u8(255, 102, 7, 255),
-            magenta: Rgba::new_u8(194, 58, 160, 255),
-            black: Rgba::new_u8(0, 0, 0, 255),
-            gray: Rgba::new_u8(127, 127, 127, 255),
-            white: Rgba::new_u8(255, 255, 255, 255),
+            blue: Srgba::new_u8(23, 108, 190, 255),
+            red: Srgba::new_u8(224, 52, 11, 255),
+            green: Srgba::new_u8(34, 174, 51, 255),
+            yellow: Srgba::new_u8(255, 200, 14, 255),
+            violet: Srgba::new_u8(136, 60, 177, 255),
+            cyan: Srgba::new_u8(0, 198, 198, 255),
+            orange: Srgba::new_u8(255, 102, 7, 255),
+            magenta: Srgba::new_u8(194, 58, 160, 255),
+            black: Srgba::new_u8(0, 0, 0, 255),
+            gray: Srgba::new_u8(127, 127, 127, 255),
+            white: Srgba::new_u8(255, 255, 255, 255),
             internal_index: 0,
         }
     }
 
-    pub fn color(&self, name: &str) -> Rgba {
+    pub fn color(&self, name: &str) -> Srgba {
         match name {
             "blue" | "b" => self.blue,
             "red" | "r" => self.red,
@@ -63,8 +63,8 @@ impl DefaultColors {
 }
 
 impl Iterator for DefaultColors {
-    type Item = Rgba;
-    fn next(&mut self) -> Option<Rgba> {
+    type Item = Srgba;
+    fn next(&mut self) -> Option<Srgba> {
         let colors = vec![self.blue,
                           self.red,
                           self.green,
@@ -88,13 +88,13 @@ impl Iterator for DefaultColors {
 /// palette crate.
 #[derive(Clone, Debug)]
 pub struct Color {
-    color: Rgba,
+    color: Srgba,
 }
 
 impl Color {
     pub fn new() -> Color {
         Color {
-            color: Rgba::new(0.0, 0.0, 0.0, 1.0),
+            color: Srgba::new(0.0, 0.0, 0.0, 1.0),
         }
     }
 
@@ -107,36 +107,36 @@ impl Color {
 
     pub fn new_rgb(red: f32, green: f32, blue: f32) -> Color {
         Color {
-            color: Rgba::new(red, green, blue, 1.0),
+            color: Srgba::new(red, green, blue, 1.0),
         }
     }
 
     pub fn new_rgb_u8(red: u8, green: u8, blue: u8) -> Color {
         Color {
-            color: Rgba::new_u8(red, green, blue, 255),
+            color: Srgba::new_u8(red, green, blue, 255),
         }
     }
 
     pub fn new_rgba(red: f32, green: f32, blue: f32, alpha: f32) -> Color {
         Color {
-            color: Rgba::new(red, green, blue, alpha),
+            color: Srgba::new(red, green, blue, alpha),
         }
     }
 
     pub fn new_rgba_u8(red: u8, green: u8, blue: u8, alpha: u8) -> Color {
         Color {
-            color: Rgba::new_u8(red, green, blue, alpha),
+            color: Srgba::new_u8(red, green, blue, alpha),
         }
     }
 
     pub fn new_str(&mut self, color_name: &str) -> Result<Color, Error> {
         let color_srgb = named::from_str(color_name).ok_or(err_msg("Unknown color name"))?;
         Ok(Color {
-            color: pixel::Srgb::from_pixel(&color_srgb).into(),
+            color: Srgba::from_pixel(&color_srgb).into(),
         })
     }
 
-    pub fn set_color(&mut self, color: Rgba) {
+    pub fn set_color(&mut self, color: Srgba) {
         self.color = color
     }
 
@@ -145,11 +145,11 @@ impl Color {
     }
 
     pub fn set_color_rgb(&mut self, red: f32, green: f32, blue: f32) {
-        self.color = Rgba::new(red, green, blue, 1.0);
+        self.color = Srgba::new(red, green, blue, 1.0);
     }
 
     pub fn set_color_rgb_u8(&mut self, red: u8, green: u8, blue: u8) {
-        self.color = Rgba::new_u8(red, green, blue, 255);
+        self.color = Srgba::new_u8(red, green, blue, 255);
     }
 
     pub fn set_color_rgba(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
@@ -161,24 +161,20 @@ impl Color {
         let blue = blue.max(0.0);
         let blue = blue.min(1.0);
         */
-        self.color = Rgba::new(red, green, blue, alpha);
+        self.color = Srgba::new(red, green, blue, alpha);
     }
 
     pub fn set_color_rgba_u8(&mut self, red: u8, green: u8, blue: u8, alpha: u8) {
-        self.color = Rgba::new_u8(red, green, blue, alpha);
+        self.color = Srgba::new_u8(red, green, blue, alpha);
     }
 
     pub fn set_color_str(&mut self, color_name: &str) -> Result<(), Error> {
         let color_srgb = named::from_str(color_name).ok_or(err_msg("Unknown color name"))?;
-        self.color = pixel::Srgb::from_pixel(&color_srgb).into();
+        self.color = Srgba::from_pixel(&color_srgb).into();
         Ok(())
     }
 
-    pub fn as_rgba(&self) -> Rgba {
+    pub fn as_srgba(&self) -> Srgba {
         self.color
-    }
-
-    pub fn as_srgb(&self) -> pixel::Srgb {
-        pixel::Srgb::from(self.color)
     }
 }

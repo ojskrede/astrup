@@ -245,7 +245,7 @@ impl Rectangle {
     /// Draw a border around the frame
     pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
         if self.display_border {
-            let border_color = self.color.as_rgba();
+            let border_color = self.color.as_srgba();
             cr.set_source_rgba(border_color.red as f64, border_color.green as f64,
                                border_color.blue as f64, border_color.alpha as f64);
             // Move to bottom left corner

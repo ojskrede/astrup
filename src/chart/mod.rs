@@ -8,7 +8,7 @@ mod line;
 mod point;
 
 use cairo::Context;
-use palette::Rgba;
+use palette::Srgba;
 
 use ::{utils, shape, chart};
 
@@ -32,7 +32,7 @@ impl Chart {
 */
 
 impl utils::Drawable for Chart {
-    fn set_color_internal(&mut self, color: Rgba) {
+    fn set_color_internal(&mut self, color: Srgba) {
         match *self {
             Chart::Scatter(ref mut s) => s.set_color_internal(color),
             Chart::Line(ref mut l) => l.set_color_internal(color),

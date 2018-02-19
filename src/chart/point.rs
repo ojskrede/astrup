@@ -7,7 +7,7 @@ use std::f64::consts::PI;
 use failure::Error;
 
 use cairo::Context;
-use palette::Rgba;
+use palette::Srgba;
 
 use ::{utils, shape, coord, color};
 
@@ -123,7 +123,7 @@ impl Point {
 }
 
 impl utils::Drawable for Point {
-    fn set_color_internal(&mut self, color: Rgba) {
+    fn set_color_internal(&mut self, color: Srgba) {
         self.color.set_color(color);
         self.is_color_updated = true;
     }
@@ -141,7 +141,7 @@ impl utils::Drawable for Point {
     }
 
     fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
-        let point_color = self.color.as_rgba();
+        let point_color = self.color.as_srgba();
         cr.set_source_rgba(point_color.red as f64, point_color.green as f64,
                            point_color.blue as f64, point_color.alpha as f64);
         match self.shape {

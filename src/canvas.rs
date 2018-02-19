@@ -241,7 +241,7 @@ impl Canvas {
     fn compute_grid(&mut self, ver_axis: &axis::Axis, hor_axis: &axis::Axis) {
         let scale_factor = self.global_frame.diag_len();
         //let scale_factor = self.global_frame.height().min(self.global_frame.width());
-        let grid_color = self.grid_color.as_rgba();
+        let grid_color = self.grid_color.as_srgba();
         for coord in ver_axis.mark_coords() {
             let mut gridline = mark::GridLine::new_from(coord.clone(),
                                                         coord::Coord::new_from(self.global_frame.right(), coord.y()));
@@ -397,7 +397,7 @@ impl Canvas {
     pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
 
         // Background
-        let bg_color = self.color.as_rgba();
+        let bg_color = self.color.as_srgba();
         cr.set_source_rgba(bg_color.red as f64, bg_color.green as f64, bg_color.blue as f64,
                            bg_color.alpha as f64);
         cr.rectangle(self.global_frame.left(), self.global_frame.bottom(),

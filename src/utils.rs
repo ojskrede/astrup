@@ -4,7 +4,7 @@
 use std::cmp::Ordering;
 
 use cairo::Context;
-use palette::Rgba;
+use palette::Srgba;
 
 use shape;
 
@@ -98,7 +98,7 @@ impl DirRect {
 ///
 /// All objects that can be drawn should implement this trait.
 pub trait Drawable {
-    fn set_color_internal(&mut self, color: Rgba);
+    fn set_color_internal(&mut self, color: Srgba);
     fn is_color_updated(&self) -> bool;
     fn scale_size(&mut self, factor: f64);
     fn fit(&mut self, global_frame: &shape::Rectangle, data_frame: &shape::Rectangle);

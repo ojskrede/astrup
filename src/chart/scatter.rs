@@ -6,7 +6,7 @@
 use failure::Error;
 use cairo::Context;
 use ndarray::AsArray;
-use palette::Rgba;
+use palette::Srgba;
 
 use ::{utils, chart, shape, color};
 use utils::Drawable;
@@ -42,7 +42,7 @@ impl Scatter {
         let mut data_points = Vec::<chart::point::Point>::new();
         for (ref x, ref y) in x_view.iter().zip(y_view.iter()) {
             let mut point = chart::point::Point::new(x.val(), y.val());
-            point.set_color_internal(point_color.as_rgba());
+            point.set_color_internal(point_color.as_srgba());
             point.set_shape(shape.clone());
             point.set_size(point_size);
             data_points.push(chart::point::Point::new(x.val(), y.val()));
@@ -131,7 +131,7 @@ impl Scatter {
 }
 
 impl utils::Drawable for Scatter {
-    fn set_color_internal(&mut self, color: Rgba) {
+    fn set_color_internal(&mut self, color: Srgba) {
         self.color.set_color(color);
         self.is_color_updated = true;
     }
@@ -149,7 +149,7 @@ impl utils::Drawable for Scatter {
         self.data_frame = canvas_data_frame.clone();
 
         for data_point in self.data_points.iter_mut() {
-            data_point.set_color_internal(self.color.as_rgba());
+            data_point.set_color_internal(self.color.as_srgba());
             data_point.set_shape(self.shape.clone());
             data_point.set_size(self.point_size);
             data_point.fit(canvas_global_frame, canvas_data_frame);

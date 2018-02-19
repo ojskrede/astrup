@@ -98,7 +98,7 @@ impl Text {
         // is not square.
 
         cr.select_font_face("Serif", FontSlant::Normal, FontWeight::Normal);
-        let text_color = self.color.as_rgba();
+        let text_color = self.color.as_srgba();
         cr.set_source_rgba(text_color.red as f64, text_color.green as f64,
                            text_color.blue as f64, text_color.alpha as f64);
 

@@ -220,7 +220,7 @@ impl Figure {
         let relative_height = self.height() as f64 / self.height().max(self.width()) as f64;
         let relative_width = self.width() as f64 / self.height().max(self.width()) as f64;
 
-        let color_srgb = self.color.as_srgb();
+        let color_srgb = self.color.as_srgba();
         cr.set_source_rgba(color_srgb.red as f64, color_srgb.green as f64,
                            color_srgb.blue as f64, color_srgb.alpha as f64);
         cr.paint();

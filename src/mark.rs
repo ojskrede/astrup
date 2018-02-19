@@ -3,7 +3,7 @@
 
 use failure::Error;
 use cairo::{Context, LineCap};
-use palette::Rgba;
+use palette::Srgba;
 
 use ::{shape, coord, label, color};
 
@@ -290,8 +290,8 @@ impl Tick {
     }
 
     /// Return the tick color
-    pub fn color(&self) -> Rgba {
-        self.color.as_rgba()
+    pub fn color(&self) -> Srgba {
+        self.color.as_srgba()
     }
 
     /// Return the tick direction
@@ -330,7 +330,7 @@ impl Tick {
     pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64, x_root: f64, y_root: f64) {
         cr.move_to(x_root, y_root);
         cr.set_line_cap(LineCap::Square);
-        let tick_color = self.color.as_rgba();
+        let tick_color = self.color.as_srgba();
         cr.set_source_rgba(tick_color.red as f64, tick_color.green as f64,
                            tick_color.blue as f64, tick_color.alpha as f64);
 
@@ -428,7 +428,7 @@ impl GridLine {
 
     /// Draw the gridline
     pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
-        let line_color = self.color.as_rgba();
+        let line_color = self.color.as_srgba();
         cr.set_source_rgba(line_color.red as f64, line_color.green as f64, line_color.blue as f64,
                            line_color.alpha as f64);
 
