@@ -40,19 +40,23 @@ impl Canvas {
     pub fn new() -> Canvas {
         let mut x_axis_label = label::Label::new_from_centroid(0.5, -0.11);
         x_axis_label.set_font_size(0.025);
+        x_axis_label.set_color_internal(color::Color::new_default("axis_label").as_srgba());
         let mut y_axis_label = label::Label::new_from_centroid(-0.13, 0.5);
         y_axis_label.set_font_size(0.025);
         y_axis_label.set_angle(f64::consts::PI / 2.0);
+        y_axis_label.set_color_internal(color::Color::new_default("axis_label").as_srgba());
+        let mut local_frame = shape::Rectangle::new_from(0.15, 0.95, 0.15, 0.95);
+        local_frame.set_color_internal(color::Color::new_default("canvas_border").as_srgba());
         Canvas {
-            color: color::Color::new_rgb_u8(230, 235, 245),
-            local_frame: shape::Rectangle::new_from(0.15, 0.95, 0.15, 0.95),
+            color: color::Color::new_default("canvas_background"),
+            local_frame: local_frame,
             global_frame: shape::Rectangle::new(),
             data_frame: shape::Rectangle::new(),
             user_data_frame: shape::Rectangle::new(),
             display_axes: true,
             display_grid: true,
             grid_width: 0.0025,
-            grid_color: color::Color::new_rgba(1.0, 1.0, 1.0, 0.9),
+            grid_color: color::Color::new_default("grid_line"),
             grid: Vec::<mark::GridLine>::new(),
             hor_marks: Vec::<mark::Mark>::new(),
             ver_marks: Vec::<mark::Mark>::new(),
@@ -470,7 +474,7 @@ impl Canvas {
             }
         }
 
-        let mut color_generator = color::DefaultColors::new();
+        let mut color_generator = color::ChartColors::new();
         for chart in self.charts.clone().iter_mut() {
             if !chart.is_color_updated() {
                 let color = color_generator.next();

@@ -1,30 +1,25 @@
-//! Definitions of things related to coloring
+//! Definitions of things related to colors
 //!
 
 use failure::{Error, err_msg};
 use palette::{Srgba, named};
 
-/// ## DefaultColors
-///
-/// Simple struct used to hold and generate default colors used in this library.
-pub struct DefaultColors {
-    blue: Srgba,
-    red: Srgba,
-    green: Srgba,
-    yellow: Srgba,
-    violet: Srgba,
-    cyan: Srgba,
-    orange: Srgba,
-    magenta: Srgba,
-    black: Srgba,
-    gray: Srgba,
-    white: Srgba,
-    internal_index: usize,
+/// Simple struct used to hold and generate default chart colors
+pub struct ChartColors {
+    pub(self) blue: Srgba,
+    pub(self) red: Srgba,
+    pub(self) green: Srgba,
+    pub(self) yellow: Srgba,
+    pub(self) violet: Srgba,
+    pub(self) cyan: Srgba,
+    pub(self) orange: Srgba,
+    pub(self) magenta: Srgba,
+    pub(self) internal_index: usize,
 }
 
-impl DefaultColors {
-    pub fn new() -> DefaultColors {
-        DefaultColors {
+impl ChartColors {
+    pub fn new() -> ChartColors {
+        ChartColors {
             blue: Srgba::new_u8(23, 108, 190, 255),
             red: Srgba::new_u8(224, 52, 11, 255),
             green: Srgba::new_u8(34, 174, 51, 255),
@@ -33,36 +28,12 @@ impl DefaultColors {
             cyan: Srgba::new_u8(0, 198, 198, 255),
             orange: Srgba::new_u8(255, 102, 7, 255),
             magenta: Srgba::new_u8(194, 58, 160, 255),
-            black: Srgba::new_u8(0, 0, 0, 255),
-            gray: Srgba::new_u8(127, 127, 127, 255),
-            white: Srgba::new_u8(255, 255, 255, 255),
             internal_index: 0,
-        }
-    }
-
-    pub fn color(&self, name: &str) -> Srgba {
-        match name {
-            "blue" | "b" => self.blue,
-            "red" | "r" => self.red,
-            "green" | "g" => self.green,
-            "yellow" | "y" => self.yellow,
-            "violet" | "purple" | "v" | "p" => self.violet,
-            "cyan" | "c" => self.cyan,
-            "orange" | "o" => self.orange,
-            "magenta" | "m" => self.magenta,
-            "black" | "k" => self.black,
-            "gray" | "grey" => self.gray,
-            "white" | "w" => self.white,
-            _ => {
-                println!("Warning: unknown color selection: {}", name);
-                println!("Default blue is selected");
-                self.blue
-            }
         }
     }
 }
 
-impl Iterator for DefaultColors {
+impl Iterator for ChartColors {
     type Item = Srgba;
     fn next(&mut self) -> Option<Srgba> {
         let colors = vec![self.blue,
@@ -72,13 +43,92 @@ impl Iterator for DefaultColors {
                           self.violet,
                           self.cyan,
                           self.orange,
-                          self.magenta,
-                          self.black,
-                          self.gray,
-                          self.white];
+                          self.magenta];
         let index = self.internal_index % colors.len();
         self.internal_index += 1;
         Some(colors[index])
+    }
+}
+
+/// Simple struct used to hold default colors used in this library.
+pub struct DefaultColors {
+    chart_colors: ChartColors,
+    black: Srgba,
+    gray: Srgba,
+    white: Srgba,
+    figure_background: Srgba,
+    plot_background: Srgba,
+    canvas_background: Srgba,
+    figure_border: Srgba,
+    plot_border: Srgba,
+    canvas_border: Srgba,
+    grid_line: Srgba,
+    axis_line: Srgba,
+    tick: Srgba,
+    figure_title: Srgba,
+    plot_title: Srgba,
+    axis_label: Srgba,
+    tick_label: Srgba,
+}
+
+impl DefaultColors {
+    pub fn new() -> DefaultColors {
+        DefaultColors {
+            chart_colors: ChartColors::new(),
+            black: Srgba::new_u8(0, 0, 0, 255),
+            gray: Srgba::new_u8(127, 127, 127, 255),
+            white: Srgba::new_u8(255, 255, 255, 255),
+            figure_background: Srgba::new_u8(1, 1, 1, 0),
+            plot_background: Srgba::new_u8(240, 242, 255, 255),
+            canvas_background: Srgba::new_u8(230, 235, 245, 255),
+            figure_border: Srgba::new_u8(10, 10, 10, 255),
+            plot_border: Srgba::new_u8(10, 10, 10, 255),
+            canvas_border: Srgba::new_u8(10, 10, 10, 255),
+            grid_line: Srgba::new_u8(255, 255, 255, 230),
+            axis_line: Srgba::new_u8(10, 10, 10, 255),
+            tick: Srgba::new_u8(10, 10, 10, 255),
+            figure_title: Srgba::new_u8(10, 10, 10, 255),
+            plot_title: Srgba::new_u8(10, 10, 10, 255),
+            axis_label: Srgba::new_u8(10, 10, 10, 255),
+            tick_label: Srgba::new_u8(10, 10, 10, 255),
+        }
+    }
+
+    pub fn color(&self, name: &str) -> Srgba {
+        match name {
+            "blue" | "b" => self.chart_colors.blue,
+            "red" | "r" => self.chart_colors.red,
+            "green" | "g" => self.chart_colors.green,
+            "yellow" | "y" => self.chart_colors.yellow,
+            "violet" | "purple" | "v" | "p" => self.chart_colors.violet,
+            "cyan" | "c" => self.chart_colors.cyan,
+            "orange" | "o" => self.chart_colors.orange,
+            "magenta" | "m" => self.chart_colors.magenta,
+         // -------------------------------------------------------------------
+            "black" | "k" => self.black,
+            "gray" | "grey" => self.gray,
+            "white" | "w" => self.white,
+         // -------------------------------------------------------------------
+            "figure_background" => self.figure_background,
+            "plot_background" => self.plot_background,
+            "canvas_background" => self.canvas_background,
+            "figure_border" => self.figure_border,
+            "plot_border" => self.plot_border,
+            "canvas_border" => self.canvas_border,
+            "grid_line" => self.grid_line,
+            "axis_line" => self.axis_line,
+            "tick" => self.tick,
+            "figure_title" => self.figure_title,
+            "plot_title" => self.plot_title,
+            "axis_label" => self.axis_label,
+            "tick_label" => self.tick_label,
+         // -------------------------------------------------------------------
+            _ => {
+                println!("Warning: unknown color selection: {}", name);
+                println!("Default black is selected");
+                self.black
+            }
+        }
     }
 }
 

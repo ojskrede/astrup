@@ -24,10 +24,12 @@ impl Mark {
     /// Create and return a new mark
     #[allow(dead_code)]
     pub fn new() -> Mark {
+        let mut label = label::Label::new();
+        label.set_color_internal(color::Color::new_default("tick_label").as_srgba());
         Mark {
             local: coord::Coord::new(),
             global: coord::Coord::new(),
-            label: label::Label::new(),
+            label: label,
             label_offset: 0.0,
             tick: Tick::new(),
         }
@@ -35,10 +37,12 @@ impl Mark {
 
     /// Create and return a new mark
     pub fn new_from_coord(coord: coord::Coord) -> Mark {
+        let mut label = label::Label::new();
+        label.set_color_internal(color::Color::new_default("tick_label").as_srgba());
         Mark {
             local: coord,
             global: coord::Coord::new(),
-            label: label::Label::new(),
+            label: label,
             label_offset: 0.0,
             tick: Tick::new(),
         }
@@ -228,7 +232,7 @@ impl Tick {
     /// Create and return a new Tick
     pub fn new() -> Tick {
         Tick {
-            color: color::Color::new(),
+            color: color::Color::new_default("tick"),
             width: 0.0025,
             positive_length: 0.005,
             negative_length: 0.005,
@@ -362,7 +366,7 @@ impl GridLine {
             global_end: coord::Coord::new(),
             direction: coord::Coord::new(),
             width: 0.001,
-            color: color::Color::new_default("white"),
+            color: color::Color::new_default("grid_line"),
         }
     }
 
@@ -375,7 +379,7 @@ impl GridLine {
             global_start: start,
             global_end: end,
             width: 0.001,
-            color: color::Color::new_default("white"),
+            color: color::Color::new_default("grid_line"),
         }
     }
 

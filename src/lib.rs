@@ -232,8 +232,10 @@
 //! values in `[0, 255]`.
 //!
 //! #### `fn set_object_color_rgba_u8(mut self, color_name: &str) -> Result<Self, Error>**
-//! The argument is the name of a HTML color named color. See more information about the color
-//! names and other things at the [palette documentation](https://docs.rs/palette/0.3.0/palette/named/index.html).
+//! The argument is one of the color keywords in a set of [SVG
+//! colors](https://www.w3.org/TR/SVG/types.html#ColorKeywords). See more information about the
+//! color names and other things at the [palette
+//! documentation](https://docs.rs/palette/0.3.0/palette/named/index.html).
 //!
 //!
 extern crate cairo;

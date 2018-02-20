@@ -7,13 +7,13 @@ use failure::{Error, err_msg};
 
 use cairo::{Context, Format, ImageSurface, Matrix, MatrixTrait};
 
-use ::{plot, shape, color};
+use ::{plot, shape, color, label};
 
 /// A Figure holds plots, and can be viewed on screen or saved as a png image.
 #[derive(Clone)]
 pub struct Figure {
     plots: Vec<plot::Plot>,
-    title: String,
+    title: label::Label,
     window_title: String,
     height: usize,
     width: usize,
@@ -25,29 +25,102 @@ impl Figure {
     pub fn new() -> Figure {
         let mut local_frame = shape::Rectangle::new();
         local_frame.display_border(false);
+        local_frame.set_color_internal(color::Color::new_default("figure_border").as_srgba());
+        let mut title = label::Label::new();
+        title.set_color_internal(color::Color::new_default("figure_title").as_srgba());
         Figure {
             plots: Vec::<plot::Plot>::new(),
-            title: String::from("Figure"),
+            title: title,
             window_title: String::from("Astrup"),
             height: 800,
             width: 1000,
-            color: color::Color::new_rgba(1.0, 1.0, 1.0, 0.0),
+            color: color::Color::new_default("figure_background"),
             local_frame: local_frame,
         }
     }
 
+    // ----------------- FIGURE TITLE -------------------------------------- //
+
     /// Set figure title
-    ///
-    /// NOTE: Currently unimplemented
     pub fn set_title(mut self, title: &str) -> Self {
-        self.title = String::from(title);
+        self.title.set_content(title);
         self
+    }
+
+    /// Set figure title font size
+    pub fn set_title_font_size(mut self, val: f64) -> Self {
+        self.title.set_font_size(val);
+        self
+    }
+
+    /// Set the angle of the figure title
+    pub fn set_title_angle(mut self, val: f64) -> Self {
+        self.title.set_angle(val);
+        self
+    }
+
+    /// Set the location of the figure title, relative to the figure frame
+    pub fn set_title_centroid(mut self, x_coord: f64, y_coord: f64) -> Self {
+        self.title.set_centroid(x_coord, y_coord);
+        self
+    }
+
+    /// Set gaps around figure title.
+    ///
+    /// NOTE: This has currently no visible effect
+    pub fn set_title_frame_gaps(mut self, left: f64, right: f64, bottom: f64, top: f64) -> Self {
+        self.title.set_frame_gaps(left, right, bottom, top);
+        self
+    }
+
+    /// Set the title color
+    pub fn set_title_color(mut self, color_name: &str) -> Self {
+        let color = color::Color::new_default(color_name);
+        self.title.set_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the title color
+    pub fn set_title_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
+        let color = color::Color::new_rgb(red, green, blue);
+        self.title.set_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the title color
+    pub fn set_title_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
+        let color = color::Color::new_rgba(red, green, blue, alpha);
+        self.title.set_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the title color
+    pub fn set_title_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
+        let color = color::Color::new_rgb_u8(red, green, blue);
+        self.title.set_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the title color
+    pub fn set_title_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
+        let color = color::Color::new_rgba_u8(red, green, blue, alpha);
+        self.title.set_color_internal(color.as_srgba());
+        self
+    }
+
+    /// Set the title color
+    pub fn set_title_color_str(mut self, color_name: &str) -> Result<Self, Error> {
+        let color = color::Color::new_str(color_name)?;
+        self.title.set_color_internal(color.as_srgba());
+        Ok(self)
     }
 
     /// Set window title. This is displayed in the window "header", and not in the figure itself.
     pub fn set_window_title(&mut self, title: &str) {
         self.window_title = String::from(title);
     }
+
+    // ----------------- APPEARANCE ---------------------------------------- //
 
     pub fn set_height(mut self, val: usize) -> Self {
         self.height = val;
@@ -95,9 +168,7 @@ impl Figure {
         Ok(self)
     }
 
-    pub fn title(&self) -> String {
-        self.title.clone()
-    }
+    // ----------------- GETTERS ------------------------------------------- //
 
     pub fn window_title(&self) -> String {
         self.window_title.clone()

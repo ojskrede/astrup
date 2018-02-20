@@ -26,9 +26,12 @@ impl Plot {
         let mut local_frame = shape::Rectangle::new();
         local_frame.display_border(true);
         local_frame.set_border_thickness(0.001);
+        local_frame.set_color_internal(color::Color::new_default("plot_border").as_srgba());
+        let mut title = label::Label::new();
+        title.set_color_internal(color::Color::new_default("plot_title").as_srgba());
         Plot {
-            title: label::Label::new(),
-            color: color::Color::new_rgb_u8(240, 242, 255),
+            title: title,
+            color: color::Color::new_default("plot_background"),
             local_frame: local_frame,
             canvas: canvas::Canvas::new(),
         }
