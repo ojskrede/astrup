@@ -42,7 +42,7 @@ impl Axis {
             line_width: 0.0025,
             data_range: [0.0, 1.0],
             label: label,
-            ca_num_marks: 7,
+            ca_num_marks: 6,
             marks: Vec::<mark::Mark>::new(),
         }
     }
@@ -60,7 +60,7 @@ impl Axis {
             line_width: 0.0025,
             data_range: [0.0, 1.0],
             label: label,
-            ca_num_marks: 7,
+            ca_num_marks: 6,
             marks: Vec::<mark::Mark>::new(),
         }
     }
@@ -211,13 +211,13 @@ impl Axis {
     ///  that this range should be used.
     pub fn compute_marks(&mut self) -> Result<(), Error> {
         let data_diff = self.data_range[1] - self.data_range[0];
-        let ca_dist = data_diff / self.ca_num_marks as f64;
+        let ca_dist = data_diff / (self.ca_num_marks as f64 - 1.0);
         let omagn = utils::order_of_magnitude(ca_dist);
 
-        // Find for what k in (2, 5, 10) we shall round to the nearest ten power of
+        // Find for what k in (1, 2, 5) we shall round to the nearest ten power of
         let mut smallest_diff = f64::MAX;
         let mut round_number = 0f64;
-        for &i in [2.0, 5.0, 10.0].iter() {
+        for &i in [1.0, 2.0, 5.0].iter() {
             let nearest = utils::round_nearest(ca_dist, omagn, i);
             let diff = (ca_dist - nearest).abs();
             if diff < smallest_diff {

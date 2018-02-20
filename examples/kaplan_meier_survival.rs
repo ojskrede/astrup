@@ -70,6 +70,7 @@ fn survival_charts(data: &Vec<SurvivalRecord>, stage: u8, red: f32, green: f32, 
     let survival_line = Line::new(&time, &survival).set_color_rgb(red/255.0, green/255.0, blue/255.0)
                                                    .set_line_style("right_stair");
     let censored = Scatter::new(&cens_time, &cens_survival).set_color_rgb(red/255.0, green/255.0, blue/255.0)
+                                                           .set_point_size(0.01)
                                                            .set_shape("tick");
     (survival_line, censored)
 }
