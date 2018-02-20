@@ -100,6 +100,7 @@ impl Label {
         self.text.set_font_size(val);
     }
 
+    /// Set text color
     pub fn set_color_internal(&mut self, color: Srgba) {
         self.text.set_color_internal(color);
     }

@@ -88,6 +88,7 @@ impl Mark {
         self.label.set_centroid(x_coord, y_coord);
     }
 
+    /// Set the tick color
     pub fn set_tick_color_internal(&mut self, color: Srgba) {
         self.tick.set_color_internal(color);
     }
@@ -263,6 +264,7 @@ impl Tick {
         self.direction = direction.clone()
     }
 
+    /// Set the tick color
     pub fn set_color_internal(&mut self, color: Srgba) {
         self.color.set_color(color);
     }
@@ -382,6 +384,7 @@ impl GridLine {
         self.width = width;
     }
 
+    /// Set grid line color
     pub fn set_color_internal(&mut self, color: Srgba) {
         self.color.set_color(color);
     }
@@ -391,7 +394,7 @@ impl GridLine {
         self.width *= factor;
     }
 
-    /// Draw the gridline
+    /// Draw the grid line
     pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
         let line_color = self.color.as_srgba();
         cr.set_source_rgba(line_color.red as f64, line_color.green as f64, line_color.blue as f64,

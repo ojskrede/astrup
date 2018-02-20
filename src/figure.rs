@@ -36,6 +36,9 @@ impl Figure {
         }
     }
 
+    /// Set figure title
+    ///
+    /// NOTE: Currently unimplemented
     pub fn set_title(mut self, title: &str) -> Self {
         self.title = String::from(title);
         self
@@ -56,7 +59,7 @@ impl Figure {
         self
     }
 
-    /// Set the figure background color using the default, built in colors
+    /// Set the figure background color
     pub fn set_color(mut self, color_name: &str) -> Self {
         self.color.set_color_default(color_name);
         self
@@ -86,8 +89,7 @@ impl Figure {
         self
     }
 
-    /// Set the figure background color from name. See the [palette
-    /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
+    /// Set the figure background color
     pub fn set_color_str(mut self, color_name: &str) -> Result<Self, Error> {
         self.color.set_color_str(color_name)?;
         Ok(self)
@@ -115,43 +117,42 @@ impl Figure {
         self
     }
 
-    /// Set the border color using the default, built in colors
+    /// Set the figure border color
     pub fn set_border_color(mut self, color_name: &str) -> Self {
         let color = color::Color::new_default(color_name);
         self.local_frame.set_color_internal(color.as_srgba());
         self
     }
 
-    /// Set the border color
+    /// Set the figure border color
     pub fn set_border_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
         let color = color::Color::new_rgb(red, green, blue);
         self.local_frame.set_color_internal(color.as_srgba());
         self
     }
 
-    /// Set the border color
+    /// Set the figure border color
     pub fn set_border_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
         let color = color::Color::new_rgba(red, green, blue, alpha);
         self.local_frame.set_color_internal(color.as_srgba());
         self
     }
 
-    /// Set the border color
+    /// Set the figure border color
     pub fn set_border_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
         let color = color::Color::new_rgb_u8(red, green, blue);
         self.local_frame.set_color_internal(color.as_srgba());
         self
     }
 
-    /// Set the border color
+    /// Set the figure border color
     pub fn set_border_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
         let color = color::Color::new_rgba_u8(red, green, blue, alpha);
         self.local_frame.set_color_internal(color.as_srgba());
         self
     }
 
-    /// Set the border color from name. See the [palette
-    /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
+    /// Set the figure border color
     pub fn set_border_color_str(mut self, color_name: &str) -> Result<Self, Error> {
         let color = color::Color::new_str(color_name)?;
         self.local_frame.set_color_internal(color.as_srgba());
@@ -168,14 +169,6 @@ impl Figure {
     pub fn add(mut self, plot: &plot::Plot) -> Self {
         self.plots.push(plot.clone());
         self
-    }
-
-    pub fn fit(&mut self) -> Result<(), Error> {
-        for plot in self.plots.iter_mut() {
-            plot.fit()?;
-        }
-
-        Ok(())
     }
 
     pub fn save(self, filename: &str) -> Result<(Self), Error> {
@@ -199,8 +192,16 @@ impl Figure {
         Ok((self))
     }
 
+    pub(crate) fn fit(&mut self) -> Result<(), Error> {
+        for plot in self.plots.iter_mut() {
+            plot.fit()?;
+        }
+
+        Ok(())
+    }
+
     /// Draw the figure and the subsequent structures
-    pub fn draw(&self, cr: &Context) {
+    pub(crate) fn draw(&self, cr: &Context) {
 
         // # About non-square figures:
         //

@@ -42,16 +42,19 @@ impl Plot {
         self
     }
 
+    /// Set plot title font size
     pub fn set_title_font_size(mut self, val: f64) -> Self {
         self.title.set_font_size(val);
         self
     }
 
+    /// Set the angle of the plot title
     pub fn set_title_angle(mut self, val: f64) -> Self {
         self.title.set_angle(val);
         self
     }
 
+    /// Set the location of the plot title, relative to the plot frame
     pub fn set_title_centroid(mut self, x_coord: f64, y_coord: f64) -> Self {
         self.title.set_centroid(x_coord, y_coord);
         self
@@ -65,7 +68,7 @@ impl Plot {
         self
     }
 
-    /// Set the title color using the default, built in colors
+    /// Set the title color
     pub fn set_title_color(mut self, color_name: &str) -> Self {
         let color = color::Color::new_default(color_name);
         self.title.set_color_internal(color.as_srgba());
@@ -100,8 +103,7 @@ impl Plot {
         self
     }
 
-    /// Set the title color from name. See the [palette
-    /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
+    /// Set the title color
     pub fn set_title_color_str(mut self, color_name: &str) -> Result<Self, Error> {
         let color = color::Color::new_str(color_name)?;
         self.title.set_color_internal(color.as_srgba());
@@ -110,7 +112,7 @@ impl Plot {
 
     // ----------------- PLOT APPEARANCE ----------------------------------- //
 
-    /// Set the background color using the default, built in colors
+    /// Set the background color
     pub fn set_color(mut self, color_name: &str) -> Self {
         self.color.set_color_default(color_name);
         self
@@ -140,8 +142,7 @@ impl Plot {
         self
     }
 
-    /// Set the background color from name. See the [palette
-    /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
+    /// Set the background color
     pub fn set_color_str(mut self, color_name: &str) -> Result<Self, Error> {
         self.color.set_color_str(color_name)?;
         Ok(self)
@@ -164,7 +165,7 @@ impl Plot {
         self
     }
 
-    /// Set the border color using the default, built in colors
+    /// Set the border color
     pub fn set_border_color(mut self, color_name: &str) -> Self {
         let color = color::Color::new_default(color_name);
         self.local_frame.set_color_internal(color.as_srgba());
@@ -199,8 +200,7 @@ impl Plot {
         self
     }
 
-    /// Set the border color from name. See the [palette
-    /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
+    /// Set the border color
     pub fn set_border_color_str(mut self, color_name: &str) -> Result<Self, Error> {
         let color = color::Color::new_str(color_name)?;
         self.local_frame.set_color_internal(color.as_srgba());
@@ -293,7 +293,7 @@ impl Plot {
         self
     }
 
-    /// Set the canvas background color using the default, built in colors
+    /// Set the canvas background color
     pub fn set_canvas_color(mut self, color_name: &str) -> Self {
         let color = color::Color::new_default(color_name);
         self.canvas.set_color_internal(color.as_srgba());
@@ -328,8 +328,7 @@ impl Plot {
         self
     }
 
-    /// Set the canvas background color from name. See the [palette
-    /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
+    /// Set the canvas background color
     pub fn set_canvas_color_str(mut self, color_name: &str) -> Result<Self, Error> {
         let color = color::Color::new_str(color_name)?;
         self.canvas.set_color_internal(color.as_srgba());
@@ -356,7 +355,7 @@ impl Plot {
         self
     }
 
-    /// Set the axes color using the default, built in colors
+    /// Set the axes color
     pub fn set_axes_color(mut self, color_name: &str) -> Self {
         let color = color::Color::new_default(color_name);
         self.canvas.set_axes_color_internal(color.as_srgba());
@@ -391,8 +390,7 @@ impl Plot {
         self
     }
 
-    /// Set the axes color from name. See the [palette
-    /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
+    /// Set the axes color
     pub fn set_axes_color_str(mut self, color_name: &str) -> Result<Self, Error> {
         let color = color::Color::new_str(color_name)?;
         self.canvas.set_axes_color_internal(color.as_srgba());
@@ -425,7 +423,7 @@ impl Plot {
         self
     }
 
-    /// Set the x label color using the default, built in colors
+    /// Set the x label color
     pub fn set_x_label_color(mut self, color_name: &str) -> Self {
         let color = color::Color::new_default(color_name);
         self.canvas.set_default_x_axis_label_color_internal(color.as_srgba());
@@ -460,8 +458,7 @@ impl Plot {
         self
     }
 
-    /// Set the x label color from name. See the [palette
-    /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
+    /// Set the x label color
     pub fn set_x_label_color_str(mut self, color_name: &str) -> Result<Self, Error> {
         let color = color::Color::new_str(color_name)?;
         self.canvas.set_default_x_axis_label_color_internal(color.as_srgba());
@@ -494,7 +491,7 @@ impl Plot {
         self
     }
 
-    /// Set the y label color using the default, built in colors
+    /// Set the y label color
     pub fn set_y_label_color(mut self, color_name: &str) -> Self {
         let color = color::Color::new_default(color_name);
         self.canvas.set_default_y_axis_label_color_internal(color.as_srgba());
@@ -529,8 +526,7 @@ impl Plot {
         self
     }
 
-    /// Set the y label color from name. See the [palette
-    /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
+    /// Set the y label color
     pub fn set_y_label_color_str(mut self, color_name: &str) -> Result<Self, Error> {
         let color = color::Color::new_str(color_name)?;
         self.canvas.set_default_y_axis_label_color_internal(color.as_srgba());
@@ -539,7 +535,7 @@ impl Plot {
 
     // ----------------- TICKS --------------------------------------------- //
 
-    /// Set the tick color using the default, built in colors
+    /// Set the tick color
     pub fn set_tick_color(mut self, color_name: &str) -> Self {
         let color = color::Color::new_default(color_name);
         self.canvas.set_tick_color_internal(color.as_srgba());
@@ -574,15 +570,14 @@ impl Plot {
         self
     }
 
-    /// Set the tick color from name. See the [palette
-    /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
+    /// Set the tick color
     pub fn set_tick_color_str(mut self, color_name: &str) -> Result<Self, Error> {
         let color = color::Color::new_str(color_name)?;
         self.canvas.set_tick_color_internal(color.as_srgba());
         Ok(self)
     }
 
-    /// Set the tick label color using the default, built in colors
+    /// Set the tick label color
     pub fn set_tick_label_color(mut self, color_name: &str) -> Self {
         let color = color::Color::new_default(color_name);
         self.canvas.set_tick_label_color_internal(color.as_srgba());
@@ -617,8 +612,7 @@ impl Plot {
         self
     }
 
-    /// Set the tick label color from name. See the [palette
-    /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
+    /// Set the tick label color
     pub fn set_tick_label_color_str(mut self, color_name: &str) -> Result<Self, Error> {
         let color = color::Color::new_str(color_name)?;
         self.canvas.set_tick_label_color_internal(color.as_srgba());
@@ -645,36 +639,42 @@ impl Plot {
         self
     }
 
+    /// Set the grid line color
     pub fn set_grid_color(mut self, color_name: &str) -> Self {
         let color = color::Color::new_default(color_name);
         self.canvas.set_grid_color_internal(color.as_srgba());
         self
     }
 
+    /// Set the grid line color
     pub fn set_grid_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
         let color = color::Color::new_rgb(red, green, blue);
         self.canvas.set_grid_color_internal(color.as_srgba());
         self
     }
 
+    /// Set the grid line color
     pub fn set_grid_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
         let color = color::Color::new_rgba(red, green, blue, alpha);
         self.canvas.set_grid_color_internal(color.as_srgba());
         self
     }
 
+    /// Set the grid line color
     pub fn set_grid_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
         let color = color::Color::new_rgb_u8(red, green, blue);
         self.canvas.set_grid_color_internal(color.as_srgba());
         self
     }
 
+    /// Set the grid line color
     pub fn set_grid_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
         let color = color::Color::new_rgba_u8(red, green, blue, alpha);
         self.canvas.set_grid_color_internal(color.as_srgba());
         self
     }
 
+    /// Set the grid line color
     pub fn set_grid_color_str(mut self, color_name: &str) -> Result<Self, Error> {
         let color = color::Color::new_str(color_name)?;
         self.canvas.set_grid_color_internal(color.as_srgba());
@@ -699,7 +699,7 @@ impl Plot {
     ///
     /// The function scales various elements within the plot, and calls a similar function for its
     /// canvas.
-    pub fn fit(&mut self) -> Result<(), Error> {
+    pub(crate) fn fit(&mut self) -> Result<(), Error> {
         let scale_factor = self.local_frame.diag_len();
         self.scale_size(scale_factor);
         self.canvas.fit(&self.local_frame)?;
@@ -708,7 +708,7 @@ impl Plot {
     }
 
     /// Do the actual drawing of the plot
-    pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
+    pub(crate) fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
 
         // Fill background
         let bg_color = self.color.as_srgba();

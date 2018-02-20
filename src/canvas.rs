@@ -74,7 +74,7 @@ impl Canvas {
 
     // ----------------- BACKGROUND COLOR ---------------------------------- //
 
-    /// Set the canvas background color using the default, built in colors
+    /// Set the canvas background color
     pub fn set_color_internal(&mut self, color: Srgba) {
         self.color.set_color(color);
     }
@@ -197,7 +197,7 @@ impl Canvas {
         self.default_x_axis_label.set_frame_gaps(left, right, bottom, top);
     }
 
-    /// Set the axis label color
+    /// Set the x axis label color
     pub fn set_default_x_axis_label_color_internal(&mut self, color: Srgba) {
         self.default_x_axis_label.set_color_internal(color);
     }
@@ -222,7 +222,7 @@ impl Canvas {
         self.default_y_axis_label.set_frame_gaps(left, right, bottom, top);
     }
 
-    /// Set the axis label color
+    /// Set the y axis label color
     pub fn set_default_y_axis_label_color_internal(&mut self, color: Srgba) {
         self.default_y_axis_label.set_color_internal(color);
     }
@@ -262,6 +262,7 @@ impl Canvas {
         self.grid_width = val;
     }
 
+    /// Set grid line color
     pub fn set_grid_color_internal(&mut self, color: Srgba) {
         self.grid_color.set_color(color);
     }
