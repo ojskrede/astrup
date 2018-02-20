@@ -3,7 +3,6 @@
 //! Module that defines the Scatter struct
 //!
 
-use failure::Error;
 use cairo::Context;
 use ndarray::AsArray;
 use palette::Srgba;
@@ -38,7 +37,7 @@ impl Scatter {
 
         let point_color = color::Color::new_default("blue");
         let shape = chart::point::Shape::Circle;
-        let point_size = 0.008;
+        let point_size = 0.002;
         let mut data_points = Vec::<chart::point::Point>::new();
         for (ref x, ref y) in x_view.iter().zip(y_view.iter()) {
             let mut point = chart::point::Point::new(x.val(), y.val());
@@ -96,10 +95,10 @@ impl Scatter {
 
     /// Set the point color from name. See the [palette
     /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
-    pub fn set_color_str(mut self, color_name: &str) -> Result<Self, Error> {
-        self.color.set_color_str(color_name)?;
+    pub fn set_color_str(mut self, color_name: &str) -> Self {
+        self.color.set_color_str(color_name);
         self.is_color_updated = true;
-        Ok(self)
+        self
     }
 
     /// Set the scatter point size

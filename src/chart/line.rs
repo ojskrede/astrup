@@ -1,7 +1,6 @@
 //! Module that defines the Line struct
 //!
 
-use failure::Error;
 use cairo::{Context, LineCap};
 use palette::Srgba;
 use ndarray::AsArray;
@@ -187,10 +186,10 @@ impl Line {
 
     /// Set the line color from name. See the [palette
     /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
-    pub fn set_color_str(mut self, color_name: &str) -> Result<Self, Error> {
-        self.color.set_color_str(color_name)?;
+    pub fn set_color_str(mut self, color_name: &str) -> Self {
+        self.color.set_color_str(color_name);
         self.is_color_updated = true;
-        Ok(self)
+        self
     }
 
     /// Set the line width

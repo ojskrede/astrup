@@ -109,10 +109,10 @@ impl Figure {
     }
 
     /// Set the title color
-    pub fn set_title_color_str(mut self, color_name: &str) -> Result<Self, Error> {
-        let color = color::Color::new_str(color_name)?;
+    pub fn set_title_color_str(mut self, color_name: &str) -> Self {
+        let color = color::Color::new_str(color_name);
         self.title.set_color_internal(color.as_srgba());
-        Ok(self)
+        self
     }
 
     /// Set window title. This is displayed in the window "header", and not in the figure itself.
@@ -163,9 +163,9 @@ impl Figure {
     }
 
     /// Set the figure background color
-    pub fn set_color_str(mut self, color_name: &str) -> Result<Self, Error> {
-        self.color.set_color_str(color_name)?;
-        Ok(self)
+    pub fn set_color_str(mut self, color_name: &str) -> Self {
+        self.color.set_color_str(color_name);
+        self
     }
 
     // ----------------- GETTERS ------------------------------------------- //
@@ -224,10 +224,10 @@ impl Figure {
     }
 
     /// Set the figure border color
-    pub fn set_border_color_str(mut self, color_name: &str) -> Result<Self, Error> {
-        let color = color::Color::new_str(color_name)?;
+    pub fn set_border_color_str(mut self, color_name: &str) -> Self {
+        let color = color::Color::new_str(color_name);
         self.local_frame.set_color_internal(color.as_srgba());
-        Ok(self)
+        self
     }
 
     /// Set the line width of the border around the figure

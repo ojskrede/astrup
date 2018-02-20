@@ -22,11 +22,13 @@ pub struct Canvas {
     global_frame: shape::Rectangle,
     data_frame: shape::Rectangle,
     user_data_frame: shape::Rectangle,
-    display_axes: bool,
-    display_grid: bool,
     grid_width: f64,
     grid_color: color::Color,
     grid: Vec<mark::GridLine>,
+    display_horizontal_gridlines: bool,
+    display_vertical_gridlines: bool,
+    display_horizontal_axis: bool,
+    display_vertical_axis: bool,
     hor_marks: Vec<mark::Mark>, // TODO: Use these in stead of axis
     ver_marks: Vec<mark::Mark>,
     axes: Vec<axis::Axis>,
@@ -53,11 +55,13 @@ impl Canvas {
             global_frame: shape::Rectangle::new(),
             data_frame: shape::Rectangle::new(),
             user_data_frame: shape::Rectangle::new(),
-            display_axes: true,
-            display_grid: true,
-            grid_width: 0.0025,
+            grid_width: 0.004,
             grid_color: color::Color::new_default("grid_line"),
             grid: Vec::<mark::GridLine>::new(),
+            display_horizontal_gridlines: true,
+            display_vertical_gridlines: true,
+            display_horizontal_axis: true,
+            display_vertical_axis: true,
             hor_marks: Vec::<mark::Mark>::new(),
             ver_marks: Vec::<mark::Mark>::new(),
             axes: Vec::<axis::Axis>::new(),
@@ -155,9 +159,14 @@ impl Canvas {
 
     // ----------------- AXES APPEARANCE ----------------------------------- //
 
-    /// Whether or not to display axes
-    pub fn display_axes(&mut self, val: bool) {
-        self.display_axes = val;
+    /// Whether or not to display horizontal axis
+    pub fn display_horizontal_axis(&mut self, val: bool) {
+        self.display_horizontal_axis = val;
+    }
+
+    /// Whether or not to display vertical axis
+    pub fn display_vertical_axis(&mut self, val: bool) {
+        self.display_vertical_axis = val;
     }
 
     /// Set the color of all axes on the canvas
@@ -256,9 +265,14 @@ impl Canvas {
 
     // ----------------- GRID ---------------------------------------------- //
 
-    /// Whether or not to display grid
-    pub fn display_grid(&mut self, val: bool) {
-        self.display_grid = val;
+    /// Whether or not to display horizontal grid lines
+    pub fn display_horizontal_gridlines(&mut self, val: bool) {
+        self.display_horizontal_gridlines = val;
+    }
+
+    /// Whether or not to display horizontal grid lines
+    pub fn display_vertical_gridlines(&mut self, val: bool) {
+        self.display_vertical_gridlines = val;
     }
 
     /// Set the line width of the gridlines
@@ -302,21 +316,25 @@ impl Canvas {
         let scale_factor = self.global_frame.diag_len();
         //let scale_factor = self.global_frame.height().min(self.global_frame.width());
         let grid_color = self.grid_color.as_srgba();
-        for coord in ver_axis.mark_coords() {
-            let mut gridline = mark::GridLine::new_from(coord.x(), coord.y(),
-                                                        self.global_frame.right(), coord.y());
-            gridline.set_color_internal(grid_color);
-            gridline.set_width(self.grid_width);
-            gridline.scale_size(scale_factor);
-            self.grid.push(gridline);
+        if self.display_horizontal_gridlines {
+            for coord in ver_axis.mark_coords() {
+                let mut gridline = mark::GridLine::new_from(coord.x(), coord.y(),
+                                                            self.global_frame.right(), coord.y());
+                gridline.set_color_internal(grid_color);
+                gridline.set_width(self.grid_width);
+                gridline.scale_size(scale_factor);
+                self.grid.push(gridline);
+            }
         }
-        for coord in hor_axis.mark_coords() {
-            let mut gridline = mark::GridLine::new_from(coord.x(), coord.y(),
-                                                        coord.x(), self.global_frame.top());
-            gridline.set_color_internal(grid_color);
-            gridline.set_width(self.grid_width);
-            gridline.scale_size(scale_factor);
-            self.grid.push(gridline);
+        if self.display_vertical_gridlines {
+            for coord in hor_axis.mark_coords() {
+                let mut gridline = mark::GridLine::new_from(coord.x(), coord.y(),
+                                                            coord.x(), self.global_frame.top());
+                gridline.set_color_internal(grid_color);
+                gridline.set_width(self.grid_width);
+                gridline.scale_size(scale_factor);
+                self.grid.push(gridline);
+            }
         }
     }
 
@@ -438,11 +456,12 @@ impl Canvas {
         hor_axis.fit(&self.global_frame);
 
         // Set grid
-        if self.display_grid {
-            self.compute_grid(&ver_axis, &hor_axis);
-        }
+        self.compute_grid(&ver_axis, &hor_axis);
 
-        self.axes = vec![hor_axis, ver_axis];
+        let mut axes = Vec::<axis::Axis>::new();
+        if self.display_horizontal_axis { axes.push(hor_axis); }
+        if self.display_vertical_axis { axes.push(ver_axis); }
+        self.axes = axes;
 
         for chart in self.charts.iter_mut() {
             chart.fit(&self.global_frame, &self.data_frame);
@@ -462,16 +481,12 @@ impl Canvas {
                      self.global_frame.width(), self.global_frame.height());
         cr.fill();
 
-        if self.display_grid {
-            for gridline in self.grid.iter() {
-                gridline.draw(cr, fig_rel_height, fig_rel_width);
-            }
+        for gridline in self.grid.iter() {
+            gridline.draw(cr, fig_rel_height, fig_rel_width);
         }
 
-        if self.display_axes {
-            for axis in self.axes.iter() {
-                axis.draw(cr, fig_rel_height, fig_rel_width);
-            }
+        for axis in self.axes.iter() {
+            axis.draw(cr, fig_rel_height, fig_rel_width);
         }
 
         let mut color_generator = color::ChartColors::new();

@@ -107,10 +107,10 @@ impl Plot {
     }
 
     /// Set the title color
-    pub fn set_title_color_str(mut self, color_name: &str) -> Result<Self, Error> {
-        let color = color::Color::new_str(color_name)?;
+    pub fn set_title_color_str(mut self, color_name: &str) -> Self {
+        let color = color::Color::new_str(color_name);
         self.title.set_color_internal(color.as_srgba());
-        Ok(self)
+        self
     }
 
     // ----------------- PLOT APPEARANCE ----------------------------------- //
@@ -146,9 +146,9 @@ impl Plot {
     }
 
     /// Set the background color
-    pub fn set_color_str(mut self, color_name: &str) -> Result<Self, Error> {
-        self.color.set_color_str(color_name)?;
-        Ok(self)
+    pub fn set_color_str(mut self, color_name: &str) -> Self {
+        self.color.set_color_str(color_name);
+        self
     }
 
     // ----------------- PLOT FRAME ---------------------------------------- //
@@ -204,10 +204,10 @@ impl Plot {
     }
 
     /// Set the border color
-    pub fn set_border_color_str(mut self, color_name: &str) -> Result<Self, Error> {
-        let color = color::Color::new_str(color_name)?;
+    pub fn set_border_color_str(mut self, color_name: &str) -> Self {
+        let color = color::Color::new_str(color_name);
         self.local_frame.set_color_internal(color.as_srgba());
-        Ok(self)
+        self
     }
 
     /// Set the line width of the border around the plot
@@ -332,17 +332,23 @@ impl Plot {
     }
 
     /// Set the canvas background color
-    pub fn set_canvas_color_str(mut self, color_name: &str) -> Result<Self, Error> {
-        let color = color::Color::new_str(color_name)?;
+    pub fn set_canvas_color_str(mut self, color_name: &str) -> Self {
+        let color = color::Color::new_str(color_name);
         self.canvas.set_color_internal(color.as_srgba());
-        Ok(self)
+        self
     }
 
     // ----------------- AXES ---------------------------------------------- //
 
-    /// Whether or not to display axes
-    pub fn display_axes(mut self, val: bool) -> Self {
-        self.canvas.display_axes(val);
+    /// Whether or not to display the default horizontal axis
+    pub fn display_x_axis(mut self, val: bool) -> Self {
+        self.canvas.display_horizontal_axis(val);
+        self
+    }
+
+    /// Whether or not to display the default vertical axis
+    pub fn display_y_axis(mut self, val: bool) -> Self {
+        self.canvas.display_vertical_axis(val);
         self
     }
 
@@ -394,10 +400,10 @@ impl Plot {
     }
 
     /// Set the axes color
-    pub fn set_axes_color_str(mut self, color_name: &str) -> Result<Self, Error> {
-        let color = color::Color::new_str(color_name)?;
+    pub fn set_axes_color_str(mut self, color_name: &str) -> Self {
+        let color = color::Color::new_str(color_name);
         self.canvas.set_axes_color_internal(color.as_srgba());
-        Ok(self)
+        self
     }
 
     // ----------------- DEFAULT HORISONTAL AXIS --------------------------- //
@@ -462,10 +468,10 @@ impl Plot {
     }
 
     /// Set the x label color
-    pub fn set_x_label_color_str(mut self, color_name: &str) -> Result<Self, Error> {
-        let color = color::Color::new_str(color_name)?;
+    pub fn set_x_label_color_str(mut self, color_name: &str) -> Self {
+        let color = color::Color::new_str(color_name);
         self.canvas.set_default_x_axis_label_color_internal(color.as_srgba());
-        Ok(self)
+        self
     }
 
     // ----------------- DEFAULT VERTICAL AXIS ----------------------------- //
@@ -530,10 +536,10 @@ impl Plot {
     }
 
     /// Set the y label color
-    pub fn set_y_label_color_str(mut self, color_name: &str) -> Result<Self, Error> {
-        let color = color::Color::new_str(color_name)?;
+    pub fn set_y_label_color_str(mut self, color_name: &str) -> Self {
+        let color = color::Color::new_str(color_name);
         self.canvas.set_default_y_axis_label_color_internal(color.as_srgba());
-        Ok(self)
+        self
     }
 
     // ----------------- TICKS --------------------------------------------- //
@@ -574,10 +580,10 @@ impl Plot {
     }
 
     /// Set the tick color
-    pub fn set_tick_color_str(mut self, color_name: &str) -> Result<Self, Error> {
-        let color = color::Color::new_str(color_name)?;
+    pub fn set_tick_color_str(mut self, color_name: &str) -> Self {
+        let color = color::Color::new_str(color_name);
         self.canvas.set_tick_color_internal(color.as_srgba());
-        Ok(self)
+        self
     }
 
     /// Set the tick label color
@@ -616,10 +622,10 @@ impl Plot {
     }
 
     /// Set the tick label color
-    pub fn set_tick_label_color_str(mut self, color_name: &str) -> Result<Self, Error> {
-        let color = color::Color::new_str(color_name)?;
+    pub fn set_tick_label_color_str(mut self, color_name: &str) -> Self {
+        let color = color::Color::new_str(color_name);
         self.canvas.set_tick_label_color_internal(color.as_srgba());
-        Ok(self)
+        self
     }
 
     /// Set the tick font size
@@ -630,9 +636,15 @@ impl Plot {
 
     // ----------------- CANVAS GRID --------------------------------------- //
 
-    /// Whether or not to display grid
-    pub fn display_grid(mut self, val: bool) -> Self {
-        self.canvas.display_grid(val);
+    /// Whether or not to display horizontal gridlines
+    pub fn display_horizontal_gridlines(mut self, val: bool) -> Self {
+        self.canvas.display_horizontal_gridlines(val);
+        self
+    }
+
+    /// Whether or not to display vertical gridlines
+    pub fn display_vertical_gridlines(mut self, val: bool) -> Self {
+        self.canvas.display_vertical_gridlines(val);
         self
     }
 
@@ -678,10 +690,10 @@ impl Plot {
     }
 
     /// Set the grid line color
-    pub fn set_grid_color_str(mut self, color_name: &str) -> Result<Self, Error> {
-        let color = color::Color::new_str(color_name)?;
+    pub fn set_grid_color_str(mut self, color_name: &str) -> Self {
+        let color = color::Color::new_str(color_name);
         self.canvas.set_grid_color_internal(color.as_srgba());
-        Ok(self)
+        self
     }
 
     // ----------------- GENERAL ------------------------------------------- //

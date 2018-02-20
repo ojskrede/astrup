@@ -1,7 +1,6 @@
 //! Definitions of things related to colors
 //!
 
-use failure::{Error, err_msg};
 use palette::{Srgba, named};
 
 /// Simple struct used to hold and generate default chart colors
@@ -79,18 +78,18 @@ impl DefaultColors {
             gray: Srgba::new_u8(127, 127, 127, 255),
             white: Srgba::new_u8(255, 255, 255, 255),
             figure_background: Srgba::new_u8(1, 1, 1, 0),
-            plot_background: Srgba::new_u8(240, 242, 255, 255),
-            canvas_background: Srgba::new_u8(230, 235, 245, 255),
-            figure_border: Srgba::new_u8(10, 10, 10, 255),
-            plot_border: Srgba::new_u8(10, 10, 10, 255),
-            canvas_border: Srgba::new_u8(10, 10, 10, 255),
-            grid_line: Srgba::new_u8(255, 255, 255, 230),
-            axis_line: Srgba::new_u8(10, 10, 10, 255),
-            tick: Srgba::new_u8(10, 10, 10, 255),
-            figure_title: Srgba::new_u8(10, 10, 10, 255),
-            plot_title: Srgba::new_u8(10, 10, 10, 255),
-            axis_label: Srgba::new_u8(10, 10, 10, 255),
-            tick_label: Srgba::new_u8(10, 10, 10, 255),
+            plot_background: Srgba::new_u8(250, 250, 250, 255),
+            canvas_background: Srgba::new_u8(240, 240, 240, 255),
+            figure_border: Srgba::new_u8(50, 50, 50, 255),
+            plot_border: Srgba::new_u8(50, 50, 50, 255),
+            canvas_border: Srgba::new_u8(50, 50, 50, 255),
+            grid_line: Srgba::new_u8(255, 255, 255, 127),
+            axis_line: Srgba::new_u8(30, 30, 30, 255),
+            tick: Srgba::new_u8(30, 30, 30, 255),
+            figure_title: Srgba::new_u8(30, 30, 30, 255),
+            plot_title: Srgba::new_u8(30, 30, 30, 255),
+            axis_label: Srgba::new_u8(30, 30, 30, 255),
+            tick_label: Srgba::new_u8(30, 30, 30, 255),
         }
     }
 
@@ -179,11 +178,18 @@ impl Color {
         }
     }
 
-    pub fn new_str(color_name: &str) -> Result<Color, Error> {
-        let color_srgb = named::from_str(color_name).ok_or(err_msg("Unknown color name"))?;
-        Ok(Color {
+    pub fn new_str(color_name: &str) -> Color {
+        let color_srgb = match named::from_str(color_name) {
+            Some(val) => val,
+            None => {
+                println!("The following color name is not supported: {}", color_name);
+                println!("Black is selected");
+                (0, 0, 0)
+            }
+        };
+        Color {
             color: Srgba::from_pixel(&color_srgb).into(),
-        })
+        }
     }
 
     pub fn set_color(&mut self, color: Srgba) {
@@ -218,10 +224,16 @@ impl Color {
         self.color = Srgba::new_u8(red, green, blue, alpha);
     }
 
-    pub fn set_color_str(&mut self, color_name: &str) -> Result<(), Error> {
-        let color_srgb = named::from_str(color_name).ok_or(err_msg("Unknown color name"))?;
+    pub fn set_color_str(&mut self, color_name: &str) {
+        let color_srgb = match named::from_str(color_name) {
+            Some(val) => val,
+            None => {
+                println!("The following color name is not supported: {}", color_name);
+                println!("Black is selected");
+                (0, 0, 0)
+            }
+        };
         self.color = Srgba::from_pixel(&color_srgb).into();
-        Ok(())
     }
 
     pub fn as_srgba(&self) -> Srgba {
