@@ -29,6 +29,8 @@ impl Plot {
         local_frame.set_color_internal(color::Color::new_default("plot_border").as_srgba());
         let mut title = label::Label::new();
         title.set_color_internal(color::Color::new_default("plot_title").as_srgba());
+        title.set_centroid(0.5, 0.97);
+        title.set_font_size(0.02);
         Plot {
             title: title,
             color: color::Color::new_default("plot_background"),
@@ -161,6 +163,47 @@ impl Plot {
         self.local_frame.set(left, right, bottom, top);
         self
     }
+
+    pub fn set_left(mut self, val: f64) -> Self {
+        self.local_frame.set_left(val);
+        self
+    }
+
+    pub fn set_right(mut self, val: f64) -> Self {
+        self.local_frame.set_right(val);
+        self
+    }
+
+    pub fn set_bottom(mut self, val: f64) -> Self {
+        self.local_frame.set_bottom(val);
+        self
+    }
+
+    pub fn set_top(mut self, val: f64) -> Self {
+        self.local_frame.set_top(val);
+        self
+    }
+
+    pub fn set_local_frame_mut_ref(&mut self, left: f64, right: f64, bottom: f64, top: f64) {
+        self.local_frame.set(left, right, bottom, top);
+    }
+
+    pub fn set_left_mut_ref(&mut self, val: f64) {
+        self.local_frame.set_left(val);
+    }
+
+    pub fn set_right_mut_ref(&mut self, val: f64) {
+        self.local_frame.set_right(val);
+    }
+
+    pub fn set_bottom_mut_ref(&mut self, val: f64) {
+        self.local_frame.set_bottom(val);
+    }
+
+    pub fn set_top_mut_ref(&mut self, val: f64) {
+        self.local_frame.set_top(val);
+    }
+
 
     /// Whether or not to display a border around the plot
     pub fn display_border(mut self, val: bool) -> Self {
@@ -696,6 +739,43 @@ impl Plot {
         self
     }
 
+    // ----------------- GETTERS ------------------------------------------- //
+
+    /// Return the frame of the plot, relative to the figure
+    pub fn local_frame(&self) -> shape::Rectangle {
+        self.local_frame.clone()
+    }
+
+    /// Return the height of the plot, relative to the figure
+    pub fn height(&self) -> f64 {
+        self.local_frame.height()
+    }
+
+    /// Return the width of the figure, relative to the figure
+    pub fn width(&self) -> f64 {
+        self.local_frame.width()
+    }
+
+    /// Return the leftmost plot location, relative to the figure
+    pub fn left(&self) -> f64 {
+        self.local_frame.left()
+    }
+
+    /// Return the rightmost plot location, relative to the figure
+    pub fn right(&self) -> f64 {
+        self.local_frame.right()
+    }
+
+    /// Return the bottommost plot location, relative to the figure
+    pub fn bottom(&self) -> f64 {
+        self.local_frame.bottom()
+    }
+
+    /// Return the topmost plot location, relative to the figure
+    pub fn top(&self) -> f64 {
+        self.local_frame.top()
+    }
+
     // ----------------- GENERAL ------------------------------------------- //
 
     /// Add a chart to the plot
@@ -717,7 +797,11 @@ impl Plot {
     pub(crate) fn fit(&mut self) -> Result<(), Error> {
         let scale_factor = self.local_frame.diag_len();
         self.scale_size(scale_factor);
-        self.canvas.fit(&self.local_frame)?;
+
+        self.title.fit(&self.local_frame);
+
+        let has_title = self.title.content() != "";
+        self.canvas.fit(&self.local_frame, has_title)?;
 
         Ok(())
     }
@@ -736,7 +820,8 @@ impl Plot {
         // Draw frame border
         self.local_frame.draw(cr, fig_rel_height, fig_rel_width);
 
-
+        // Draw title
+        self.title.draw(cr, fig_rel_height, fig_rel_width);
 
         // Draw canvas
         self.canvas.draw(cr, fig_rel_height, fig_rel_width);

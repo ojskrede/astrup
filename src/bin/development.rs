@@ -42,16 +42,19 @@ fn main() {
                                .add(&Chart::Line(line6))
                                .add(&Chart::Line(line7))
                                .add(&Chart::Line(line8))
+                               .set_title("Plot title")
                                .set_y_min(-1.2)
-                               .set_x_label("x axis label")
-                               .set_y_label("y axis label")
+                               //.set_x_label("x axis label")
+                               //.set_y_label("y axis label")
                                .set_y_label_angle(PI / 2.0)
-                               .set_local_frame(0.1, 0.9, 0.2, 0.8);
+                               .set_local_frame(0.0, 1.0, 0.0, 1.0);
 
     // Add the plots to a figure, and save it
     let fig = Figure::new().add(&line_plot)
                            .set_width(1000)
-                           .set_height(1000);
+                           .set_height(1000)
+                           .set_title("Figure title")
+                           .set_border_thickness(0.01);
                            //.save("development_example.png").expect("Could not save devel example");
 
     // Display the result on screen

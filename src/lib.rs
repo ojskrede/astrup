@@ -58,8 +58,6 @@
 //!                                .add(&Chart::Line(line7))
 //!                                .add(&Chart::Line(line8))
 //!                                .set_y_min(-1.2)
-//!                                .set_x_label("x")
-//!                                .set_y_label("y")
 //!                                .set_local_frame(0.0, 0.7, 0.51, 1.0);
 //!
 //!     // Create a seedable rng so that the scatter points are equal from run to run
@@ -94,6 +92,7 @@
 //!                                   .set_x_label("x")
 //!                                   .set_y_label("y")
 //!                                   .set_y_label_angle(0.0)
+//!                                   .set_title("Scatter plot")
 //!                                   .add(&Chart::Scatter(scatter_1))
 //!                                   .add(&Chart::Scatter(scatter_2));
 //!

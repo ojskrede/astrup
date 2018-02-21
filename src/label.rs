@@ -125,6 +125,10 @@ impl Label {
         self.border_thickness = val;
     }
 
+    pub fn content(&self) -> String {
+        self.text.content()
+    }
+
     #[allow(dead_code)] // TODO: Issue #13
     pub fn rel_left_gap(&self) -> f64 {
         self.rel_left_gap

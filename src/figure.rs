@@ -28,6 +28,8 @@ impl Figure {
         local_frame.set_color_internal(color::Color::new_default("figure_border").as_srgba());
         let mut title = label::Label::new();
         title.set_color_internal(color::Color::new_default("figure_title").as_srgba());
+        title.set_centroid(0.5, 0.97);
+        title.set_font_size(0.02);
         Figure {
             plots: Vec::<plot::Plot>::new(),
             title: title,
@@ -264,7 +266,14 @@ impl Figure {
     }
 
     pub(crate) fn fit(&mut self) -> Result<(), Error> {
+        // TODO: Issue #13
+        self.title.fit(&shape::Rectangle::new());
         for plot in self.plots.iter_mut() {
+            let mut new_top = plot.top();
+            if self.title.content() != "" {
+                new_top = plot.top().min(0.93);
+            }
+            plot.set_top_mut_ref(new_top);
             plot.fit()?;
         }
 
@@ -308,6 +317,8 @@ impl Figure {
         // upwards.
         let flip_matrix = Matrix::new(1.0, 0.0, 0.0, -1.0, 0.0, 1.0);
         cr.transform(flip_matrix);
+
+        self.title.draw(cr, relative_height, relative_width);
 
         // Frame border
         self.local_frame.draw(cr, relative_height, relative_width);

@@ -47,7 +47,7 @@ impl Canvas {
         y_axis_label.set_font_size(0.025);
         y_axis_label.set_angle(f64::consts::PI / 2.0);
         y_axis_label.set_color_internal(color::Color::new_default("axis_label").as_srgba());
-        let mut local_frame = shape::Rectangle::new_from(0.15, 0.95, 0.15, 0.95);
+        let mut local_frame = shape::Rectangle::new_from(0.10, 0.95, 0.10, 0.95);
         local_frame.set_color_internal(color::Color::new_default("canvas_border").as_srgba());
         Canvas {
             color: color::Color::new_default("canvas_background"),
@@ -426,8 +426,22 @@ impl Canvas {
     }
 
     /// Fit this canvas to its plot
-    pub fn fit(&mut self, plot_frame: &shape::Rectangle)
+    pub fn fit(&mut self, plot_frame: &shape::Rectangle, plot_has_title: bool)
     -> Result<(), Error> {
+
+        // TODO: This is a temporary hack that will be resolved with Issue #13
+        if plot_has_title {
+            let new_top = self.local_frame.top().min(0.93);
+            self.local_frame.set_top(new_top);
+        }
+        if self.default_x_axis_label.content() != "" {
+            let new_bottom = self.local_frame.bottom().max(0.15);
+            self.local_frame.set_bottom(new_bottom);
+        }
+        if self.default_y_axis_label.content() != "" {
+            let new_left = self.local_frame.left().max(0.15);
+            self.local_frame.set_left(new_left);
+        }
         // First, we update the global_frame relative to the parent's global_frame.
         // After this is called, both local_frame and global_frame should not be altered.
         self.local_frame.scale_size(plot_frame.diag_len()); //JIC we want to display the border
