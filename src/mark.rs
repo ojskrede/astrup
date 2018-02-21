@@ -1,7 +1,7 @@
 //! Definition of the Mark, Tick, and GridLine structs.
 //!
 
-use cairo::{Context, LineCap};
+use cairo::{Context, LineCap, FontWeight, FontSlant};
 use palette::Srgba;
 
 use ::{shape, coord, label, color};
@@ -75,6 +75,19 @@ impl Mark {
     /// Set label font size
     pub fn set_font_size(&mut self, val: f64) {
         self.label.set_font_size(val);
+    }
+
+    pub fn set_font_slant(&mut self, font_slant: FontSlant) {
+        self.label.set_font_slant(font_slant);
+    }
+
+    pub fn set_font_weight(&mut self, font_weight: FontWeight) {
+        self.label.set_font_weight(font_weight);
+    }
+
+    pub fn set_font_family(&mut self) {
+        // TODO:
+        self.label.set_font_family();
     }
 
     /// Set the color of the tick label

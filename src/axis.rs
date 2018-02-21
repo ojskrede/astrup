@@ -5,7 +5,7 @@ use std::f64;
 use failure::{Error, err_msg};
 use palette::Srgba;
 
-use cairo::{Context};
+use cairo::{Context, FontWeight, FontSlant};
 
 use ::{utils, coord, shape, label, mark, color};
 
@@ -101,6 +101,19 @@ impl Axis {
         self.label.set_font_size(val);
     }
 
+    pub fn set_label_font_slant(&mut self, font_slant: FontSlant) {
+        self.label.set_font_slant(font_slant);
+    }
+
+    pub fn set_label_font_weight(&mut self, font_weight: FontWeight) {
+        self.label.set_font_weight(font_weight);
+    }
+
+    pub fn set_label_font_family(&mut self) {
+        // TODO:
+        self.label.set_font_family();
+    }
+
     /// Set the gaps around the axis label. See the Label struct for reference.
     #[allow(dead_code)] // TODO: When axis becomes public
     pub fn set_label_frame_gaps(&mut self, left: f64, right: f64, bottom: f64, top: f64) {
@@ -135,6 +148,25 @@ impl Axis {
     pub fn set_tick_label_font_size(&mut self, val: f64) {
         for mark in self.marks.iter_mut() {
             mark.set_font_size(val);
+        }
+    }
+
+    pub fn set_tick_label_font_slant(&mut self, font_slant: FontSlant) {
+        for mark in self.marks.iter_mut() {
+            mark.set_font_slant(font_slant);
+        }
+    }
+
+    pub fn set_tick_label_font_weight(&mut self, font_weight: FontWeight) {
+        for mark in self.marks.iter_mut() {
+            mark.set_font_weight(font_weight);
+        }
+    }
+
+    pub fn set_tick_label_font_family(&mut self) {
+        // TODO:
+        for mark in self.marks.iter_mut() {
+            mark.set_font_family();
         }
     }
 

@@ -2,7 +2,7 @@
 //!
 
 use palette::Srgba;
-use cairo::{Context, Matrix, MatrixTrait};
+use cairo::{Context, Matrix, MatrixTrait, FontWeight, FontSlant};
 
 use ::{shape, text, coord};
 
@@ -98,6 +98,19 @@ impl Label {
 
     pub fn set_font_size(&mut self, val: f64) {
         self.text.set_font_size(val);
+    }
+
+    pub fn set_font_slant(&mut self, font_slant: FontSlant) {
+        self.text.set_font_slant(font_slant);
+    }
+
+    pub fn set_font_weight(&mut self, font_weight: FontWeight) {
+        self.text.set_font_weight(font_weight);
+    }
+
+    pub fn set_font_family(&mut self) {
+        // TODO:
+        self.text.set_font_family();
     }
 
     /// Set text color

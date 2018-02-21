@@ -13,6 +13,9 @@ pub struct Text {
     content: String,
     font_size: f64,
     font_matrix: Matrix,
+    font_slant: FontSlant,
+    font_weight: FontWeight,
+    font_family: String, // TODO: Enum
     color: color::Color,
 }
 
@@ -23,6 +26,9 @@ impl Text {
             content: String::from(""),
             font_size: 0.03,
             font_matrix: Matrix::new(1.0, 0.0, 0.0, 1.0, 0.0, 0.0),
+            font_slant: FontSlant::Normal,
+            font_weight: FontWeight::Normal,
+            font_family: String::from("Serif"),
             color: color::Color::new(),
         }
     }
@@ -34,6 +40,9 @@ impl Text {
             content: String::from(content),
             font_size: 0.03,
             font_matrix: Matrix::new(1.0, 0.0, 0.0, 1.0, 0.0, 0.0),
+            font_slant: FontSlant::Normal,
+            font_weight: FontWeight::Normal,
+            font_family: String::from("Serif"),
             color: color::Color::new(),
         }
     }
@@ -60,6 +69,19 @@ impl Text {
         self.font_size = size;
     }
 
+    pub fn set_font_slant(&mut self, font_slant: FontSlant) {
+        self.font_slant = font_slant;
+    }
+
+    pub fn set_font_weight(&mut self, font_weight: FontWeight) {
+        self.font_weight = font_weight;
+    }
+
+    pub fn set_font_family(&mut self) {
+        // TODO:
+        self.font_family = String::from("Serif");
+    }
+
     /// Set text color
     pub fn set_color_internal(&mut self, color: Srgba) {
         self.color.set_color(color);
@@ -80,7 +102,7 @@ impl Text {
         // NOTE 2: If the text angle is not in {0, pi/2, pi, 3pi/2}, it looks ugly when the figure
         // is not square.
 
-        cr.select_font_face("Serif", FontSlant::Normal, FontWeight::Normal);
+        cr.select_font_face(&self.font_family, self.font_slant, self.font_weight);
         let text_color = self.color.as_srgba();
         cr.set_source_rgba(text_color.red as f64, text_color.green as f64,
                            text_color.blue as f64, text_color.alpha as f64);

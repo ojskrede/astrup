@@ -4,7 +4,7 @@
 use std::f64;
 use failure::Error;
 
-use cairo::Context;
+use cairo::{Context, FontWeight, FontSlant};
 
 use ::{canvas, chart, shape, label, color};
 
@@ -50,6 +50,27 @@ impl Plot {
     /// Set plot title font size
     pub fn set_title_font_size(mut self, val: f64) -> Self {
         self.title.set_font_size(val);
+        self
+    }
+
+    /// Set the plot title font slant
+    pub fn set_title_font_slant(mut self, font_slant: FontSlant) -> Self {
+        self.title.set_font_slant(font_slant);
+        self
+    }
+
+    /// Set the plot title font weight
+    pub fn set_title_font_weight(mut self, font_weight: FontWeight) -> Self {
+        self.title.set_font_weight(font_weight);
+        self
+    }
+
+    /// Set the plot title font family
+    ///
+    /// NOTE: Unimplemented
+    pub fn set_title_font_family(mut self) -> Self {
+        // TODO:
+        self.title.set_font_family();
         self
     }
 
@@ -401,6 +422,27 @@ impl Plot {
         self
     }
 
+    /// Set the font slant of all axis labels
+    pub fn set_axes_label_font_slant(mut self, font_slant: FontSlant) -> Self {
+        self.canvas.set_axes_label_font_slant(font_slant);
+        self
+    }
+
+    /// Set the font weight of all axis labels
+    pub fn set_axes_label_font_weight(mut self, font_weight: FontWeight) -> Self {
+        self.canvas.set_axes_label_font_weight(font_weight);
+        self
+    }
+
+    /// Set the font family of all axis labels
+    ///
+    /// NOTE: Unimplemented
+    pub fn set_axes_label_font_family(mut self) -> Self {
+        // TODO:
+        self.canvas.set_axes_label_font_family();
+        self
+    }
+
     /// Set the axes color
     pub fn set_axes_color(mut self, color: color::CustomColor) -> Self {
         self.canvas.set_axes_color_internal(color.as_srgba());
@@ -655,9 +697,30 @@ impl Plot {
         self
     }
 
-    /// Set the tick font size
+    /// Set the tick label font size
     pub fn set_tick_label_font_size(mut self, val: f64) -> Self {
         self.canvas.set_tick_label_font_size(val);
+        self
+    }
+
+    /// Set the tick label font slant
+    pub fn set_tick_label_font_slant(mut self, font_slant: FontSlant) -> Self {
+        self.canvas.set_tick_label_font_slant(font_slant);
+        self
+    }
+
+    /// Set the tick label font weight
+    pub fn set_tick_label_font_weight(mut self, font_weight: FontWeight) -> Self {
+        self.canvas.set_tick_label_font_weight(font_weight);
+        self
+    }
+
+    /// Set the tick label font family
+    ///
+    /// NOTE: Unimplemented
+    pub fn set_tick_label_font_family(mut self) -> Self {
+        // TODO:
+        self.canvas.set_tick_label_font_family();
         self
     }
 

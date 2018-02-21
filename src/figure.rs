@@ -5,7 +5,7 @@
 use std::fs::File;
 use failure::{Error, err_msg};
 
-use cairo::{Context, Format, ImageSurface, Matrix, MatrixTrait};
+use cairo::{Context, Format, ImageSurface, Matrix, MatrixTrait, FontSlant, FontWeight};
 
 use ::{plot, shape, color, label};
 
@@ -52,6 +52,23 @@ impl Figure {
     /// Set figure title font size
     pub fn set_title_font_size(mut self, val: f64) -> Self {
         self.title.set_font_size(val);
+        self
+    }
+
+    /// Set figure title font slant
+    pub fn set_title_font_slant(mut self, font_slant: FontSlant) -> Self {
+        self.title.set_font_slant(font_slant);
+        self
+    }
+
+    pub fn set_title_font_weight(mut self, font_weight: FontWeight) -> Self {
+        self.title.set_font_weight(font_weight);
+        self
+    }
+
+    pub fn set_title_font_family(mut self) -> Self {
+        // TODO:
+        self.title.set_font_family();
         self
     }
 

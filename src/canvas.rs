@@ -4,7 +4,7 @@
 use std::f64;
 use failure::Error;
 
-use cairo::Context;
+use cairo::{Context, FontWeight, FontSlant};
 use palette::Srgba;
 
 use ::{axis, mark, chart, shape, coord, label, color};
@@ -42,12 +42,13 @@ impl Canvas {
     pub fn new() -> Canvas {
         let mut x_axis_label = label::Label::new_from_centroid(0.5, -0.11);
         x_axis_label.set_font_size(0.025);
-        //x_axis_label.set_color_internal(color::Color::new_default("axis_label").as_srgba());
         x_axis_label.set_color_internal(color::CustomColor::AxisLabel.as_srgba());
+        x_axis_label.set_font_slant(FontSlant::Italic);
         let mut y_axis_label = label::Label::new_from_centroid(-0.13, 0.5);
         y_axis_label.set_font_size(0.025);
         y_axis_label.set_angle(f64::consts::PI / 2.0);
         y_axis_label.set_color_internal(color::CustomColor::AxisLabel.as_srgba());
+        y_axis_label.set_font_slant(FontSlant::Italic);
         let mut local_frame = shape::Rectangle::new_from(0.10, 0.95, 0.10, 0.95);
         local_frame.set_color_internal(color::CustomColor::CanvasBorder.as_srgba());
         Canvas {
@@ -189,6 +190,25 @@ impl Canvas {
         }
     }
 
+    pub fn set_axes_label_font_slant(&mut self, font_slant: FontSlant) {
+        for axis in self.axes.iter_mut() {
+            axis.set_label_font_slant(font_slant);
+        }
+    }
+
+    pub fn set_axes_label_font_weight(&mut self, font_weight: FontWeight) {
+        for axis in self.axes.iter_mut() {
+            axis.set_label_font_weight(font_weight);
+        }
+    }
+
+    pub fn set_axes_label_font_family(&mut self) {
+        // TODO:
+        for axis in self.axes.iter_mut() {
+            axis.set_label_font_family();
+        }
+    }
+
     // ----------------- AXIS LABELS --------------------------------------- //
 
     /// Set the label content of the default horisontal axis
@@ -261,6 +281,25 @@ impl Canvas {
     pub fn set_tick_label_font_size(&mut self, val: f64) {
         for axis in self.axes.iter_mut() {
             axis.set_tick_label_font_size(val);
+        }
+    }
+
+    pub fn set_tick_label_font_slant(&mut self, font_slant: FontSlant) {
+        for axis in self.axes.iter_mut() {
+            axis.set_tick_label_font_slant(font_slant);
+        }
+    }
+
+    pub fn set_tick_label_font_weight(&mut self, font_weight: FontWeight) {
+        for axis in self.axes.iter_mut() {
+            axis.set_tick_label_font_weight(font_weight);
+        }
+    }
+
+    pub fn set_tick_label_font_family(&mut self) {
+        // TODO:
+        for axis in self.axes.iter_mut() {
+            axis.set_tick_label_font_family();
         }
     }
 
