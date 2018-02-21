@@ -35,7 +35,7 @@ impl Scatter {
         let ref y_data_min = y_view.iter().min().expect("Could not find y min");
         let ref y_data_max = y_view.iter().max().expect("Could not find y max");
 
-        let point_color = color::Color::new_default("blue");
+        let point_color = color::Color::new_custom(color::CustomColor::Blue);
         let shape = chart::point::Shape::Circle;
         let point_size = 0.002;
         let mut data_points = Vec::<chart::point::Point>::new();
@@ -59,8 +59,8 @@ impl Scatter {
     }
 
     /// Set the point color using the default, built in colors
-    pub fn set_color(mut self, color_name: &str) -> Self {
-        self.color.set_color_default(color_name);
+    pub fn set_color(mut self, color: color::CustomColor) -> Self {
+        self.color.set_color_custom(color);
         self.is_color_updated = true;
         self
     }
@@ -95,8 +95,8 @@ impl Scatter {
 
     /// Set the point color from name. See the [palette
     /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
-    pub fn set_color_str(mut self, color_name: &str) -> Self {
-        self.color.set_color_str(color_name);
+    pub fn set_color_html(mut self, color: color::HtmlColor) -> Self {
+        self.color.set_color_html(color);
         self.is_color_updated = true;
         self
     }

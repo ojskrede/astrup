@@ -24,7 +24,7 @@ fn main() {
     let y_data8 = Array::from_iter((0..100).map(|i| (x_data[i] - PI / 8.0).sin()));
 
     // Plot lines
-    let line1 = Line::new(&x_data, &y_data1);
+    let line1 = Line::new(&x_data, &y_data1).set_color_rgba(-1.2, 1.4, 0.5, 233.0);
     let line2 = Line::new(&x_data, &y_data2);
     let line3 = Line::new(&x_data, &y_data3);
     let line4 = Line::new(&x_data, &y_data4);
@@ -44,8 +44,6 @@ fn main() {
                                .add(&Chart::Line(line8))
                                .set_title("Plot title")
                                .set_y_min(-1.2)
-                               //.set_x_label("x axis label")
-                               //.set_y_label("y axis label")
                                .set_y_label_angle(PI / 2.0)
                                .set_local_frame(0.0, 1.0, 0.0, 1.0);
 

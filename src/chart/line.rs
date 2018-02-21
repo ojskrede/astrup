@@ -140,7 +140,7 @@ impl Line {
             data_frame: shape::Rectangle::new_from(x_data_min.val(), x_data_max.val(),
                                                    y_data_min.val(), y_data_max.val()),
             global_frame: shape::Rectangle::new(),
-            color: color::Color::new_default("blue"),
+            color: color::Color::new_custom(color::CustomColor::Blue),
             is_color_updated: false,
             line_width: 0.0035,
             line_style: LineStyle::Plain,
@@ -150,8 +150,8 @@ impl Line {
     }
 
     /// Set the line color using the default, built in colors
-    pub fn set_color(mut self, color_name: &str) -> Self {
-        self.color.set_color_default(color_name);
+    pub fn set_color(mut self, color: color::CustomColor) -> Self {
+        self.color.set_color_custom(color);
         self.is_color_updated = true;
         self
     }
@@ -186,8 +186,8 @@ impl Line {
 
     /// Set the line color from name. See the [palette
     /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
-    pub fn set_color_str(mut self, color_name: &str) -> Self {
-        self.color.set_color_str(color_name);
+    pub fn set_color_html(mut self, color: color::HtmlColor) -> Self {
+        self.color.set_color_html(color);
         self.is_color_updated = true;
         self
     }

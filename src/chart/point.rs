@@ -32,7 +32,7 @@ impl Point {
     pub fn new(x_coord: f64, y_coord: f64) -> Point {
         Point {
             coord: coord::Coord::new_from(x_coord, y_coord),
-            color: color::Color::new_default("blue"),
+            color: color::Color::new_custom(color::CustomColor::Blue),
             is_color_updated: false,
             size: 0.003,
             shape: Shape::Circle,

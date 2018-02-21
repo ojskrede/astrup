@@ -25,9 +25,9 @@ impl Figure {
     pub fn new() -> Figure {
         let mut local_frame = shape::Rectangle::new();
         local_frame.display_border(false);
-        local_frame.set_color_internal(color::Color::new_default("figure_border").as_srgba());
+        local_frame.set_color_internal(color::CustomColor::FigureBorder.as_srgba());
         let mut title = label::Label::new();
-        title.set_color_internal(color::Color::new_default("figure_title").as_srgba());
+        title.set_color_internal(color::CustomColor::FigureTitle.as_srgba());
         title.set_centroid(0.5, 0.97);
         title.set_font_size(0.02);
         Figure {
@@ -36,7 +36,7 @@ impl Figure {
             window_title: String::from("Astrup"),
             height: 800,
             width: 1000,
-            color: color::Color::new_default("figure_background"),
+            color: color::Color::new_custom(color::CustomColor::FigureBackground),
             local_frame: local_frame,
         }
     }
@@ -76,8 +76,7 @@ impl Figure {
     }
 
     /// Set the title color
-    pub fn set_title_color(mut self, color_name: &str) -> Self {
-        let color = color::Color::new_default(color_name);
+    pub fn set_title_color(mut self, color: color::CustomColor) -> Self {
         self.title.set_color_internal(color.as_srgba());
         self
     }
@@ -111,8 +110,7 @@ impl Figure {
     }
 
     /// Set the title color
-    pub fn set_title_color_str(mut self, color_name: &str) -> Self {
-        let color = color::Color::new_str(color_name);
+    pub fn set_title_color_html(mut self, color: color::HtmlColor) -> Self {
         self.title.set_color_internal(color.as_srgba());
         self
     }
@@ -135,8 +133,8 @@ impl Figure {
     }
 
     /// Set the figure background color
-    pub fn set_color(mut self, color_name: &str) -> Self {
-        self.color.set_color_default(color_name);
+    pub fn set_color(mut self, color: color::CustomColor) -> Self {
+        self.color.set_color_custom(color);
         self
     }
 
@@ -165,8 +163,8 @@ impl Figure {
     }
 
     /// Set the figure background color
-    pub fn set_color_str(mut self, color_name: &str) -> Self {
-        self.color.set_color_str(color_name);
+    pub fn set_color_html(mut self, color: color::HtmlColor) -> Self {
+        self.color.set_color_html(color);
         self
     }
 
@@ -191,8 +189,8 @@ impl Figure {
     }
 
     /// Set the figure border color
-    pub fn set_border_color(mut self, color_name: &str) -> Self {
-        let color = color::Color::new_default(color_name);
+    pub fn set_border_color(mut self, color: color::CustomColor) -> Self {
+        let color = color::Color::new_custom(color);
         self.local_frame.set_color_internal(color.as_srgba());
         self
     }
@@ -226,8 +224,7 @@ impl Figure {
     }
 
     /// Set the figure border color
-    pub fn set_border_color_str(mut self, color_name: &str) -> Self {
-        let color = color::Color::new_str(color_name);
+    pub fn set_border_color_html(mut self, color: color::HtmlColor) -> Self {
         self.local_frame.set_color_internal(color.as_srgba());
         self
     }

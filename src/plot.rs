@@ -26,14 +26,14 @@ impl Plot {
         let mut local_frame = shape::Rectangle::new();
         local_frame.display_border(true);
         local_frame.set_border_thickness(0.001);
-        local_frame.set_color_internal(color::Color::new_default("plot_border").as_srgba());
+        local_frame.set_color_internal(color::CustomColor::PlotBorder.as_srgba());
         let mut title = label::Label::new();
-        title.set_color_internal(color::Color::new_default("plot_title").as_srgba());
+        title.set_color_internal(color::CustomColor::PlotTitle.as_srgba());
         title.set_centroid(0.5, 0.97);
         title.set_font_size(0.02);
         Plot {
             title: title,
-            color: color::Color::new_default("plot_background"),
+            color: color::Color::new_custom(color::CustomColor::PlotBackground),
             local_frame: local_frame,
             canvas: canvas::Canvas::new(),
         }
@@ -74,8 +74,7 @@ impl Plot {
     }
 
     /// Set the title color
-    pub fn set_title_color(mut self, color_name: &str) -> Self {
-        let color = color::Color::new_default(color_name);
+    pub fn set_title_color(mut self, color: color::CustomColor) -> Self {
         self.title.set_color_internal(color.as_srgba());
         self
     }
@@ -109,8 +108,7 @@ impl Plot {
     }
 
     /// Set the title color
-    pub fn set_title_color_str(mut self, color_name: &str) -> Self {
-        let color = color::Color::new_str(color_name);
+    pub fn set_title_color_html(mut self, color: color::HtmlColor) -> Self {
         self.title.set_color_internal(color.as_srgba());
         self
     }
@@ -118,8 +116,8 @@ impl Plot {
     // ----------------- PLOT APPEARANCE ----------------------------------- //
 
     /// Set the background color
-    pub fn set_color(mut self, color_name: &str) -> Self {
-        self.color.set_color_default(color_name);
+    pub fn set_color(mut self, color: color::CustomColor) -> Self {
+        self.color.set_color_custom(color);
         self
     }
 
@@ -148,8 +146,8 @@ impl Plot {
     }
 
     /// Set the background color
-    pub fn set_color_str(mut self, color_name: &str) -> Self {
-        self.color.set_color_str(color_name);
+    pub fn set_color_html(mut self, color: color::HtmlColor) -> Self {
+        self.color.set_color_html(color);
         self
     }
 
@@ -212,8 +210,7 @@ impl Plot {
     }
 
     /// Set the border color
-    pub fn set_border_color(mut self, color_name: &str) -> Self {
-        let color = color::Color::new_default(color_name);
+    pub fn set_border_color(mut self, color: color::CustomColor) -> Self {
         self.local_frame.set_color_internal(color.as_srgba());
         self
     }
@@ -247,8 +244,7 @@ impl Plot {
     }
 
     /// Set the border color
-    pub fn set_border_color_str(mut self, color_name: &str) -> Self {
-        let color = color::Color::new_str(color_name);
+    pub fn set_border_color_html(mut self, color: color::HtmlColor) -> Self {
         self.local_frame.set_color_internal(color.as_srgba());
         self
     }
@@ -340,8 +336,7 @@ impl Plot {
     }
 
     /// Set the canvas background color
-    pub fn set_canvas_color(mut self, color_name: &str) -> Self {
-        let color = color::Color::new_default(color_name);
+    pub fn set_canvas_color(mut self, color: color::CustomColor) -> Self {
         self.canvas.set_color_internal(color.as_srgba());
         self
     }
@@ -375,8 +370,7 @@ impl Plot {
     }
 
     /// Set the canvas background color
-    pub fn set_canvas_color_str(mut self, color_name: &str) -> Self {
-        let color = color::Color::new_str(color_name);
+    pub fn set_canvas_color_html(mut self, color: color::HtmlColor) -> Self {
         self.canvas.set_color_internal(color.as_srgba());
         self
     }
@@ -408,8 +402,7 @@ impl Plot {
     }
 
     /// Set the axes color
-    pub fn set_axes_color(mut self, color_name: &str) -> Self {
-        let color = color::Color::new_default(color_name);
+    pub fn set_axes_color(mut self, color: color::CustomColor) -> Self {
         self.canvas.set_axes_color_internal(color.as_srgba());
         self
     }
@@ -443,8 +436,7 @@ impl Plot {
     }
 
     /// Set the axes color
-    pub fn set_axes_color_str(mut self, color_name: &str) -> Self {
-        let color = color::Color::new_str(color_name);
+    pub fn set_axes_color_html(mut self, color: color::HtmlColor) -> Self {
         self.canvas.set_axes_color_internal(color.as_srgba());
         self
     }
@@ -476,8 +468,7 @@ impl Plot {
     }
 
     /// Set the x label color
-    pub fn set_x_label_color(mut self, color_name: &str) -> Self {
-        let color = color::Color::new_default(color_name);
+    pub fn set_x_label_color(mut self, color: color::CustomColor) -> Self {
         self.canvas.set_default_x_axis_label_color_internal(color.as_srgba());
         self
     }
@@ -511,8 +502,7 @@ impl Plot {
     }
 
     /// Set the x label color
-    pub fn set_x_label_color_str(mut self, color_name: &str) -> Self {
-        let color = color::Color::new_str(color_name);
+    pub fn set_x_label_color_html(mut self, color: color::HtmlColor) -> Self {
         self.canvas.set_default_x_axis_label_color_internal(color.as_srgba());
         self
     }
@@ -544,8 +534,7 @@ impl Plot {
     }
 
     /// Set the y label color
-    pub fn set_y_label_color(mut self, color_name: &str) -> Self {
-        let color = color::Color::new_default(color_name);
+    pub fn set_y_label_color(mut self, color: color::CustomColor) -> Self {
         self.canvas.set_default_y_axis_label_color_internal(color.as_srgba());
         self
     }
@@ -579,8 +568,7 @@ impl Plot {
     }
 
     /// Set the y label color
-    pub fn set_y_label_color_str(mut self, color_name: &str) -> Self {
-        let color = color::Color::new_str(color_name);
+    pub fn set_y_label_color_html(mut self, color: color::HtmlColor) -> Self {
         self.canvas.set_default_y_axis_label_color_internal(color.as_srgba());
         self
     }
@@ -588,8 +576,7 @@ impl Plot {
     // ----------------- TICKS --------------------------------------------- //
 
     /// Set the tick color
-    pub fn set_tick_color(mut self, color_name: &str) -> Self {
-        let color = color::Color::new_default(color_name);
+    pub fn set_tick_color(mut self, color: color::CustomColor) -> Self {
         self.canvas.set_tick_color_internal(color.as_srgba());
         self
     }
@@ -623,15 +610,13 @@ impl Plot {
     }
 
     /// Set the tick color
-    pub fn set_tick_color_str(mut self, color_name: &str) -> Self {
-        let color = color::Color::new_str(color_name);
+    pub fn set_tick_color_html(mut self, color: color::HtmlColor) -> Self {
         self.canvas.set_tick_color_internal(color.as_srgba());
         self
     }
 
     /// Set the tick label color
-    pub fn set_tick_label_color(mut self, color_name: &str) -> Self {
-        let color = color::Color::new_default(color_name);
+    pub fn set_tick_label_color(mut self, color: color::CustomColor) -> Self {
         self.canvas.set_tick_label_color_internal(color.as_srgba());
         self
     }
@@ -665,8 +650,7 @@ impl Plot {
     }
 
     /// Set the tick label color
-    pub fn set_tick_label_color_str(mut self, color_name: &str) -> Self {
-        let color = color::Color::new_str(color_name);
+    pub fn set_tick_label_color_html(mut self, color: color::HtmlColor) -> Self {
         self.canvas.set_tick_label_color_internal(color.as_srgba());
         self
     }
@@ -698,8 +682,7 @@ impl Plot {
     }
 
     /// Set the grid line color
-    pub fn set_grid_color(mut self, color_name: &str) -> Self {
-        let color = color::Color::new_default(color_name);
+    pub fn set_grid_color(mut self, color: color::CustomColor) -> Self {
         self.canvas.set_grid_color_internal(color.as_srgba());
         self
     }
@@ -733,8 +716,7 @@ impl Plot {
     }
 
     /// Set the grid line color
-    pub fn set_grid_color_str(mut self, color_name: &str) -> Self {
-        let color = color::Color::new_str(color_name);
+    pub fn set_grid_color_html(mut self, color: color::HtmlColor) -> Self {
         self.canvas.set_grid_color_internal(color.as_srgba());
         self
     }

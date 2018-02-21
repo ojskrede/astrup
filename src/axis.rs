@@ -31,14 +31,14 @@ impl Axis {
     #[allow(dead_code)]
     pub fn new() -> Axis {
         let mut label = label::Label::new();
-        label.set_color_internal(color::Color::new_default("axis_label").as_srgba());
+        label.set_color_internal(color::CustomColor::AxisLabel.as_srgba());
         Axis {
             local_start: coord::Coord::new(),
             local_end: coord::Coord::new(),
             global_start: coord::Coord::new(),
             global_end: coord::Coord::new(),
             direction: coord::Coord::new(),
-            color: color::Color::new_default("axis_line"),
+            color: color::Color::new_custom(color::CustomColor::AxisLine),
             line_width: 0.0025,
             data_range: [0.0, 1.0],
             label: label,
@@ -49,14 +49,14 @@ impl Axis {
 
     pub fn new_from(start: coord::Coord, end: coord::Coord) -> Axis {
         let mut label = label::Label::new();
-        label.set_color_internal(color::Color::new_default("axis_label").as_srgba());
+        label.set_color_internal(color::CustomColor::AxisLabel.as_srgba());
         Axis {
             local_start: start.clone(),
             local_end: end.clone(),
             global_start: coord::Coord::new(),
             global_end: coord::Coord::new(),
             direction: start.unit_direction_to(&end),
-            color: color::Color::new_default("axis_line"),
+            color: color::Color::new_custom(color::CustomColor::AxisLine),
             line_width: 0.0025,
             data_range: [0.0, 1.0],
             label: label,

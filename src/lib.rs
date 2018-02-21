@@ -22,7 +22,7 @@
 //! use rand::distributions::{IndependentSample, Normal};
 //! use rand::{StdRng, SeedableRng};
 //!
-//! use astrup::{View, Figure, Plot, Chart, Scatter, Line};
+//! use astrup::{View, Figure, Plot, Chart, Scatter, Line, HtmlColor};
 //!
 //! fn main() {
 //!
@@ -82,9 +82,9 @@
 //!     let y_data_2: Vec<f64> = (0..num_points)
 //!                              .map(|_| normal_4.ind_sample(&mut seeded_rng) as f64)
 //!                              .collect();
-//!     let scatter_1 = Scatter::new(&x_data_1, &y_data_1).set_color_str("lightskyblue")
+//!     let scatter_1 = Scatter::new(&x_data_1, &y_data_1).set_color_html(HtmlColor::Lightskyblue)
 //!                                                       .set_point_size(0.002);
-//!     let scatter_2 = Scatter::new(&x_data_2, &y_data_2).set_color_str("orangered")
+//!     let scatter_2 = Scatter::new(&x_data_2, &y_data_2).set_color_rgba_u8(255, 69, 0, 200)
 //!                                                       .set_point_size(0.002);
 //!
 //!     // Add scatter points to a new plot
@@ -220,52 +220,6 @@
 //! Much the same as a tick, but stretches across the whole canvas, perpendicular on the axis it
 //! belongs to.
 //!
-//! ### Colors
-//! Astrup uses the crate [palette]() to manage colors behind the scenes. In the future, there
-//! should possibly be an even tighter coupling. For now, Astrup prowides the following methods for
-//! defining the color of an `object`:
-//!
-//! #### `fn set_object_color(mut self, color_name: &str) -> Self`
-//! This lets the user select one of a set of predefined default colors. The following table shows
-//! the mappings between an accepted `color_name` value and a color
-//!
-//! | `color_name`                       | red | green | blue | alpha | hex       |                                                                                                                   |
-//! | :--------------------------------- | --: | ----: | ---: | ----: | --------: | ----------------------------------------------------------------------------------------------------------------- |
-//! | "blue" or "b"                      |  23 |   108 |  190 |   255 | `#176CBE` | <div style="display: inline-block; width: 3em; height: 1em; border: 1px solid black; background: #176CBE;"></div> |
-//! | "red"  or "r"                      | 224 |    52 |   11 |   255 | `#E0340B` | <div style="display: inline-block; width: 3em; height: 1em; border: 1px solid black; background: #E0340B;"></div> |
-//! | "green" or "g"                     |  34 |   174 |   51 |   255 | `#22AE33` | <div style="display: inline-block; width: 3em; height: 1em; border: 1px solid black; background: #22AE33;"></div> |
-//! | "yellow" or "y"                    | 255 |   200 |   14 |   255 | `#FFC80E` | <div style="display: inline-block; width: 3em; height: 1em; border: 1px solid black; background: #FFC80E;"></div> |
-//! | "violet" or "purple" or "v" or "p" | 136 |    60 |  177 |   255 | `#883CB1` | <div style="display: inline-block; width: 3em; height: 1em; border: 1px solid black; background: #883CB1;"></div> |
-//! | "cyan" or "c"                      |   0 |   198 |  198 |   255 | `#00C6C6` | <div style="display: inline-block; width: 3em; height: 1em; border: 1px solid black; background: #00C6C6;"></div> |
-//! | "orange" or "o"                    | 255 |   102 |    7 |   255 | `#FF6607` | <div style="display: inline-block; width: 3em; height: 1em; border: 1px solid black; background: #FF6607;"></div> |
-//! | "magenta" or "m"                   | 194 |    58 |  160 |   255 | `#C23AA0` | <div style="display: inline-block; width: 3em; height: 1em; border: 1px solid black; background: #C23AA0;"></div> |
-//! | "black" or "k"                     |   0 |     0 |    0 |   255 | `#000000` | <div style="display: inline-block; width: 3em; height: 1em; border: 1px solid black; background: #000000;"></div> |
-//! | "gray" or "grey"                   | 127 |   127 |  127 |   255 | `#7F7F7F` | <div style="display: inline-block; width: 3em; height: 1em; border: 1px solid black; background: #7F7F7F;"></div> |
-//! | "white" or "w"                     | 255 |   255 |  255 |   255 | `#FFFFFF` | <div style="display: inline-block; width: 3em; height: 1em; border: 1px solid black; background: #FFFFFF;"></div> |
-//! | Another `&str` gives blue          |  23 |   108 |  190 |   255 | `#176CBE` | <div style="display: inline-block; width: 3em; height: 1em; border: 1px solid black; background: #176CBE;"></div> |
-//!
-//! #### `fn set_object_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self`
-//! Gives the color specified by the amount of red, green, and blue, all which take values in
-//! `[0.0, 1.0]`. This color is completely opaque (alpha is set to 1.0).
-//!
-//! #### `fn set_object_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self`
-//! As `set_object_color_rgb(...)` but where you can adjust the transparency `alpha` which takes
-//! values in `[0.0, 1.0]`.
-//!
-//! #### `fn set_object_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self`
-//! As `set_object_color_rgb(...)` but where color channel intensities are specified with values in
-//! `[0, 255]`.
-//!
-//! #### `fn set_object_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self`
-//! As `set_object_color_rgb_u8(...)` but where you can adjust the transparency `alpha` which takes
-//! values in `[0, 255]`.
-//!
-//! #### `fn set_object_color_rgba_u8(mut self, color_name: &str) -> Result<Self, Error>**
-//! The argument is one of the color keywords in a set of [SVG
-//! colors](https://www.w3.org/TR/SVG/types.html#ColorKeywords). See more information about the
-//! color names and other things at the [palette
-//! documentation](https://docs.rs/palette/0.3.0/palette/named/index.html).
-//!
 //!
 extern crate cairo;
 extern crate gio;
@@ -278,6 +232,7 @@ pub use view::View;
 pub use figure::Figure;
 pub use plot::Plot;
 pub use chart::{Chart, Line, Scatter};
+pub use color::{CustomColor, HtmlColor};
 
 mod view;
 mod figure;
@@ -291,4 +246,4 @@ mod shape;
 mod coord;
 mod label;
 mod text;
-mod color;
+pub mod color;

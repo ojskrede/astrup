@@ -11,7 +11,7 @@ use ndarray::Array;
 use rand::distributions::{IndependentSample, Normal};
 use rand::{StdRng, SeedableRng};
 
-use astrup::{View, Figure, Plot, Chart, Scatter, Line};
+use astrup::{View, Figure, Plot, Chart, Scatter, Line, HtmlColor};
 
 fn main() {
 
@@ -71,9 +71,9 @@ fn main() {
     let y_data_2: Vec<f64> = (0..num_points)
                              .map(|_| normal_4.ind_sample(&mut seeded_rng) as f64)
                              .collect();
-    let scatter_1 = Scatter::new(&x_data_1, &y_data_1).set_color_str("lightskyblue")
+    let scatter_1 = Scatter::new(&x_data_1, &y_data_1).set_color_html(HtmlColor::Lightskyblue)
                                                       .set_point_size(0.002);
-    let scatter_2 = Scatter::new(&x_data_2, &y_data_2).set_color_str("orangered")
+    let scatter_2 = Scatter::new(&x_data_2, &y_data_2).set_color_rgba_u8(255, 69, 0, 200)
                                                       .set_point_size(0.002);
 
     // Add scatter points to a new plot
