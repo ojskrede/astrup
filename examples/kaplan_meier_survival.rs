@@ -16,7 +16,7 @@ extern crate astrup;
 use std::path::Path;
 use failure::{Error};
 
-use astrup::{View, Figure, Plot, Chart, Scatter, Line};
+use astrup::{View, Figure, Plot, Chart, Scatter, Line, StrokeStyle, LineStyle};
 
 #[derive(Debug, Deserialize)]
 struct SurvivalRecord {
@@ -68,7 +68,7 @@ fn survival_charts(data: &Vec<SurvivalRecord>, stage: u8, red: f32, green: f32, 
     let (cens_time, cens_survival, _, _) = extract_data(data, stage, 0);
 
     let survival_line = Line::new(&time, &survival).set_color_rgb(red/255.0, green/255.0, blue/255.0)
-                                                   .set_line_style("right_stair");
+                                                   .set_line_style(LineStyle::RightStair);
     let censored = Scatter::new(&cens_time, &cens_survival).set_color_rgb(red/255.0, green/255.0, blue/255.0)
                                                            .set_point_size(0.01)
                                                            .set_shape("tick");
@@ -80,11 +80,11 @@ fn ci_charts(data: &Vec<SurvivalRecord>, stage: u8, red: f32, green: f32, blue: 
     let (time, _, lower_ci, upper_ci) = extract_data(data, stage, 1);
 
     let lower_line = Line::new(&time, &lower_ci).set_color_rgb(red/255.0, green/255.0, blue/255.0)
-                                                .set_line_style("right_stair")
-                                                .set_stroke_style("dotted");
+                                                .set_line_style(LineStyle::RightStair)
+                                                .set_stroke_style(StrokeStyle::Dotted);
     let upper_line = Line::new(&time, &upper_ci).set_color_rgb(red/255.0, green/255.0, blue/255.0)
-                                                .set_line_style("right_stair")
-                                                .set_stroke_style("dotted");
+                                                .set_line_style(LineStyle::RightStair)
+                                                .set_stroke_style(StrokeStyle::Dotted);
     (lower_line, upper_line)
 }
 

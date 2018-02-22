@@ -8,14 +8,14 @@ use ndarray::AsArray;
 use ::{chart, utils, shape, coord, color};
 
 #[derive(Clone, Debug)]
-enum LineStyle {
+pub enum LineStyle {
     Plain,
     LeftStair,
     RightStair,
 }
 
 #[derive(Clone, Debug)]
-enum StrokeStyle {
+pub enum StrokeStyle {
     Continuous,
     Dashed,
     Dotted,
@@ -199,23 +199,14 @@ impl Line {
     }
 
     /// Set the style of the line. Plain, left stair, or right stair.
-    pub fn set_line_style(mut self, style: &str) -> Self {
-        match style {
-            "plain" => self.line_style = LineStyle::Plain,
-            "left_stair" => self.line_style = LineStyle::LeftStair,
-            "right_stair" => self.line_style = LineStyle::RightStair,
-            _ => self.line_style = LineStyle::Plain,
-        }
+    pub fn set_line_style(mut self, style: LineStyle) -> Self {
+        self.line_style = style;
         self
     }
 
     /// Set the stroke style of the line
-    pub fn set_stroke_style(mut self, style: &str) -> Self {
-        match style {
-            "dashed" => self.stroke_style = StrokeStyle::Dashed,
-            "dotted" => self.stroke_style = StrokeStyle::Dotted,
-            _ => self.stroke_style = StrokeStyle::Continuous,
-        }
+    pub fn set_stroke_style(mut self, style: StrokeStyle) -> Self {
+        self.stroke_style = style;
         self.dash_pattern = DashPattern::with_style(&self.stroke_style);
         self
     }

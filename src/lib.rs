@@ -231,7 +231,7 @@ extern crate ndarray;
 pub use view::View;
 pub use figure::Figure;
 pub use plot::Plot;
-pub use chart::{Chart, Line, Scatter};
+pub use chart::{Chart, Line, Scatter, StrokeStyle, LineStyle};
 pub use color::{CustomColor, HtmlColor};
 
 mod view;

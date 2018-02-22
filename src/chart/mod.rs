@@ -1,7 +1,7 @@
 //! Definition of the Chart enum
 
 pub use self::scatter::Scatter;
-pub use self::line::Line;
+pub use self::line::{StrokeStyle, LineStyle, Line};
 
 mod scatter;
 mod line;
