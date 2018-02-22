@@ -43,7 +43,7 @@ impl Rectangle {
     }
 
     /// Return a new frame from given coordinate values.
-    pub fn new_from(left: f64, right: f64, bottom: f64, top: f64) -> Rectangle {
+    pub fn with_boundaries(left: f64, right: f64, bottom: f64, top: f64) -> Rectangle {
         Rectangle {
             left: left,
             right: right,
@@ -60,7 +60,7 @@ impl Rectangle {
     }
 
     /// Update an already created frame
-    pub fn set(&mut self, left: f64, right: f64, bottom: f64, top: f64) {
+    pub fn set_boundaries(&mut self, left: f64, right: f64, bottom: f64, top: f64) {
         self.left = left;
         self.right = right;
         self.bottom = bottom;

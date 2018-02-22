@@ -95,6 +95,6 @@ fn main() {
                            .save("assets/frontpage_example.png").expect("Could not save frontpage_example.png");
 
     // Display the result on screen
-    View::new_from(fig).expect("Could not add figure to view")
-                       .show();
+    View::with_figure(fig).expect("Could not add figure to view")
+                          .show();
 }

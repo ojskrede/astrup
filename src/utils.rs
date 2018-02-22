@@ -70,13 +70,13 @@ pub struct DirRect {
 impl DirRect {
     fn new() -> DirRect {
         DirRect {
-            start: Coord::new_from(0.0, 0.0),
-            end: Coord::new_from(1.0, 1.0),
+            start: Coord::with_coordinates(0.0, 0.0),
+            end: Coord::with_cordinates(1.0, 1.0),
             width: 0.0,
         }
     }
 
-    fn set(&mut self, start: Coord, end: Coord, width: f64) {
+    fn set_coordinates(&mut self, start: Coord, end: Coord, width: f64) {
         self.start = start;
         self.end = end;
         self.width = width;

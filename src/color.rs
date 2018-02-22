@@ -513,38 +513,38 @@ impl Color {
         }
     }
 
-    pub fn new_custom(color: CustomColor) -> Color {
+    pub fn with_custom(color: CustomColor) -> Color {
         Color {
             color: color.as_srgba()
         }
     }
 
-    pub fn new_rgb(red: f32, green: f32, blue: f32) -> Color {
+    pub fn with_rgb(red: f32, green: f32, blue: f32) -> Color {
         Color {
             color: Srgba::new(red, green, blue, 1.0),
         }
     }
 
-    pub fn new_rgb_u8(red: u8, green: u8, blue: u8) -> Color {
+    pub fn with_rgb_u8(red: u8, green: u8, blue: u8) -> Color {
         Color {
             color: Srgba::new_u8(red, green, blue, 255),
         }
     }
 
-    pub fn new_rgba(red: f32, green: f32, blue: f32, alpha: f32) -> Color {
+    pub fn with_rgba(red: f32, green: f32, blue: f32, alpha: f32) -> Color {
         Color {
             color: Srgba::new(red, green, blue, alpha),
         }
     }
 
-    pub fn new_rgba_u8(red: u8, green: u8, blue: u8, alpha: u8) -> Color {
+    pub fn with_rgba_u8(red: u8, green: u8, blue: u8, alpha: u8) -> Color {
         Color {
             color: Srgba::new_u8(red, green, blue, alpha),
         }
     }
 
     #[allow(dead_code)]
-    pub fn new_html(color: HtmlColor) -> Color {
+    pub fn with_html(color: HtmlColor) -> Color {
         Color {
             color: color.as_srgba()
         }

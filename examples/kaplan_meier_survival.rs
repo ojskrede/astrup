@@ -132,7 +132,7 @@ fn main() {
                                    .set_width(1000);
                                    //.save("assets/kaplan_meier_survival.png").expect("Could not save kaplan_meier_survival.png");
 
-            match View::new_from(fig) {
+            match View::with_figure(fig) {
                 Ok(view) => view.show(),
                 Err(msg) => println!("Error in view: \n {}", msg),
             }

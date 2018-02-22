@@ -31,8 +31,8 @@ pub struct Point {
 impl Point {
     pub fn new(x_coord: f64, y_coord: f64) -> Point {
         Point {
-            coord: coord::Coord::new_from(x_coord, y_coord),
-            color: color::Color::new_custom(color::CustomColor::Blue),
+            coord: coord::Coord::with_coordinates(x_coord, y_coord),
+            color: color::Color::with_custom(color::CustomColor::Blue),
             is_color_updated: false,
             size: 0.003,
             shape: Shape::Circle,
@@ -113,8 +113,8 @@ impl utils::Drawable for Point {
             Shape::Square => cr.rectangle(self.coord.x(), self.coord.y(), self.size, self.size),
             Shape::Tick => {
                 // Vertical tick
-                let start = coord::Coord::new_from(self.coord.x(), self.coord.y() - self.size);
-                let end = coord::Coord::new_from(self.coord.x(), self.coord.y() + self.size);
+                let start = coord::Coord::with_coordinates(self.coord.x(), self.coord.y() - self.size);
+                let end = coord::Coord::with_coordinates(self.coord.x(), self.coord.y() + self.size);
                 let direction = start.unit_direction_to(&end);
                 let size = self.size * (direction.x().abs() * fig_rel_width + direction.y().abs() * fig_rel_height);
                 cr.set_line_width(size / 4.0);

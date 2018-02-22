@@ -64,9 +64,9 @@ impl Label {
     }
 
     #[allow(dead_code)] // TODO: When axis becomes public
-    pub fn new_from_content(content: &str) -> Label {
+    pub fn with_content(content: &str) -> Label {
         Label {
-            text: text::Text::new_from(content),
+            text: text::Text::with_content(content),
             local_centroid: coord::Coord::new(),
             global_centroid: coord::Coord::new(),
             angle: 0.0,
@@ -78,10 +78,10 @@ impl Label {
         }
     }
 
-    pub fn new_from_centroid(x_coord: f64, y_coord: f64) -> Label {
+    pub fn with_centroid(x_coord: f64, y_coord: f64) -> Label {
         Label {
             text: text::Text::new(),
-            local_centroid: coord::Coord::new_from(x_coord, y_coord),
+            local_centroid: coord::Coord::with_coordinates(x_coord, y_coord),
             global_centroid: coord::Coord::new(),
             angle: 0.0,
             rel_left_gap: 0.0,
@@ -123,7 +123,7 @@ impl Label {
     }
 
     pub fn set_centroid(&mut self, x_coord: f64, y_coord: f64) {
-        self.local_centroid.set(x_coord, y_coord);
+        self.local_centroid.set_coordinates(x_coord, y_coord);
     }
 
     pub fn set_frame_gaps(&mut self, left: f64, right: f64, bottom: f64, top: f64) {

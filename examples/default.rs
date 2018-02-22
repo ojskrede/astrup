@@ -75,6 +75,6 @@ fn main() {
     let fig = Figure::new().add(&line_plot);
                            //.save("assets/default.png").expect("Could not save default.png");
 
-    View::new_from(fig).expect("Could not add figure to view")
-                       .show();
+    View::with_figure(fig).expect("Could not add figure to view")
+                          .show();
 }

@@ -40,25 +40,25 @@ pub struct Canvas {
 impl Canvas {
     /// Create and return a new canvas
     pub fn new() -> Canvas {
-        let mut x_axis_label = label::Label::new_from_centroid(0.5, -0.11);
+        let mut x_axis_label = label::Label::with_centroid(0.5, -0.11);
         x_axis_label.set_font_size(0.025);
         x_axis_label.set_color_internal(color::CustomColor::AxisLabel.as_srgba());
         x_axis_label.set_font_slant(FontSlant::Italic);
-        let mut y_axis_label = label::Label::new_from_centroid(-0.13, 0.5);
+        let mut y_axis_label = label::Label::with_centroid(-0.13, 0.5);
         y_axis_label.set_font_size(0.025);
         y_axis_label.set_angle(f64::consts::PI / 2.0);
         y_axis_label.set_color_internal(color::CustomColor::AxisLabel.as_srgba());
         y_axis_label.set_font_slant(FontSlant::Italic);
-        let mut local_frame = shape::Rectangle::new_from(0.10, 0.95, 0.10, 0.95);
+        let mut local_frame = shape::Rectangle::with_boundaries(0.10, 0.95, 0.10, 0.95);
         local_frame.set_color_internal(color::CustomColor::CanvasBorder.as_srgba());
         Canvas {
-            color: color::Color::new_custom(color::CustomColor::CanvasBackground),
+            color: color::Color::with_custom(color::CustomColor::CanvasBackground),
             local_frame: local_frame,
             global_frame: shape::Rectangle::new(),
             data_frame: shape::Rectangle::new(),
             user_data_frame: shape::Rectangle::new(),
             grid_width: 0.004,
-            grid_color: color::Color::new_custom(color::CustomColor::GridLine),
+            grid_color: color::Color::with_custom(color::CustomColor::GridLine),
             grid: Vec::<mark::GridLine>::new(),
             display_horizontal_gridlines: true,
             display_vertical_gridlines: true,
@@ -77,7 +77,7 @@ impl Canvas {
 
     /// Set local frame coordinates.
     pub fn set_local_frame(&mut self, left: f64, right: f64, bottom: f64, top: f64) {
-        self.local_frame.set(left, right, bottom, top);
+        self.local_frame.set_boundaries(left, right, bottom, top);
     }
 
     // TODO: local frame appearance and possibility to draw it.
@@ -100,7 +100,7 @@ impl Canvas {
     /// each tick should be one of *n x {1, 2, 5} x 10^p* for some integer *n* and power *p*. See
     /// more of how this is actually determined [here](struct.Axis.html#method.compute_marks).
     pub fn set_data_range(&mut self, x_min: f64, x_max: f64, y_min: f64, y_max: f64) {
-        self.user_data_frame.set(x_min, x_max, y_min, y_max);
+        self.user_data_frame.set_boundaries(x_min, x_max, y_min, y_max);
     }
 
     /// Set horisontal data range
@@ -358,8 +358,8 @@ impl Canvas {
         let grid_color = self.grid_color.as_srgba();
         if self.display_horizontal_gridlines {
             for coord in ver_axis.mark_coords() {
-                let mut gridline = mark::GridLine::new_from(coord.x(), coord.y(),
-                                                            self.global_frame.right(), coord.y());
+                let mut gridline = mark::GridLine::with_boundaries(coord.x(), coord.y(),
+                                                                   self.global_frame.right(), coord.y());
                 gridline.set_color_internal(grid_color);
                 gridline.set_width(self.grid_width);
                 gridline.scale_size(scale_factor);
@@ -368,8 +368,8 @@ impl Canvas {
         }
         if self.display_vertical_gridlines {
             for coord in hor_axis.mark_coords() {
-                let mut gridline = mark::GridLine::new_from(coord.x(), coord.y(),
-                                                            coord.x(), self.global_frame.top());
+                let mut gridline = mark::GridLine::with_boundaries(coord.x(), coord.y(),
+                                                                   coord.x(), self.global_frame.top());
                 gridline.set_color_internal(grid_color);
                 gridline.set_width(self.grid_width);
                 gridline.scale_size(scale_factor);
@@ -381,7 +381,7 @@ impl Canvas {
     /// Find the smallest data frame including all data points from all charts
     fn find_largest_chart_data_frame(&self) -> Option<shape::Rectangle> {
         if self.charts.len() == 0 { return None }
-        let mut largest_data_frame = shape::Rectangle::new_from(f64::MAX, f64::MIN, f64::MAX, f64::MIN);
+        let mut largest_data_frame = shape::Rectangle::with_boundaries(f64::MAX, f64::MIN, f64::MAX, f64::MIN);
         for chart in self.charts.iter() {
             if chart.data_frame().left() < largest_data_frame.left() {
                 largest_data_frame.set_left(chart.data_frame().left());
@@ -438,7 +438,8 @@ impl Canvas {
     ///
     /// In the meantime, the possibility to not display the axes will have to suffice.
     fn set_default_axes(&mut self, data_frame: shape::Rectangle) -> Result<(axis::Axis, axis::Axis), Error> {
-        let mut hor_axis = axis::Axis::new_from(coord::Coord::new_from(0.0, 0.0), coord::Coord::new_from(1.0, 0.0));
+        let mut hor_axis = axis::Axis::with_boundaries(coord::Coord::with_coordinates(0.0, 0.0),
+                                                       coord::Coord::with_coordinates(1.0, 0.0));
         hor_axis.set_data_range(data_frame.left(), data_frame.right());
         hor_axis.compute_marks()?;
 
@@ -450,7 +451,8 @@ impl Canvas {
 
         hor_axis.set_label(&self.default_x_axis_label);
 
-        let mut ver_axis = axis::Axis::new_from(coord::Coord::new_from(0.0, 0.0), coord::Coord::new_from(0.0, 1.0));
+        let mut ver_axis = axis::Axis::with_boundaries(coord::Coord::with_coordinates(0.0, 0.0),
+                                                       coord::Coord::with_coordinates(0.0, 1.0));
         ver_axis.set_data_range(data_frame.bottom(), data_frame.top());
         ver_axis.compute_marks()?;
 
@@ -503,7 +505,7 @@ impl Canvas {
         let data_right = hor_axis.data_max();
         let data_bottom = ver_axis.data_min();
         let data_top = ver_axis.data_max();
-        self.data_frame = shape::Rectangle::new_from(data_left, data_right, data_bottom, data_top);
+        self.data_frame = shape::Rectangle::with_boundaries(data_left, data_right, data_bottom, data_top);
 
         // Then, we update the axis, and charts based on this updated configuration
         ver_axis.fit(&self.global_frame);

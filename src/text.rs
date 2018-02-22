@@ -35,7 +35,7 @@ impl Text {
 
     /// Create and return a new Text struct
     #[allow(dead_code)] // TODO: Issue #13
-    pub fn new_from(content: &str) -> Text {
+    pub fn with_content(content: &str) -> Text {
         Text {
             content: String::from(content),
             font_size: 0.03,

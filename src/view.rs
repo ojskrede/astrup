@@ -43,7 +43,7 @@ impl View {
     /// Create and return a new View
     pub fn new() -> Result<View, Error> {
         let app = gtk::Application::new("com.astrup.application", gio::ApplicationFlags::empty())
-                                           .expect("Failed to initialize application");
+                                        .expect("Failed to initialize application");
         Ok(View {
             figures: vec![],
             application: app,
@@ -51,10 +51,10 @@ impl View {
     }
 
     /// Create and return a new View from an existing Figure
-    pub fn new_from(mut figure: Figure) -> Result<View, Error> {
+    pub fn with_figure(mut figure: Figure) -> Result<View, Error> {
         figure.fit()?;
         let app = gtk::Application::new("com.astrup.application", gio::ApplicationFlags::empty())
-                                           .expect("Failed to initialize application");
+                                        .expect("Failed to initialize application");
         Ok(View {
             figures: vec![figure],
             application: app,

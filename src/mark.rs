@@ -36,7 +36,7 @@ impl Mark {
     }
 
     /// Create and return a new mark
-    pub fn new_from_coord(coord: coord::Coord) -> Mark {
+    pub fn with_location(coord: coord::Coord) -> Mark {
         let mut label = label::Label::new();
         label.set_color_internal(color::CustomColor::TickLabel.as_srgba());
         Mark {
@@ -245,7 +245,7 @@ impl Tick {
     /// Create and return a new Tick
     pub fn new() -> Tick {
         Tick {
-            color: color::Color::new_custom(color::CustomColor::Tick),
+            color: color::Color::with_custom(color::CustomColor::Tick),
             width: 0.0025,
             positive_length: 0.005,
             negative_length: 0.005,
@@ -379,20 +379,20 @@ impl GridLine {
             global_end: coord::Coord::new(),
             direction: coord::Coord::new(),
             width: 0.001,
-            color: color::Color::new_custom(color::CustomColor::GridLine),
+            color: color::Color::with_custom(color::CustomColor::GridLine),
         }
     }
 
     /// Create and return a new GridLine
-    pub fn new_from(x_start: f64, y_start: f64, x_end: f64, y_end: f64) -> GridLine {
-        let start = coord::Coord::new_from(x_start, y_start);
-        let end = coord::Coord::new_from(x_end, y_end);
+    pub fn with_boundaries(x_start: f64, y_start: f64, x_end: f64, y_end: f64) -> GridLine {
+        let start = coord::Coord::with_coordinates(x_start, y_start);
+        let end = coord::Coord::with_coordinates(x_end, y_end);
         GridLine {
             direction: start.unit_direction_to(&end),
             global_start: start,
             global_end: end,
             width: 0.001,
-            color: color::Color::new_custom(color::CustomColor::GridLine),
+            color: color::Color::with_custom(color::CustomColor::GridLine),
         }
     }
 

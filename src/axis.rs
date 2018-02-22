@@ -38,7 +38,7 @@ impl Axis {
             global_start: coord::Coord::new(),
             global_end: coord::Coord::new(),
             direction: coord::Coord::new(),
-            color: color::Color::new_custom(color::CustomColor::AxisLine),
+            color: color::Color::with_custom(color::CustomColor::AxisLine),
             line_width: 0.0025,
             data_range: [0.0, 1.0],
             label: label,
@@ -47,7 +47,7 @@ impl Axis {
         }
     }
 
-    pub fn new_from(start: coord::Coord, end: coord::Coord) -> Axis {
+    pub fn with_boundaries(start: coord::Coord, end: coord::Coord) -> Axis {
         let mut label = label::Label::new();
         label.set_color_internal(color::CustomColor::AxisLabel.as_srgba());
         Axis {
@@ -56,7 +56,7 @@ impl Axis {
             global_start: coord::Coord::new(),
             global_end: coord::Coord::new(),
             direction: start.unit_direction_to(&end),
-            color: color::Color::new_custom(color::CustomColor::AxisLine),
+            color: color::Color::with_custom(color::CustomColor::AxisLine),
             line_width: 0.0025,
             data_range: [0.0, 1.0],
             label: label,
@@ -280,8 +280,8 @@ impl Axis {
                                           self.local_start.x(), self.local_end.x());
             let mark_y = utils::map_range(data_location, min_data, max_data,
                                           self.local_start.y(), self.local_end.y());
-            let mark_location = coord::Coord::new_from(mark_x, mark_y);
-            let mut mark_k = mark::Mark::new_from_coord(mark_location);
+            let mark_location = coord::Coord::with_coordinates(mark_x, mark_y);
+            let mut mark_k = mark::Mark::with_location(mark_location);
             mark_k.set_label_content(&utils::prettify(data_location));
 
             marks.push(mark_k);

@@ -35,7 +35,7 @@ impl Scatter {
         let ref y_data_min = y_view.iter().min().expect("Could not find y min");
         let ref y_data_max = y_view.iter().max().expect("Could not find y max");
 
-        let point_color = color::Color::new_custom(color::CustomColor::Blue);
+        let point_color = color::Color::with_custom(color::CustomColor::Blue);
         let shape = chart::point::Shape::Circle;
         let point_size = 0.002;
         let mut data_points = Vec::<chart::point::Point>::new();
@@ -49,8 +49,8 @@ impl Scatter {
         Scatter {
             data_points: data_points,
             global_frame: shape::Rectangle::new(),
-            data_frame: shape::Rectangle::new_from(x_data_min.val(), x_data_max.val(),
-                                                   y_data_min.val(), y_data_max.val()),
+            data_frame: shape::Rectangle::with_boundaries(x_data_min.val(), x_data_max.val(),
+                                                          y_data_min.val(), y_data_max.val()),
             color: point_color,
             is_color_updated: false,
             shape: shape,

@@ -75,8 +75,8 @@ fn main() {
                             //.save("assets/multiple_figures.png").expect("Could not save multiple_figures.png");
 
     // Display on screen
-    View::new_from(fig1).expect("Could not add fig1 to view")
-                        .add(fig2).expect("Could not add fig2 to view")
-                        .show();
+    View::with_figure(fig1).expect("Could not add fig1 to view")
+                           .add(fig2).expect("Could not add fig2 to view")
+                           .show();
 }
 

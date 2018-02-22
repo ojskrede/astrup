@@ -36,7 +36,7 @@ impl Figure {
             window_title: String::from("Astrup"),
             height: 800,
             width: 1000,
-            color: color::Color::new_custom(color::CustomColor::FigureBackground),
+            color: color::Color::with_custom(color::CustomColor::FigureBackground),
             local_frame: local_frame,
         }
     }
@@ -100,28 +100,28 @@ impl Figure {
 
     /// Set the title color
     pub fn set_title_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
-        let color = color::Color::new_rgb(red, green, blue);
+        let color = color::Color::with_rgb(red, green, blue);
         self.title.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the title color
     pub fn set_title_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
-        let color = color::Color::new_rgba(red, green, blue, alpha);
+        let color = color::Color::with_rgba(red, green, blue, alpha);
         self.title.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the title color
     pub fn set_title_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
-        let color = color::Color::new_rgb_u8(red, green, blue);
+        let color = color::Color::with_rgb_u8(red, green, blue);
         self.title.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the title color
     pub fn set_title_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
-        let color = color::Color::new_rgba_u8(red, green, blue, alpha);
+        let color = color::Color::with_rgba_u8(red, green, blue, alpha);
         self.title.set_color_internal(color.as_srgba());
         self
     }
@@ -207,35 +207,35 @@ impl Figure {
 
     /// Set the figure border color
     pub fn set_border_color(mut self, color: color::CustomColor) -> Self {
-        let color = color::Color::new_custom(color);
+        let color = color::Color::with_custom(color);
         self.local_frame.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the figure border color
     pub fn set_border_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
-        let color = color::Color::new_rgb(red, green, blue);
+        let color = color::Color::with_rgb(red, green, blue);
         self.local_frame.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the figure border color
     pub fn set_border_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
-        let color = color::Color::new_rgba(red, green, blue, alpha);
+        let color = color::Color::with_rgba(red, green, blue, alpha);
         self.local_frame.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the figure border color
     pub fn set_border_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
-        let color = color::Color::new_rgb_u8(red, green, blue);
+        let color = color::Color::with_rgb_u8(red, green, blue);
         self.local_frame.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the figure border color
     pub fn set_border_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
-        let color = color::Color::new_rgba_u8(red, green, blue, alpha);
+        let color = color::Color::with_rgba_u8(red, green, blue, alpha);
         self.local_frame.set_color_internal(color.as_srgba());
         self
     }

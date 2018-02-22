@@ -22,40 +22,40 @@ impl Coord {
     }
 
     /// Create and return a new Coord
-    pub fn new_from(x: f64, y: f64) -> Coord {
+    pub fn with_coordinates(x: f64, y: f64) -> Coord {
         Coord {
             x: x,
             y: y,
         }
     }
 
-    /// Update a coordinate
-    pub fn set(&mut self, x: f64, y: f64) {
+    /// Update coordinates
+    pub fn set_coordinates(&mut self, x: f64, y: f64) {
         self.x = x;
         self.y = y;
     }
 
-    /// Update the first element of a coordinate
+    /// Update the first coordinate
     pub fn set_x(&mut self, x: f64) {
         self.x = x;
     }
 
-    /// Update the second element of a coordinate
+    /// Update the second coordinate
     pub fn set_y(&mut self, y: f64) {
         self.y = y;
     }
 
-    /// Return the first element of a coordinate
+    /// Return the first coordinate
     pub fn x(&self) -> f64 {
         self.x
     }
 
-    /// Return the second element of a coordinate
+    /// Return the second coordinate
     pub fn y(&self) -> f64 {
         self.y
     }
 
-    /// Return the distance between this coordinate and the origin
+    /// Return the distance between this point and the origin
     #[allow(dead_code)]
     pub fn len(&self) -> f64 {
         (self.x * self.x + self.y * self.y).sqrt()
@@ -66,7 +66,7 @@ impl Coord {
     pub fn relative_to(&self, frame: &shape::Rectangle) -> Coord {
         let x = utils::map_range(self.x, 0.0, 1.0, frame.left(), frame.right());
         let y = utils::map_range(self.y, 0.0, 1.0, frame.bottom(), frame.top());
-        Coord::new_from(x, y)
+        Coord::with_coordinates(x, y)
     }
 
     /// Returns a coordinate that is in the middle between self and other, and shifted a distance
@@ -79,7 +79,7 @@ impl Coord {
         let mid_y = (other.y() + self.y()) / 2.0;
         //let norm = Coord::new(-dy, dx); A point normal on (start, end)
         //let mid = Coord::new(mid_x, mid_y); A point in the middle of (start, end)
-        Coord::new_from(mid_x - dy * scale_factor, mid_y + dx * scale_factor)
+        Coord::with_coordinates(mid_x - dy * scale_factor, mid_y + dx * scale_factor)
     }
 
     /// Returns a unit length direction from self to other
@@ -87,7 +87,7 @@ impl Coord {
         let dx = other.x() - self.x();
         let dy = other.y() - self.y();
         let magnitude = (dx*dx + dy*dy).sqrt();
-        Coord::new_from(dx / magnitude, dy / magnitude)
+        Coord::with_coordinates(dx / magnitude, dy / magnitude)
     }
 
     /// Returns a unit normal vector that is perpendicular on the vector from self to other.
@@ -95,6 +95,6 @@ impl Coord {
         let dx = other.x() - self.x();
         let dy = other.y() - self.y();
         let magnitude = (dx*dx + dy*dy).sqrt();
-        Coord::new_from(-dy / magnitude, dx / magnitude)
+        Coord::with_coordinates(-dy / magnitude, dx / magnitude)
     }
 }

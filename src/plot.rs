@@ -33,7 +33,7 @@ impl Plot {
         title.set_font_size(0.02);
         Plot {
             title: title,
-            color: color::Color::new_custom(color::CustomColor::PlotBackground),
+            color: color::Color::with_custom(color::CustomColor::PlotBackground),
             local_frame: local_frame,
             canvas: canvas::Canvas::new(),
         }
@@ -102,28 +102,28 @@ impl Plot {
 
     /// Set the title color
     pub fn set_title_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
-        let color = color::Color::new_rgb(red, green, blue);
+        let color = color::Color::with_rgb(red, green, blue);
         self.title.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the title color
     pub fn set_title_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
-        let color = color::Color::new_rgba(red, green, blue, alpha);
+        let color = color::Color::with_rgba(red, green, blue, alpha);
         self.title.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the title color
     pub fn set_title_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
-        let color = color::Color::new_rgb_u8(red, green, blue);
+        let color = color::Color::with_rgb_u8(red, green, blue);
         self.title.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the title color
     pub fn set_title_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
-        let color = color::Color::new_rgba_u8(red, green, blue, alpha);
+        let color = color::Color::with_rgba_u8(red, green, blue, alpha);
         self.title.set_color_internal(color.as_srgba());
         self
     }
@@ -179,7 +179,7 @@ impl Plot {
     /// A value of 0.0 is the minimum figure coordinate, and a value of 1.0 is the maximum figure
     /// coordinate.
     pub fn set_local_frame(mut self, left: f64, right: f64, bottom: f64, top: f64) -> Self {
-        self.local_frame.set(left, right, bottom, top);
+        self.local_frame.set_boundaries(left, right, bottom, top);
         self
     }
 
@@ -204,7 +204,7 @@ impl Plot {
     }
 
     pub fn set_local_frame_mut_ref(&mut self, left: f64, right: f64, bottom: f64, top: f64) {
-        self.local_frame.set(left, right, bottom, top);
+        self.local_frame.set_boundaries(left, right, bottom, top);
     }
 
     pub fn set_left_mut_ref(&mut self, val: f64) {
@@ -238,28 +238,28 @@ impl Plot {
 
     /// Set the border color
     pub fn set_border_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
-        let color = color::Color::new_rgb(red, green, blue);
+        let color = color::Color::with_rgb(red, green, blue);
         self.local_frame.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the border color
     pub fn set_border_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
-        let color = color::Color::new_rgba(red, green, blue, alpha);
+        let color = color::Color::with_rgba(red, green, blue, alpha);
         self.local_frame.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the border color
     pub fn set_border_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
-        let color = color::Color::new_rgb_u8(red, green, blue);
+        let color = color::Color::with_rgb_u8(red, green, blue);
         self.local_frame.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the border color
     pub fn set_border_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
-        let color = color::Color::new_rgba_u8(red, green, blue, alpha);
+        let color = color::Color::with_rgba_u8(red, green, blue, alpha);
         self.local_frame.set_color_internal(color.as_srgba());
         self
     }
@@ -364,28 +364,28 @@ impl Plot {
 
     /// Set the canvas background color
     pub fn set_canvas_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
-        let color = color::Color::new_rgb(red, green, blue);
+        let color = color::Color::with_rgb(red, green, blue);
         self.canvas.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the canvas background color
     pub fn set_canvas_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
-        let color = color::Color::new_rgba(red, green, blue, alpha);
+        let color = color::Color::with_rgba(red, green, blue, alpha);
         self.canvas.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the canvas background color
     pub fn set_canvas_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
-        let color = color::Color::new_rgb_u8(red, green, blue);
+        let color = color::Color::with_rgb_u8(red, green, blue);
         self.canvas.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the canvas background color
     pub fn set_canvas_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
-        let color = color::Color::new_rgba_u8(red, green, blue, alpha);
+        let color = color::Color::with_rgba_u8(red, green, blue, alpha);
         self.canvas.set_color_internal(color.as_srgba());
         self
     }
@@ -451,28 +451,28 @@ impl Plot {
 
     /// Set the axes color
     pub fn set_axes_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
-        let color = color::Color::new_rgb(red, green, blue);
+        let color = color::Color::with_rgb(red, green, blue);
         self.canvas.set_axes_color_internal(color.as_srgba());
         self
     }
 
     /// Set the axes color
     pub fn set_axes_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
-        let color = color::Color::new_rgba(red, green, blue, alpha);
+        let color = color::Color::with_rgba(red, green, blue, alpha);
         self.canvas.set_axes_color_internal(color.as_srgba());
         self
     }
 
     /// Set the axes color
     pub fn set_axes_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
-        let color = color::Color::new_rgb_u8(red, green, blue);
+        let color = color::Color::with_rgb_u8(red, green, blue);
         self.canvas.set_axes_color_internal(color.as_srgba());
         self
     }
 
     /// Set the axes color
     pub fn set_axes_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
-        let color = color::Color::new_rgba_u8(red, green, blue, alpha);
+        let color = color::Color::with_rgba_u8(red, green, blue, alpha);
         self.canvas.set_axes_color_internal(color.as_srgba());
         self
     }
@@ -517,28 +517,28 @@ impl Plot {
 
     /// Set the x label color
     pub fn set_x_label_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
-        let color = color::Color::new_rgb(red, green, blue);
+        let color = color::Color::with_rgb(red, green, blue);
         self.canvas.set_default_x_axis_label_color_internal(color.as_srgba());
         self
     }
 
     /// Set the x label color
     pub fn set_x_label_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
-        let color = color::Color::new_rgba(red, green, blue, alpha);
+        let color = color::Color::with_rgba(red, green, blue, alpha);
         self.canvas.set_default_x_axis_label_color_internal(color.as_srgba());
         self
     }
 
     /// Set the x label color
     pub fn set_x_label_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
-        let color = color::Color::new_rgb_u8(red, green, blue);
+        let color = color::Color::with_rgb_u8(red, green, blue);
         self.canvas.set_default_x_axis_label_color_internal(color.as_srgba());
         self
     }
 
     /// Set the x label color
     pub fn set_x_label_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
-        let color = color::Color::new_rgba_u8(red, green, blue, alpha);
+        let color = color::Color::with_rgba_u8(red, green, blue, alpha);
         self.canvas.set_default_x_axis_label_color_internal(color.as_srgba());
         self
     }
@@ -583,28 +583,28 @@ impl Plot {
 
     /// Set the y label color
     pub fn set_y_label_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
-        let color = color::Color::new_rgb(red, green, blue);
+        let color = color::Color::with_rgb(red, green, blue);
         self.canvas.set_default_y_axis_label_color_internal(color.as_srgba());
         self
     }
 
     /// Set the y label color
     pub fn set_y_label_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
-        let color = color::Color::new_rgba(red, green, blue, alpha);
+        let color = color::Color::with_rgba(red, green, blue, alpha);
         self.canvas.set_default_y_axis_label_color_internal(color.as_srgba());
         self
     }
 
     /// Set the y label color
     pub fn set_y_label_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
-        let color = color::Color::new_rgb_u8(red, green, blue);
+        let color = color::Color::with_rgb_u8(red, green, blue);
         self.canvas.set_default_y_axis_label_color_internal(color.as_srgba());
         self
     }
 
     /// Set the y label color
     pub fn set_y_label_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
-        let color = color::Color::new_rgba_u8(red, green, blue, alpha);
+        let color = color::Color::with_rgba_u8(red, green, blue, alpha);
         self.canvas.set_default_y_axis_label_color_internal(color.as_srgba());
         self
     }
@@ -625,28 +625,28 @@ impl Plot {
 
     /// Set the tick color
     pub fn set_tick_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
-        let color = color::Color::new_rgb(red, green, blue);
+        let color = color::Color::with_rgb(red, green, blue);
         self.canvas.set_tick_color_internal(color.as_srgba());
         self
     }
 
     /// Set the tick color
     pub fn set_tick_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
-        let color = color::Color::new_rgba(red, green, blue, alpha);
+        let color = color::Color::with_rgba(red, green, blue, alpha);
         self.canvas.set_tick_color_internal(color.as_srgba());
         self
     }
 
     /// Set the y label color
     pub fn set_tick_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
-        let color = color::Color::new_rgb_u8(red, green, blue);
+        let color = color::Color::with_rgb_u8(red, green, blue);
         self.canvas.set_tick_color_internal(color.as_srgba());
         self
     }
 
     /// Set the tick color
     pub fn set_tick_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
-        let color = color::Color::new_rgba_u8(red, green, blue, alpha);
+        let color = color::Color::with_rgba_u8(red, green, blue, alpha);
         self.canvas.set_tick_color_internal(color.as_srgba());
         self
     }
@@ -665,28 +665,28 @@ impl Plot {
 
     /// Set the tick label color
     pub fn set_tick_label_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
-        let color = color::Color::new_rgb(red, green, blue);
+        let color = color::Color::with_rgb(red, green, blue);
         self.canvas.set_tick_label_color_internal(color.as_srgba());
         self
     }
 
     /// Set the tick label color
     pub fn set_tick_label_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
-        let color = color::Color::new_rgba(red, green, blue, alpha);
+        let color = color::Color::with_rgba(red, green, blue, alpha);
         self.canvas.set_tick_label_color_internal(color.as_srgba());
         self
     }
 
     /// Set the tick label color
     pub fn set_tick_label_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
-        let color = color::Color::new_rgb_u8(red, green, blue);
+        let color = color::Color::with_rgb_u8(red, green, blue);
         self.canvas.set_tick_label_color_internal(color.as_srgba());
         self
     }
 
     /// Set the tick label color
     pub fn set_tick_label_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
-        let color = color::Color::new_rgba_u8(red, green, blue, alpha);
+        let color = color::Color::with_rgba_u8(red, green, blue, alpha);
         self.canvas.set_tick_label_color_internal(color.as_srgba());
         self
     }
@@ -752,28 +752,28 @@ impl Plot {
 
     /// Set the grid line color
     pub fn set_grid_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
-        let color = color::Color::new_rgb(red, green, blue);
+        let color = color::Color::with_rgb(red, green, blue);
         self.canvas.set_grid_color_internal(color.as_srgba());
         self
     }
 
     /// Set the grid line color
     pub fn set_grid_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
-        let color = color::Color::new_rgba(red, green, blue, alpha);
+        let color = color::Color::with_rgba(red, green, blue, alpha);
         self.canvas.set_grid_color_internal(color.as_srgba());
         self
     }
 
     /// Set the grid line color
     pub fn set_grid_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
-        let color = color::Color::new_rgb_u8(red, green, blue);
+        let color = color::Color::with_rgb_u8(red, green, blue);
         self.canvas.set_grid_color_internal(color.as_srgba());
         self
     }
 
     /// Set the grid line color
     pub fn set_grid_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
-        let color = color::Color::new_rgba_u8(red, green, blue, alpha);
+        let color = color::Color::with_rgba_u8(red, green, blue, alpha);
         self.canvas.set_grid_color_internal(color.as_srgba());
         self
     }

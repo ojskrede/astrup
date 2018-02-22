@@ -30,7 +30,7 @@ struct DashPattern {
 }
 
 impl DashPattern {
-    fn new_from(stroke_style: &StrokeStyle) -> DashPattern {
+    fn with_style(stroke_style: &StrokeStyle) -> DashPattern {
         match *stroke_style {
             StrokeStyle::Dashed => {
                 DashPattern {
@@ -133,14 +133,14 @@ impl Line {
             data_points.push(point);
         }
         let stroke_style = StrokeStyle::Continuous;
-        let dash_pattern = DashPattern::new_from(&stroke_style);
+        let dash_pattern = DashPattern::with_style(&stroke_style);
 
         Line {
             data_points: data_points,
-            data_frame: shape::Rectangle::new_from(x_data_min.val(), x_data_max.val(),
-                                                   y_data_min.val(), y_data_max.val()),
+            data_frame: shape::Rectangle::with_boundaries(x_data_min.val(), x_data_max.val(),
+                                                          y_data_min.val(), y_data_max.val()),
             global_frame: shape::Rectangle::new(),
-            color: color::Color::new_custom(color::CustomColor::Blue),
+            color: color::Color::with_custom(color::CustomColor::Blue),
             is_color_updated: false,
             line_width: 0.0035,
             line_style: LineStyle::Plain,
@@ -216,7 +216,7 @@ impl Line {
             "dotted" => self.stroke_style = StrokeStyle::Dotted,
             _ => self.stroke_style = StrokeStyle::Continuous,
         }
-        self.dash_pattern = DashPattern::new_from(&self.stroke_style);
+        self.dash_pattern = DashPattern::with_style(&self.stroke_style);
         self
     }
 
