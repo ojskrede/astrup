@@ -2,12 +2,12 @@
 //!
 
 use std::f64;
-use failure::{Error, err_msg};
+use failure::{err_msg, Error};
 use palette::Srgba;
 
-use cairo::{Context, FontWeight, FontSlant};
+use cairo::{Context, FontSlant, FontWeight};
 
-use ::{utils, coord, shape, label, mark, color};
+use {color, coord, label, mark, shape, utils};
 
 /// ## Axis
 ///
@@ -259,7 +259,9 @@ impl Axis {
         }
 
         let actual_min_point = utils::round_down(self.data_range[0], omagn, round_number);
-        let ca_max_point = *self.data_range.last().ok_or_else(|| err_msg("No final element"))?;
+        let ca_max_point = *self.data_range
+            .last()
+            .ok_or_else(|| err_msg("No final element"))?;
         let mark_distance = utils::round_nearest(ca_dist, omagn, round_number);
 
         let mut data_locations = vec![actual_min_point];
@@ -274,18 +276,29 @@ impl Axis {
             }
         }
         let min_data = data_locations[0];
-        let max_data = *data_locations.last().ok_or_else(|| err_msg("No final element"))?;
+        let max_data = *data_locations
+            .last()
+            .ok_or_else(|| err_msg("No final element"))?;
         for data_location in data_locations {
-            let mark_x = utils::map_range(data_location, min_data, max_data,
-                                          self.local_start.x(), self.local_end.x());
-            let mark_y = utils::map_range(data_location, min_data, max_data,
-                                          self.local_start.y(), self.local_end.y());
+            let mark_x = utils::map_range(
+                data_location,
+                min_data,
+                max_data,
+                self.local_start.x(),
+                self.local_end.x(),
+            );
+            let mark_y = utils::map_range(
+                data_location,
+                min_data,
+                max_data,
+                self.local_start.y(),
+                self.local_end.y(),
+            );
             let mark_location = coord::Coord::with_coordinates(mark_x, mark_y);
             let mut mark_k = mark::Mark::with_location(mark_location);
             mark_k.set_label_content(&utils::prettify(data_location));
 
             marks.push(mark_k);
-
         }
         self.data_range = [min_data, max_data];
         self.marks = marks;
@@ -329,10 +342,17 @@ impl Axis {
 
         // Draw axis line
         let line_color = self.color.as_srgba();
-        cr.set_source_rgba(f64::from(line_color.red), f64::from(line_color.green),
-                           f64::from(line_color.blue), f64::from(line_color.alpha));
-        cr.set_line_width(self.line_width * (self.direction.x().abs() * fig_rel_width +
-                                             self.direction.y().abs() * fig_rel_height));
+        cr.set_source_rgba(
+            f64::from(line_color.red),
+            f64::from(line_color.green),
+            f64::from(line_color.blue),
+            f64::from(line_color.alpha),
+        );
+        cr.set_line_width(
+            self.line_width
+                * (self.direction.x().abs() * fig_rel_width
+                    + self.direction.y().abs() * fig_rel_height),
+        );
         cr.move_to(self.global_start.x(), self.global_start.y());
         cr.line_to(self.global_end.x(), self.global_end.y());
         cr.stroke();

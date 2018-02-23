@@ -1,13 +1,12 @@
 //! Definition of the Figure struct
 //!
 
-
 use std::fs::File;
-use failure::{Error, err_msg};
+use failure::{err_msg, Error};
 
-use cairo::{Context, Format, ImageSurface, Matrix, MatrixTrait, FontSlant, FontWeight};
+use cairo::{Context, FontSlant, FontWeight, Format, ImageSurface, Matrix, MatrixTrait};
 
-use ::{plot, shape, color, label};
+use {color, label, plot, shape};
 
 /// A Figure holds plots, and can be viewed on screen or saved as a png image.
 #[derive(Clone)]
@@ -265,10 +264,11 @@ impl Figure {
         // The simplest solution is to clone self. But one should perhaps make fit() idempotent?.
         let mut fig = self.clone();
         fig.fit()?;
-        let surface = match ImageSurface::create(Format::ARgb32, fig.width as i32, fig.height as i32) {
-            Ok(val) => val,
-            Err(msg) => return Err(err_msg(format!("{:?}", msg))),
-        };
+        let surface =
+            match ImageSurface::create(Format::ARgb32, fig.width as i32, fig.height as i32) {
+                Ok(val) => val,
+                Err(msg) => return Err(err_msg(format!("{:?}", msg))),
+            };
 
         let cr = Context::new(&surface);
 
@@ -284,7 +284,11 @@ impl Figure {
         // TODO: Issue #13
         self.title.fit(&shape::Rectangle::new());
         for plot in &mut self.plots {
-            let new_top = if self.title.content() == "" { plot.top() } else { plot.top().min(0.93) };
+            let new_top = if self.title.content() == "" {
+                plot.top()
+            } else {
+                plot.top().min(0.93)
+            };
             plot.set_top_mut_ref(new_top);
             plot.fit()?;
         }
@@ -294,7 +298,6 @@ impl Figure {
 
     /// Draw the figure and the subsequent structures
     pub(crate) fn draw(&self, cr: &Context) {
-
         // # About non-square figures:
         //
         // All structures has been build with the assumption of a (0, 1) х (0, 1) square figure.
@@ -320,8 +323,12 @@ impl Figure {
         let relative_width = self.width() as f64 / self.height().max(self.width()) as f64;
 
         let color_srgb = self.color.as_srgba();
-        cr.set_source_rgba(f64::from(color_srgb.red), f64::from(color_srgb.green),
-                           f64::from(color_srgb.blue), f64::from(color_srgb.alpha));
+        cr.set_source_rgba(
+            f64::from(color_srgb.red),
+            f64::from(color_srgb.green),
+            f64::from(color_srgb.blue),
+            f64::from(color_srgb.alpha),
+        );
         cr.paint();
 
         // By default, the origin is in the top left corner, x is increasing to the right, and y is

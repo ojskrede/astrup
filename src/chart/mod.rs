@@ -1,7 +1,7 @@
 //! Definition of the Chart enum
 
 pub use self::scatter::Scatter;
-pub use self::line::{StrokeStyle, LineStyle, Line};
+pub use self::line::{Line, LineStyle, StrokeStyle};
 
 mod scatter;
 mod line;
@@ -10,7 +10,7 @@ mod point;
 use cairo::Context;
 use palette::Srgba;
 
-use ::{utils, shape, chart};
+use {chart, shape, utils};
 
 /// A graphical representation of data.
 #[derive(Clone, Debug)]
@@ -69,7 +69,6 @@ impl utils::Drawable for Chart {
 }
 
 impl utils::Plottable for Chart {
-
     fn data_frame(&self) -> shape::Rectangle {
         match *self {
             Chart::Scatter(ref s) => s.data_frame(),

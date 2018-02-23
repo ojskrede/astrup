@@ -4,12 +4,11 @@
 use std::f64;
 use failure::Error;
 
-use cairo::{Context, FontWeight, FontSlant};
+use cairo::{Context, FontSlant, FontWeight};
 use palette::Srgba;
 
-use ::{axis, mark, chart, shape, coord, label, color};
+use {axis, chart, color, coord, label, mark, shape};
 use utils::{Drawable, Plottable};
-
 
 /// ## Canvas
 ///
@@ -100,7 +99,8 @@ impl Canvas {
     /// each tick should be one of *n x {1, 2, 5} x 10^p* for some integer *n* and power *p*. See
     /// more of how this is actually determined [here](struct.Axis.html#method.compute_marks).
     pub fn set_data_range(&mut self, x_min: f64, x_max: f64, y_min: f64, y_max: f64) {
-        self.user_data_frame.set_boundaries(x_min, x_max, y_min, y_max);
+        self.user_data_frame
+            .set_boundaries(x_min, x_max, y_min, y_max);
     }
 
     /// Set horisontal data range
@@ -227,8 +227,15 @@ impl Canvas {
     }
 
     /// Set the frame gaps around the label of the default horisontal axis
-    pub fn set_default_x_axis_label_frame_gaps(&mut self, left: f64, right: f64, bottom: f64, top: f64) {
-        self.default_x_axis_label.set_frame_gaps(left, right, bottom, top);
+    pub fn set_default_x_axis_label_frame_gaps(
+        &mut self,
+        left: f64,
+        right: f64,
+        bottom: f64,
+        top: f64,
+    ) {
+        self.default_x_axis_label
+            .set_frame_gaps(left, right, bottom, top);
     }
 
     /// Set the x axis label color
@@ -252,8 +259,15 @@ impl Canvas {
     }
 
     /// Set the frame gaps around the label of the default vertical axis
-    pub fn set_default_y_axis_label_frame_gaps(&mut self, left: f64, right: f64, bottom: f64, top: f64) {
-        self.default_y_axis_label.set_frame_gaps(left, right, bottom, top);
+    pub fn set_default_y_axis_label_frame_gaps(
+        &mut self,
+        left: f64,
+        right: f64,
+        bottom: f64,
+        top: f64,
+    ) {
+        self.default_y_axis_label
+            .set_frame_gaps(left, right, bottom, top);
     }
 
     /// Set the y axis label color
@@ -358,8 +372,12 @@ impl Canvas {
         let grid_color = self.grid_color.as_srgba();
         if self.display_horizontal_gridlines {
             for coord in ver_axis.mark_coords() {
-                let mut gridline = mark::GridLine::with_boundaries(coord.x(), coord.y(),
-                                                                   self.global_frame.right(), coord.y());
+                let mut gridline = mark::GridLine::with_boundaries(
+                    coord.x(),
+                    coord.y(),
+                    self.global_frame.right(),
+                    coord.y(),
+                );
                 gridline.set_color_internal(grid_color);
                 gridline.set_width(self.grid_width);
                 gridline.scale_size(scale_factor);
@@ -368,8 +386,12 @@ impl Canvas {
         }
         if self.display_vertical_gridlines {
             for coord in hor_axis.mark_coords() {
-                let mut gridline = mark::GridLine::with_boundaries(coord.x(), coord.y(),
-                                                                   coord.x(), self.global_frame.top());
+                let mut gridline = mark::GridLine::with_boundaries(
+                    coord.x(),
+                    coord.y(),
+                    coord.x(),
+                    self.global_frame.top(),
+                );
                 gridline.set_color_internal(grid_color);
                 gridline.set_width(self.grid_width);
                 gridline.scale_size(scale_factor);
@@ -380,8 +402,11 @@ impl Canvas {
 
     /// Find the smallest data frame including all data points from all charts
     fn find_largest_chart_data_frame(&self) -> Option<shape::Rectangle> {
-        if self.charts.is_empty() { return None }
-        let mut largest_data_frame = shape::Rectangle::with_boundaries(f64::MAX, f64::MIN, f64::MAX, f64::MIN);
+        if self.charts.is_empty() {
+            return None;
+        }
+        let mut largest_data_frame =
+            shape::Rectangle::with_boundaries(f64::MAX, f64::MIN, f64::MAX, f64::MIN);
         for chart in &self.charts {
             if chart.data_frame().left() < largest_data_frame.left() {
                 largest_data_frame.set_left(chart.data_frame().left());
@@ -437,9 +462,14 @@ impl Canvas {
     /// solution to this.
     ///
     /// In the meantime, the possibility to not display the axes will have to suffice.
-    fn set_default_axes(&mut self, data_frame: &shape::Rectangle) -> Result<(axis::Axis, axis::Axis), Error> {
-        let mut hor_axis = axis::Axis::with_boundaries(&coord::Coord::with_coordinates(0.0, 0.0),
-                                                       &coord::Coord::with_coordinates(1.0, 0.0));
+    fn set_default_axes(
+        &mut self,
+        data_frame: &shape::Rectangle,
+    ) -> Result<(axis::Axis, axis::Axis), Error> {
+        let mut hor_axis = axis::Axis::with_boundaries(
+            &coord::Coord::with_coordinates(0.0, 0.0),
+            &coord::Coord::with_coordinates(1.0, 0.0),
+        );
         hor_axis.set_data_range(data_frame.left(), data_frame.right());
         hor_axis.compute_marks()?;
 
@@ -451,8 +481,10 @@ impl Canvas {
 
         hor_axis.set_label(&self.default_x_axis_label);
 
-        let mut ver_axis = axis::Axis::with_boundaries(&coord::Coord::with_coordinates(0.0, 0.0),
-                                                       &coord::Coord::with_coordinates(0.0, 1.0));
+        let mut ver_axis = axis::Axis::with_boundaries(
+            &coord::Coord::with_coordinates(0.0, 0.0),
+            &coord::Coord::with_coordinates(0.0, 1.0),
+        );
         ver_axis.set_data_range(data_frame.bottom(), data_frame.top());
         ver_axis.compute_marks()?;
 
@@ -468,9 +500,11 @@ impl Canvas {
     }
 
     /// Fit this canvas to its plot
-    pub fn fit(&mut self, plot_frame: &shape::Rectangle, plot_has_title: bool)
-    -> Result<(), Error> {
-
+    pub fn fit(
+        &mut self,
+        plot_frame: &shape::Rectangle,
+        plot_has_title: bool,
+    ) -> Result<(), Error> {
         // TODO: This is a temporary hack that will be resolved with Issue #13
         if plot_has_title {
             let new_top = self.local_frame.top().min(0.93);
@@ -505,7 +539,8 @@ impl Canvas {
         let data_right = hor_axis.data_max();
         let data_bottom = ver_axis.data_min();
         let data_top = ver_axis.data_max();
-        self.data_frame = shape::Rectangle::with_boundaries(data_left, data_right, data_bottom, data_top);
+        self.data_frame =
+            shape::Rectangle::with_boundaries(data_left, data_right, data_bottom, data_top);
 
         // Then, we update the axis, and charts based on this updated configuration
         ver_axis.fit(&self.global_frame);
@@ -515,8 +550,12 @@ impl Canvas {
         self.compute_grid(&ver_axis, &hor_axis);
 
         let mut axes = Vec::<axis::Axis>::new();
-        if self.display_horizontal_axis { axes.push(hor_axis); }
-        if self.display_vertical_axis { axes.push(ver_axis); }
+        if self.display_horizontal_axis {
+            axes.push(hor_axis);
+        }
+        if self.display_vertical_axis {
+            axes.push(ver_axis);
+        }
         self.axes = axes;
 
         for chart in &mut self.charts {
@@ -528,13 +567,20 @@ impl Canvas {
 
     /// Draw the canvas
     pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
-
         // Background
         let bg_color = self.color.as_srgba();
-        cr.set_source_rgba(f64::from(bg_color.red), f64::from(bg_color.green),
-                           f64::from(bg_color.blue), f64::from(bg_color.alpha));
-        cr.rectangle(self.global_frame.left(), self.global_frame.bottom(),
-                     self.global_frame.width(), self.global_frame.height());
+        cr.set_source_rgba(
+            f64::from(bg_color.red),
+            f64::from(bg_color.green),
+            f64::from(bg_color.blue),
+            f64::from(bg_color.alpha),
+        );
+        cr.rectangle(
+            self.global_frame.left(),
+            self.global_frame.bottom(),
+            self.global_frame.width(),
+            self.global_frame.height(),
+        );
         cr.fill();
 
         for gridline in &self.grid {
@@ -553,7 +599,5 @@ impl Canvas {
             }
             chart.draw(cr, fig_rel_height, fig_rel_width);
         }
-
     }
 }
-

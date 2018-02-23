@@ -8,7 +8,7 @@ use std::f64::consts::PI;
 use cairo::Context;
 use palette::Srgba;
 
-use ::{utils, shape, coord, color};
+use {color, coord, shape, utils};
 
 #[derive(Clone, Debug)]
 pub enum Shape {
@@ -75,12 +75,20 @@ impl Point {
 
     #[allow(dead_code)]
     pub fn map_range(&mut self, old_frame: &shape::Rectangle, new_frame: &shape::Rectangle) {
-        let new_x = utils::map_range(self.x_coord(),
-                                     old_frame.left(), old_frame.right(),
-                                     new_frame.right(), new_frame.right());
-        let new_y = utils::map_range(self.y_coord(),
-                                     old_frame.bottom(), old_frame.top(),
-                                     new_frame.bottom(), new_frame.top());
+        let new_x = utils::map_range(
+            self.x_coord(),
+            old_frame.left(),
+            old_frame.right(),
+            new_frame.right(),
+            new_frame.right(),
+        );
+        let new_y = utils::map_range(
+            self.y_coord(),
+            old_frame.bottom(),
+            old_frame.top(),
+            new_frame.bottom(),
+            new_frame.top(),
+        );
         self.set_coord(new_x, new_y);
     }
 }
@@ -105,23 +113,30 @@ impl utils::Drawable for Point {
 
     fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
         let point_color = self.color.as_srgba();
-        cr.set_source_rgba(f64::from(point_color.red), f64::from(point_color.green),
-                           f64::from(point_color.blue), f64::from(point_color.alpha));
+        cr.set_source_rgba(
+            f64::from(point_color.red),
+            f64::from(point_color.green),
+            f64::from(point_color.blue),
+            f64::from(point_color.alpha),
+        );
         match self.shape {
             // TODO: Scale size of circle and square
-            Shape::Circle => cr.arc(self.coord.x(), self.coord.y(), self.size, 0., 2.0*PI),
+            Shape::Circle => cr.arc(self.coord.x(), self.coord.y(), self.size, 0., 2.0 * PI),
             Shape::Square => cr.rectangle(self.coord.x(), self.coord.y(), self.size, self.size),
             Shape::Tick => {
                 // Vertical tick
-                let start = coord::Coord::with_coordinates(self.coord.x(), self.coord.y() - self.size);
-                let end = coord::Coord::with_coordinates(self.coord.x(), self.coord.y() + self.size);
+                let start =
+                    coord::Coord::with_coordinates(self.coord.x(), self.coord.y() - self.size);
+                let end =
+                    coord::Coord::with_coordinates(self.coord.x(), self.coord.y() + self.size);
                 let direction = start.unit_direction_to(&end);
-                let size = self.size * (direction.x().abs() * fig_rel_width + direction.y().abs() * fig_rel_height);
+                let size = self.size
+                    * (direction.x().abs() * fig_rel_width + direction.y().abs() * fig_rel_height);
                 cr.set_line_width(size / 4.0);
                 cr.move_to(self.coord.x(), self.coord.y() - size);
                 cr.line_to(self.coord.x(), self.coord.y() + size);
                 cr.stroke();
-            },
+            }
         }
         cr.fill()
     }

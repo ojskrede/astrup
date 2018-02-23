@@ -2,9 +2,9 @@
 //!
 
 use palette::Srgba;
-use cairo::{Context, Matrix, MatrixTrait, FontWeight, FontSlant};
+use cairo::{Context, FontSlant, FontWeight, Matrix, MatrixTrait};
 
-use ::{shape, text, coord};
+use {coord, shape, text};
 
 /// ## Label
 ///
@@ -178,7 +178,6 @@ impl Label {
     }
 
     pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
-
         cr.move_to(self.global_centroid.x(), self.global_centroid.y());
 
         // First, we must flip the y-axis again, to make the text be the right side up.
@@ -186,11 +185,18 @@ impl Label {
         // clockwise.
         cr.transform(Matrix::new(1.0, 0.0, 0.0, -1.0, 0.0, 0.0));
         cr.rotate(-self.angle);
-        self.text.draw(cr, fig_rel_height, fig_rel_width, self.angle, self.rel_left_gap,
-                       self.rel_right_gap, self.rel_bottom_gap, self.rel_top_gap,
-                       self.border_thickness);
+        self.text.draw(
+            cr,
+            fig_rel_height,
+            fig_rel_width,
+            self.angle,
+            self.rel_left_gap,
+            self.rel_right_gap,
+            self.rel_bottom_gap,
+            self.rel_top_gap,
+            self.border_thickness,
+        );
         cr.rotate(self.angle);
         cr.transform(Matrix::new(1.0, 0.0, 0.0, -1.0, 0.0, 0.0));
-
     }
 }

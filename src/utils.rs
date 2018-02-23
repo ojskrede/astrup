@@ -14,7 +14,7 @@ use shape;
 /// In this context it is mostly used to find min and max in data containers of f64.
 ///
 /// Thanks to [stackoverflow](https://stackoverflow.com/questions/28247990/how-to-do-a-binary-search-on-a-vec-of-floats/28248065#28248065)
-#[derive(PartialEq,PartialOrd)]
+#[derive(PartialEq, PartialOrd)]
 pub struct NonNan {
     val: f64,
 }
@@ -240,8 +240,8 @@ pub fn round_nearest(number: f64, omagn: i32, nearest: f64) -> f64 {
 /// Map a number linearly from a reference system A to another reference system B.
 pub fn map_range(old_number: f64, old_min: f64, old_max: f64, new_min: f64, new_max: f64) -> f64 {
     if (old_min - old_max).abs() > f64::EPSILON {
-        ((old_number - old_min) / (old_max - old_min) * new_max +
-         (old_max - old_number) / (old_max - old_min) * new_min)
+        ((old_number - old_min) / (old_max - old_min) * new_max
+            + (old_max - old_number) / (old_max - old_min) * new_min)
     } else {
         (old_min + old_max) / 2.0
     }
@@ -283,7 +283,6 @@ pub fn order_of_magnitude(number: f64) -> i32 {
         number.abs().log10().floor() as i32
     }
 }
-
 
 /// Format a tick label w.r.t. space and clarity
 ///

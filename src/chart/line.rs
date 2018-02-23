@@ -5,7 +5,7 @@ use cairo::{Context, LineCap};
 use palette::Srgba;
 use ndarray::AsArray;
 
-use ::{chart, utils, shape, coord, color};
+use {chart, color, coord, shape, utils};
 
 #[derive(Clone, Debug)]
 pub enum LineStyle {
@@ -32,29 +32,23 @@ struct DashPattern {
 impl DashPattern {
     fn with_style(stroke_style: &StrokeStyle) -> DashPattern {
         match *stroke_style {
-            StrokeStyle::Dashed => {
-                DashPattern {
-                    on_length: 0.01,
-                    off_length: 0.015,
-                    offset: 0.0,
-                    cap: LineCap::Square,
-                }
+            StrokeStyle::Dashed => DashPattern {
+                on_length: 0.01,
+                off_length: 0.015,
+                offset: 0.0,
+                cap: LineCap::Square,
             },
-            StrokeStyle::Dotted => {
-                DashPattern {
-                    on_length: 0.0,
-                    off_length: 0.015,
-                    offset: 0.0,
-                    cap: LineCap::Round,
-                }
+            StrokeStyle::Dotted => DashPattern {
+                on_length: 0.0,
+                off_length: 0.015,
+                offset: 0.0,
+                cap: LineCap::Round,
             },
-            StrokeStyle::Continuous => {
-                DashPattern {
-                    on_length: 1.0,
-                    off_length: 0.0,
-                    offset: 0.0,
-                    cap: LineCap::Round,
-                }
+            StrokeStyle::Continuous => DashPattern {
+                on_length: 1.0,
+                off_length: 0.0,
+                offset: 0.0,
+                cap: LineCap::Round,
             },
         }
     }
@@ -118,13 +112,20 @@ pub struct Line {
 impl Line {
     /// Create and return a new Line chart
     pub fn new<'a, I: AsArray<'a, f64>>(x_data_coords: I, y_data_coords: I) -> Line {
-        let x_view: Vec<_> = x_data_coords.into().iter().map(|v| utils::NonNan::new(*v).unwrap()).collect();
-        let y_view: Vec<_> = y_data_coords.into().iter().map(|v| utils::NonNan::new(*v).unwrap()).collect();
+        let x_view: Vec<_> = x_data_coords
+            .into()
+            .iter()
+            .map(|v| utils::NonNan::new(*v).unwrap())
+            .collect();
+        let y_view: Vec<_> = y_data_coords
+            .into()
+            .iter()
+            .map(|v| utils::NonNan::new(*v).unwrap())
+            .collect();
         let x_data_min = &x_view.iter().min().expect("Could not find x min");
         let x_data_max = &x_view.iter().max().expect("Could not find x max");
         let y_data_min = &y_view.iter().min().expect("Could not find y min");
         let y_data_max = &y_view.iter().max().expect("Could not find y max");
-
 
         let mut data_points = Vec::<chart::point::Point>::new();
         for (x, y) in x_view.iter().zip(y_view.iter()) {
@@ -137,8 +138,12 @@ impl Line {
 
         Line {
             data_points: data_points,
-            data_frame: shape::Rectangle::with_boundaries(x_data_min.val(), x_data_max.val(),
-                                                          y_data_min.val(), y_data_max.val()),
+            data_frame: shape::Rectangle::with_boundaries(
+                x_data_min.val(),
+                x_data_max.val(),
+                y_data_min.val(),
+                y_data_max.val(),
+            ),
             global_frame: shape::Rectangle::new(),
             color: color::Color::with_custom(&color::CustomColor::Blue),
             is_color_updated: false,
@@ -250,7 +255,11 @@ impl utils::Drawable for Line {
         self.dash_pattern.scale_size(factor);
     }
 
-    fn fit(&mut self, canvas_global_frame: &shape::Rectangle, canvas_data_frame: &shape::Rectangle) {
+    fn fit(
+        &mut self,
+        canvas_global_frame: &shape::Rectangle,
+        canvas_data_frame: &shape::Rectangle,
+    ) {
         self.global_frame = canvas_global_frame.clone();
         self.data_frame = canvas_data_frame.clone();
         let scale_factor = self.global_frame.diag_len();
@@ -263,49 +272,74 @@ impl utils::Drawable for Line {
 
     fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
         let mut first_point = true;
-        cr.set_dash(&[self.dash_pattern.on_length(), self.dash_pattern.off_length()],
-                      self.dash_pattern.offset());
+        cr.set_dash(
+            &[
+                self.dash_pattern.on_length(),
+                self.dash_pattern.off_length(),
+            ],
+            self.dash_pattern.offset(),
+        );
         cr.set_line_cap(self.dash_pattern.line_cap());
         let mut prev_coord = coord::Coord::new();
         let line_color = self.color.as_srgba();
         match self.line_style {
-            LineStyle::Plain => {
-                for data_point in &self.data_points {
-                    let canvas_x = utils::map_range(data_point.x_coord(),
-                                                    self.data_frame.left(), self.data_frame.right(),
-                                                    self.global_frame.left(), self.global_frame.right());
-                    let canvas_y = utils::map_range(data_point.y_coord(),
-                                                    self.data_frame.bottom(), self.data_frame.top(),
-                                                    self.global_frame.bottom(), self.global_frame.top());
-                    let mut canvas_point = data_point.clone();
-                    canvas_point.set_x_coord(canvas_x);
-                    canvas_point.set_y_coord(canvas_y);
+            LineStyle::Plain => for data_point in &self.data_points {
+                let canvas_x = utils::map_range(
+                    data_point.x_coord(),
+                    self.data_frame.left(),
+                    self.data_frame.right(),
+                    self.global_frame.left(),
+                    self.global_frame.right(),
+                );
+                let canvas_y = utils::map_range(
+                    data_point.y_coord(),
+                    self.data_frame.bottom(),
+                    self.data_frame.top(),
+                    self.global_frame.bottom(),
+                    self.global_frame.top(),
+                );
+                let mut canvas_point = data_point.clone();
+                canvas_point.set_x_coord(canvas_x);
+                canvas_point.set_y_coord(canvas_y);
 
-                    if !first_point {
-                        let curr_coord = canvas_point.coord();
-                        let direction = prev_coord.unit_direction_to(&curr_coord);
-                        cr.set_source_rgba(f64::from(line_color.red), f64::from(line_color.green),
-                                           f64::from(line_color.blue), f64::from(line_color.alpha));
-                        let line_width = self.line_width * (direction.x().abs() * fig_rel_width + direction.y().abs() * fig_rel_height);
-                        cr.set_line_width(line_width);
-                        cr.line_to(canvas_point.x_coord(), canvas_point.y_coord());
-                        cr.stroke();
-                    }
-                    canvas_point.draw(cr, fig_rel_height, fig_rel_width);
-                    cr.move_to(canvas_point.x_coord(), canvas_point.y_coord());
-                    first_point = false;
-                    prev_coord = canvas_point.coord();
+                if !first_point {
+                    let curr_coord = canvas_point.coord();
+                    let direction = prev_coord.unit_direction_to(&curr_coord);
+                    cr.set_source_rgba(
+                        f64::from(line_color.red),
+                        f64::from(line_color.green),
+                        f64::from(line_color.blue),
+                        f64::from(line_color.alpha),
+                    );
+                    let line_width = self.line_width
+                        * (direction.x().abs() * fig_rel_width
+                            + direction.y().abs() * fig_rel_height);
+                    cr.set_line_width(line_width);
+                    cr.line_to(canvas_point.x_coord(), canvas_point.y_coord());
+                    cr.stroke();
                 }
+                canvas_point.draw(cr, fig_rel_height, fig_rel_width);
+                cr.move_to(canvas_point.x_coord(), canvas_point.y_coord());
+                first_point = false;
+                prev_coord = canvas_point.coord();
             },
             LineStyle::LeftStair => {
                 let mut prev_canvas_x = 0.0;
                 for data_point in &self.data_points {
-                    let canvas_x = utils::map_range(data_point.x_coord(),
-                                                    self.data_frame.left(), self.data_frame.right(),
-                                                    self.global_frame.left(), self.global_frame.right());
-                    let canvas_y = utils::map_range(data_point.y_coord(),
-                                                    self.data_frame.bottom(), self.data_frame.top(),
-                                                    self.global_frame.bottom(), self.global_frame.top());
+                    let canvas_x = utils::map_range(
+                        data_point.x_coord(),
+                        self.data_frame.left(),
+                        self.data_frame.right(),
+                        self.global_frame.left(),
+                        self.global_frame.right(),
+                    );
+                    let canvas_y = utils::map_range(
+                        data_point.y_coord(),
+                        self.data_frame.bottom(),
+                        self.data_frame.top(),
+                        self.global_frame.bottom(),
+                        self.global_frame.top(),
+                    );
                     let mut canvas_point = data_point.clone();
 
                     if first_point {
@@ -321,8 +355,12 @@ impl utils::Drawable for Line {
                         // no original point attached to it, therefore we do not draw it.
                         canvas_point.draw(cr, fig_rel_height, fig_rel_width);
                     } else {
-                        cr.set_source_rgba(f64::from(line_color.red), f64::from(line_color.green),
-                                           f64::from(line_color.blue), f64::from(line_color.alpha));
+                        cr.set_source_rgba(
+                            f64::from(line_color.red),
+                            f64::from(line_color.green),
+                            f64::from(line_color.blue),
+                            f64::from(line_color.alpha),
+                        );
                         cr.set_line_width(self.line_width);
                         cr.line_to(canvas_point.x_coord(), canvas_point.y_coord());
                         cr.stroke();
@@ -332,8 +370,12 @@ impl utils::Drawable for Line {
                     if !first_point {
                         canvas_point.set_x_coord(canvas_x);
 
-                        cr.set_source_rgba(f64::from(line_color.red), f64::from(line_color.green),
-                                           f64::from(line_color.blue), f64::from(line_color.alpha));
+                        cr.set_source_rgba(
+                            f64::from(line_color.red),
+                            f64::from(line_color.green),
+                            f64::from(line_color.blue),
+                            f64::from(line_color.alpha),
+                        );
                         cr.set_line_width(self.line_width);
                         cr.line_to(canvas_point.x_coord(), canvas_point.y_coord());
                         cr.stroke();
@@ -346,16 +388,24 @@ impl utils::Drawable for Line {
 
                     first_point = false;
                 }
-            },
+            }
             LineStyle::RightStair => {
                 let mut prev_canvas_y = 0.0;
                 for data_point in &self.data_points {
-                    let canvas_x = utils::map_range(data_point.x_coord(),
-                                                    self.data_frame.left(), self.data_frame.right(),
-                                                    self.global_frame.left(), self.global_frame.right());
-                    let canvas_y = utils::map_range(data_point.y_coord(),
-                                                    self.data_frame.bottom(), self.data_frame.top(),
-                                                    self.global_frame.bottom(), self.global_frame.top());
+                    let canvas_x = utils::map_range(
+                        data_point.x_coord(),
+                        self.data_frame.left(),
+                        self.data_frame.right(),
+                        self.global_frame.left(),
+                        self.global_frame.right(),
+                    );
+                    let canvas_y = utils::map_range(
+                        data_point.y_coord(),
+                        self.data_frame.bottom(),
+                        self.data_frame.top(),
+                        self.global_frame.bottom(),
+                        self.global_frame.top(),
+                    );
                     let mut canvas_point = data_point.clone();
 
                     if first_point {
@@ -371,8 +421,12 @@ impl utils::Drawable for Line {
                         // no original point attached to it, therefore we do not draw it.
                         canvas_point.draw(cr, fig_rel_height, fig_rel_width);
                     } else {
-                        cr.set_source_rgba(f64::from(line_color.red), f64::from(line_color.green),
-                                           f64::from(line_color.blue), f64::from(line_color.alpha));
+                        cr.set_source_rgba(
+                            f64::from(line_color.red),
+                            f64::from(line_color.green),
+                            f64::from(line_color.blue),
+                            f64::from(line_color.alpha),
+                        );
                         cr.set_line_width(self.line_width);
                         cr.line_to(canvas_point.x_coord(), canvas_point.y_coord());
                         cr.stroke();
@@ -382,8 +436,12 @@ impl utils::Drawable for Line {
                     if !first_point {
                         canvas_point.set_y_coord(canvas_y);
 
-                        cr.set_source_rgba(f64::from(line_color.red), f64::from(line_color.green),
-                                           f64::from(line_color.blue), f64::from(line_color.alpha));
+                        cr.set_source_rgba(
+                            f64::from(line_color.red),
+                            f64::from(line_color.green),
+                            f64::from(line_color.blue),
+                            f64::from(line_color.alpha),
+                        );
                         cr.set_line_width(self.line_width);
                         cr.line_to(canvas_point.x_coord(), canvas_point.y_coord());
                         cr.stroke();
@@ -396,7 +454,7 @@ impl utils::Drawable for Line {
 
                     first_point = false;
                 }
-            },
+            }
         }
         // Reset back to continuous line
         cr.set_dash(&[], 0.0);

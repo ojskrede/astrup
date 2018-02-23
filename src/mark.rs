@@ -1,10 +1,10 @@
 //! Definition of the `Mark`, `Tick`, and `GridLine` structs.
 //!
 
-use cairo::{Context, LineCap, FontWeight, FontSlant};
+use cairo::{Context, FontSlant, FontWeight, LineCap};
 use palette::Srgba;
 
-use ::{shape, coord, label, color};
+use {color, coord, label, shape};
 
 /// Mark
 ///
@@ -221,12 +221,17 @@ impl Mark {
 
     /// Draw ticks and labels
     pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
-        self.tick.draw(cr, fig_rel_height, fig_rel_width, self.global.x(), self.global.y());
+        self.tick.draw(
+            cr,
+            fig_rel_height,
+            fig_rel_width,
+            self.global.x(),
+            self.global.y(),
+        );
 
         self.label.draw(cr, fig_rel_height, fig_rel_width);
     }
 }
-
 
 /// ## Tick
 ///
@@ -329,31 +334,49 @@ impl Tick {
     }
 
     /// Draw the tick mark
-    pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64, x_root: f64, y_root: f64) {
+    pub fn draw(
+        &self,
+        cr: &Context,
+        fig_rel_height: f64,
+        fig_rel_width: f64,
+        x_root: f64,
+        y_root: f64,
+    ) {
         cr.move_to(x_root, y_root);
         cr.set_line_cap(LineCap::Square);
         let tick_color = self.color.as_srgba();
-        cr.set_source_rgba(f64::from(tick_color.red), f64::from(tick_color.green),
-                           f64::from(tick_color.blue), f64::from(tick_color.alpha));
+        cr.set_source_rgba(
+            f64::from(tick_color.red),
+            f64::from(tick_color.green),
+            f64::from(tick_color.blue),
+            f64::from(tick_color.alpha),
+        );
 
         // Perpendicular on the tick direction
-        let width = self.width * (self.direction.y().abs() * fig_rel_height +
-                                  self.direction.x().abs() * fig_rel_width);
+        let width = self.width
+            * (self.direction.y().abs() * fig_rel_height
+                + self.direction.x().abs() * fig_rel_width);
         cr.set_line_width(width);
 
         // With the tick direction
-        let pos_length = self.positive_length * (self.direction.x().abs() * fig_rel_height +
-                                                 self.direction.y().abs() * fig_rel_width);
-        cr.line_to(x_root + self.direction.x().abs() * pos_length,
-                   y_root + self.direction.y().abs() * pos_length);
+        let pos_length = self.positive_length
+            * (self.direction.x().abs() * fig_rel_height
+                + self.direction.y().abs() * fig_rel_width);
+        cr.line_to(
+            x_root + self.direction.x().abs() * pos_length,
+            y_root + self.direction.y().abs() * pos_length,
+        );
         cr.stroke();
 
         // Against the tick direction
-        let neg_length = self.negative_length * (self.direction.x().abs() * fig_rel_height +
-                                                 self.direction.y().abs() * fig_rel_width);
+        let neg_length = self.negative_length
+            * (self.direction.x().abs() * fig_rel_height
+                + self.direction.y().abs() * fig_rel_width);
         cr.move_to(x_root, y_root);
-        cr.line_to(x_root - self.direction.x().abs() * neg_length,
-                   y_root - self.direction.y().abs() * neg_length);
+        cr.line_to(
+            x_root - self.direction.x().abs() * neg_length,
+            y_root - self.direction.y().abs() * neg_length,
+        );
         cr.stroke();
     }
 }
@@ -413,11 +436,16 @@ impl GridLine {
     /// Draw the grid line
     pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
         let line_color = self.color.as_srgba();
-        cr.set_source_rgba(f64::from(line_color.red), f64::from(line_color.green),
-                           f64::from(line_color.blue), f64::from(line_color.alpha));
+        cr.set_source_rgba(
+            f64::from(line_color.red),
+            f64::from(line_color.green),
+            f64::from(line_color.blue),
+            f64::from(line_color.alpha),
+        );
 
-        let width = self.width * (self.direction.x().abs() * fig_rel_width +
-                                  self.direction.y().abs() * fig_rel_height);
+        let width = self.width
+            * (self.direction.x().abs() * fig_rel_width
+                + self.direction.y().abs() * fig_rel_height);
         cr.set_line_width(width);
         cr.move_to(self.global_start.x(), self.global_start.y());
         cr.line_to(self.global_end.x(), self.global_end.y());

@@ -4,10 +4,9 @@
 use std::f64;
 use failure::Error;
 
-use cairo::{Context, FontWeight, FontSlant};
+use cairo::{Context, FontSlant, FontWeight};
 
-use ::{canvas, chart, shape, label, color};
-
+use {canvas, chart, color, label, shape};
 
 /// Determines a single plot. A plot is part of a figure, and contains a canvas where things are
 /// drawn. By default, there is some space around the canvas, to make space for labels, ticks,
@@ -222,7 +221,6 @@ impl Plot {
     pub fn set_top_mut_ref(&mut self, val: f64) {
         self.local_frame.set_top(val);
     }
-
 
     /// Whether or not to display a border around the plot
     pub fn display_border(mut self, val: bool) -> Self {
@@ -499,53 +497,61 @@ impl Plot {
 
     /// Set the center location of the label on the default horisontal axis
     pub fn set_x_label_centroid(mut self, x_coord: f64, y_coord: f64) -> Self {
-        self.canvas.set_default_x_axis_label_centroid(x_coord, y_coord);
+        self.canvas
+            .set_default_x_axis_label_centroid(x_coord, y_coord);
         self
     }
 
     /// Set the frame gaps around the label of the default horisontal axis
     pub fn set_x_label_frame_gaps(mut self, left: f64, right: f64, bottom: f64, top: f64) -> Self {
-        self.canvas.set_default_x_axis_label_frame_gaps(left, right, bottom, top);
+        self.canvas
+            .set_default_x_axis_label_frame_gaps(left, right, bottom, top);
         self
     }
 
     /// Set the x label color
     pub fn set_x_label_color(mut self, color: &color::CustomColor) -> Self {
-        self.canvas.set_default_x_axis_label_color_internal(color.as_srgba());
+        self.canvas
+            .set_default_x_axis_label_color_internal(color.as_srgba());
         self
     }
 
     /// Set the x label color
     pub fn set_x_label_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
         let color = color::Color::with_rgb(red, green, blue);
-        self.canvas.set_default_x_axis_label_color_internal(color.as_srgba());
+        self.canvas
+            .set_default_x_axis_label_color_internal(color.as_srgba());
         self
     }
 
     /// Set the x label color
     pub fn set_x_label_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
         let color = color::Color::with_rgba(red, green, blue, alpha);
-        self.canvas.set_default_x_axis_label_color_internal(color.as_srgba());
+        self.canvas
+            .set_default_x_axis_label_color_internal(color.as_srgba());
         self
     }
 
     /// Set the x label color
     pub fn set_x_label_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
         let color = color::Color::with_rgb_u8(red, green, blue);
-        self.canvas.set_default_x_axis_label_color_internal(color.as_srgba());
+        self.canvas
+            .set_default_x_axis_label_color_internal(color.as_srgba());
         self
     }
 
     /// Set the x label color
     pub fn set_x_label_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
         let color = color::Color::with_rgba_u8(red, green, blue, alpha);
-        self.canvas.set_default_x_axis_label_color_internal(color.as_srgba());
+        self.canvas
+            .set_default_x_axis_label_color_internal(color.as_srgba());
         self
     }
 
     /// Set the x label color
     pub fn set_x_label_color_html(mut self, color: &color::HtmlColor) -> Self {
-        self.canvas.set_default_x_axis_label_color_internal(color.as_srgba());
+        self.canvas
+            .set_default_x_axis_label_color_internal(color.as_srgba());
         self
     }
 
@@ -565,53 +571,61 @@ impl Plot {
 
     /// Set the center location of the label on the default vertical axis
     pub fn set_y_label_centroid(mut self, x_coord: f64, y_coord: f64) -> Self {
-        self.canvas.set_default_y_axis_label_centroid(x_coord, y_coord);
+        self.canvas
+            .set_default_y_axis_label_centroid(x_coord, y_coord);
         self
     }
 
     /// Set the frame gaps around the label of the default vertical axis
     pub fn set_y_label_frame_gaps(mut self, left: f64, right: f64, bottom: f64, top: f64) -> Self {
-        self.canvas.set_default_y_axis_label_frame_gaps(left, right, bottom, top);
+        self.canvas
+            .set_default_y_axis_label_frame_gaps(left, right, bottom, top);
         self
     }
 
     /// Set the y label color
     pub fn set_y_label_color(mut self, color: &color::CustomColor) -> Self {
-        self.canvas.set_default_y_axis_label_color_internal(color.as_srgba());
+        self.canvas
+            .set_default_y_axis_label_color_internal(color.as_srgba());
         self
     }
 
     /// Set the y label color
     pub fn set_y_label_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
         let color = color::Color::with_rgb(red, green, blue);
-        self.canvas.set_default_y_axis_label_color_internal(color.as_srgba());
+        self.canvas
+            .set_default_y_axis_label_color_internal(color.as_srgba());
         self
     }
 
     /// Set the y label color
     pub fn set_y_label_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
         let color = color::Color::with_rgba(red, green, blue, alpha);
-        self.canvas.set_default_y_axis_label_color_internal(color.as_srgba());
+        self.canvas
+            .set_default_y_axis_label_color_internal(color.as_srgba());
         self
     }
 
     /// Set the y label color
     pub fn set_y_label_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
         let color = color::Color::with_rgb_u8(red, green, blue);
-        self.canvas.set_default_y_axis_label_color_internal(color.as_srgba());
+        self.canvas
+            .set_default_y_axis_label_color_internal(color.as_srgba());
         self
     }
 
     /// Set the y label color
     pub fn set_y_label_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
         let color = color::Color::with_rgba_u8(red, green, blue, alpha);
-        self.canvas.set_default_y_axis_label_color_internal(color.as_srgba());
+        self.canvas
+            .set_default_y_axis_label_color_internal(color.as_srgba());
         self
     }
 
     /// Set the y label color
     pub fn set_y_label_color_html(mut self, color: &color::HtmlColor) -> Self {
-        self.canvas.set_default_y_axis_label_color_internal(color.as_srgba());
+        self.canvas
+            .set_default_y_axis_label_color_internal(color.as_srgba());
         self
     }
 
@@ -671,7 +685,13 @@ impl Plot {
     }
 
     /// Set the tick label color
-    pub fn set_tick_label_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
+    pub fn set_tick_label_color_rgba(
+        mut self,
+        red: f32,
+        green: f32,
+        blue: f32,
+        alpha: f32,
+    ) -> Self {
         let color = color::Color::with_rgba(red, green, blue, alpha);
         self.canvas.set_tick_label_color_internal(color.as_srgba());
         self
@@ -853,13 +873,20 @@ impl Plot {
 
     /// Do the actual drawing of the plot
     pub(crate) fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
-
         // Fill background
         let bg_color = self.color.as_srgba();
-        cr.set_source_rgba(f64::from(bg_color.red), f64::from(bg_color.green),
-                           f64::from(bg_color.blue), f64::from(bg_color.alpha));
-        cr.rectangle(self.local_frame.left(), self.local_frame.bottom(),
-                     self.local_frame.width(), self.local_frame.height());
+        cr.set_source_rgba(
+            f64::from(bg_color.red),
+            f64::from(bg_color.green),
+            f64::from(bg_color.blue),
+            f64::from(bg_color.alpha),
+        );
+        cr.rectangle(
+            self.local_frame.left(),
+            self.local_frame.bottom(),
+            self.local_frame.width(),
+            self.local_frame.height(),
+        );
         cr.fill();
 
         // Draw frame border

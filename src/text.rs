@@ -5,7 +5,7 @@ use palette::Srgba;
 use cairo::{Context, Matrix, MatrixTrait};
 use cairo::enums::{FontSlant, FontWeight};
 
-use ::color;
+use color;
 
 /// A structure for text to be used in labels
 #[derive(Clone, Debug)]
@@ -95,8 +95,18 @@ impl Text {
     /// Draw text
     #[allow(unknown_lints)]
     #[allow(too_many_arguments)]
-    pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64, angle: f64,
-                left_gap: f64, right_gap: f64, bottom_gap: f64, top_gap: f64, line_width: f64) {
+    pub fn draw(
+        &self,
+        cr: &Context,
+        fig_rel_height: f64,
+        fig_rel_width: f64,
+        angle: f64,
+        left_gap: f64,
+        right_gap: f64,
+        bottom_gap: f64,
+        top_gap: f64,
+        line_width: f64,
+    ) {
         // NOTE 1: This function assumes that we are using the default cairo Context coordinate
         // convention. That is: with y increasing downwards. In the rest of the program, we assume
         // that y is increasing upwards. Because of this, the shift in cr.rel_move_to() below has a
@@ -106,8 +116,12 @@ impl Text {
 
         cr.select_font_face(&self.font_family, self.font_slant, self.font_weight);
         let text_color = self.color.as_srgba();
-        cr.set_source_rgba(f64::from(text_color.red), f64::from(text_color.green),
-                           f64::from(text_color.blue), f64::from(text_color.alpha));
+        cr.set_source_rgba(
+            f64::from(text_color.red),
+            f64::from(text_color.green),
+            f64::from(text_color.blue),
+            f64::from(text_color.alpha),
+        );
 
         // Adjust font size
         cr.set_font_size(self.font_size);
@@ -118,12 +132,14 @@ impl Text {
         let new_xx = font_matrix.xx * (angle.cos() * fig_rel_height + angle.sin() * fig_rel_width);
         let new_yy = font_matrix.yy * (angle.sin() * fig_rel_height + angle.cos() * fig_rel_width);
 
-        cr.set_font_matrix(Matrix::new(new_xx / norm_factor,
-                                       1.0 * font_matrix.yx,
-                                       1.0 * font_matrix.xy,
-                                       new_yy / norm_factor,
-                                       1.0 * font_matrix.x0,
-                                       1.0 * font_matrix.y0));
+        cr.set_font_matrix(Matrix::new(
+            new_xx / norm_factor,
+            1.0 * font_matrix.yx,
+            1.0 * font_matrix.xy,
+            new_yy / norm_factor,
+            1.0 * font_matrix.x0,
+            1.0 * font_matrix.y0,
+        ));
 
         let text_width = cr.text_extents(&self.content).width;
         let text_height = cr.text_extents(&self.content).height;
@@ -147,4 +163,3 @@ impl Text {
         cr.set_font_matrix(font_matrix);
     }
 }
-

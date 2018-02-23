@@ -4,7 +4,7 @@
 use cairo::Context;
 use palette::Srgba;
 
-use ::{color};
+use color;
 
 /// ## Rectangle
 ///
@@ -21,7 +21,7 @@ pub struct Rectangle {
     is_top_updated: bool,
     display_border: bool,
     color: color::Color,
-    border_thickness: f64
+    border_thickness: f64,
 }
 
 impl Rectangle {
@@ -221,8 +221,12 @@ impl Rectangle {
     pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
         if self.display_border {
             let border_color = self.color.as_srgba();
-            cr.set_source_rgba(f64::from(border_color.red), f64::from(border_color.green),
-                               f64::from(border_color.blue), f64::from(border_color.alpha));
+            cr.set_source_rgba(
+                f64::from(border_color.red),
+                f64::from(border_color.green),
+                f64::from(border_color.blue),
+                f64::from(border_color.alpha),
+            );
             // Move to bottom left corner
             cr.move_to(self.left, self.bottom);
             // Bottom left to bottom right

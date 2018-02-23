@@ -7,7 +7,7 @@ use cairo::Context;
 use ndarray::AsArray;
 use palette::Srgba;
 
-use ::{utils, chart, shape, color};
+use {chart, color, shape, utils};
 use utils::Drawable;
 
 /// Scatter chart
@@ -28,8 +28,16 @@ pub struct Scatter {
 impl Scatter {
     /// Create and return a new Scatter chart
     pub fn new<'a, I: AsArray<'a, f64>>(x_data_coords: I, y_data_coords: I) -> Scatter {
-        let x_view: Vec<_> = x_data_coords.into().iter().map(|v| utils::NonNan::new(*v).unwrap()).collect();
-        let y_view: Vec<_> = y_data_coords.into().iter().map(|v| utils::NonNan::new(*v).unwrap()).collect();
+        let x_view: Vec<_> = x_data_coords
+            .into()
+            .iter()
+            .map(|v| utils::NonNan::new(*v).unwrap())
+            .collect();
+        let y_view: Vec<_> = y_data_coords
+            .into()
+            .iter()
+            .map(|v| utils::NonNan::new(*v).unwrap())
+            .collect();
         let x_data_min = &x_view.iter().min().expect("Could not find x min");
         let x_data_max = &x_view.iter().max().expect("Could not find x max");
         let y_data_min = &y_view.iter().min().expect("Could not find y min");
@@ -49,8 +57,12 @@ impl Scatter {
         Scatter {
             data_points: data_points,
             global_frame: shape::Rectangle::new(),
-            data_frame: shape::Rectangle::with_boundaries(x_data_min.val(), x_data_max.val(),
-                                                          y_data_min.val(), y_data_max.val()),
+            data_frame: shape::Rectangle::with_boundaries(
+                x_data_min.val(),
+                x_data_max.val(),
+                y_data_min.val(),
+                y_data_max.val(),
+            ),
             color: point_color,
             is_color_updated: false,
             shape: shape,
@@ -144,7 +156,11 @@ impl utils::Drawable for Scatter {
         self.point_size *= factor;
     }
 
-    fn fit(&mut self, canvas_global_frame: &shape::Rectangle, canvas_data_frame: &shape::Rectangle) {
+    fn fit(
+        &mut self,
+        canvas_global_frame: &shape::Rectangle,
+        canvas_data_frame: &shape::Rectangle,
+    ) {
         self.global_frame = canvas_global_frame.clone();
         self.data_frame = canvas_data_frame.clone();
 
@@ -158,12 +174,20 @@ impl utils::Drawable for Scatter {
 
     fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
         for data_point in &self.data_points {
-            let canvas_x = utils::map_range(data_point.x_coord(),
-                                            self.data_frame.left(), self.data_frame.right(),
-                                            self.global_frame.left(), self.global_frame.right());
-            let canvas_y = utils::map_range(data_point.y_coord(),
-                                            self.data_frame.bottom(), self.data_frame.top(),
-                                            self.global_frame.bottom(), self.global_frame.top());
+            let canvas_x = utils::map_range(
+                data_point.x_coord(),
+                self.data_frame.left(),
+                self.data_frame.right(),
+                self.global_frame.left(),
+                self.global_frame.right(),
+            );
+            let canvas_y = utils::map_range(
+                data_point.y_coord(),
+                self.data_frame.bottom(),
+                self.data_frame.top(),
+                self.global_frame.bottom(),
+                self.global_frame.top(),
+            );
             let mut canvas_point = data_point.clone();
             canvas_point.set_x_coord(canvas_x);
             canvas_point.set_y_coord(canvas_y);

@@ -1,7 +1,7 @@
 //! Definition of the Coord struct
 //!
 
-use ::{utils, shape};
+use {shape, utils};
 
 /// ## Coord
 ///
@@ -15,18 +15,12 @@ pub struct Coord {
 impl Coord {
     /// Create and return a new Coord
     pub fn new() -> Coord {
-        Coord {
-            x: 0.0,
-            y: 0.0,
-        }
+        Coord { x: 0.0, y: 0.0 }
     }
 
     /// Create and return a new Coord
     pub fn with_coordinates(x: f64, y: f64) -> Coord {
-        Coord {
-            x: x,
-            y: y,
-        }
+        Coord { x: x, y: y }
     }
 
     /// Update coordinates
@@ -86,7 +80,7 @@ impl Coord {
     pub fn unit_direction_to(&self, other: &Coord) -> Coord {
         let dx = other.x() - self.x();
         let dy = other.y() - self.y();
-        let magnitude = (dx*dx + dy*dy).sqrt();
+        let magnitude = (dx * dx + dy * dy).sqrt();
         Coord::with_coordinates(dx / magnitude, dy / magnitude)
     }
 
@@ -94,7 +88,7 @@ impl Coord {
     pub fn perp_direction(&self, other: &Coord) -> Coord {
         let dx = other.x() - self.x();
         let dy = other.y() - self.y();
-        let magnitude = (dx*dx + dy*dy).sqrt();
+        let magnitude = (dx * dx + dy * dy).sqrt();
         Coord::with_coordinates(-dy / magnitude, dx / magnitude)
     }
 }
