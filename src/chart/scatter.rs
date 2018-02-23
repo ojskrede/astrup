@@ -30,16 +30,16 @@ impl Scatter {
     pub fn new<'a, I: AsArray<'a, f64>>(x_data_coords: I, y_data_coords: I) -> Scatter {
         let x_view: Vec<_> = x_data_coords.into().iter().map(|v| utils::NonNan::new(*v).unwrap()).collect();
         let y_view: Vec<_> = y_data_coords.into().iter().map(|v| utils::NonNan::new(*v).unwrap()).collect();
-        let ref x_data_min = x_view.iter().min().expect("Could not find x min");
-        let ref x_data_max = x_view.iter().max().expect("Could not find x max");
-        let ref y_data_min = y_view.iter().min().expect("Could not find y min");
-        let ref y_data_max = y_view.iter().max().expect("Could not find y max");
+        let x_data_min = &x_view.iter().min().expect("Could not find x min");
+        let x_data_max = &x_view.iter().max().expect("Could not find x max");
+        let y_data_min = &y_view.iter().min().expect("Could not find y min");
+        let y_data_max = &y_view.iter().max().expect("Could not find y max");
 
-        let point_color = color::Color::with_custom(color::CustomColor::Blue);
+        let point_color = color::Color::with_custom(&color::CustomColor::Blue);
         let shape = chart::point::Shape::Circle;
         let point_size = 0.002;
         let mut data_points = Vec::<chart::point::Point>::new();
-        for (ref x, ref y) in x_view.iter().zip(y_view.iter()) {
+        for (x, y) in x_view.iter().zip(y_view.iter()) {
             let mut point = chart::point::Point::new(x.val(), y.val());
             point.set_color_internal(point_color.as_srgba());
             point.set_shape(shape.clone());
@@ -58,8 +58,8 @@ impl Scatter {
         }
     }
 
-    /// Set the point color using the default, built in colors
-    pub fn set_color(mut self, color: color::CustomColor) -> Self {
+    /// Set the point color
+    pub fn set_color(mut self, color: &color::CustomColor) -> Self {
         self.color.set_color_custom(color);
         self.is_color_updated = true;
         self
@@ -93,9 +93,8 @@ impl Scatter {
         self
     }
 
-    /// Set the point color from name. See the [palette
-    /// documentation](https://docs.rs/palette/0.3.0/palette/named/index.html) for more info.
-    pub fn set_color_html(mut self, color: color::HtmlColor) -> Self {
+    /// Set the point color
+    pub fn set_color_html(mut self, color: &color::HtmlColor) -> Self {
         self.color.set_color_html(color);
         self.is_color_updated = true;
         self
@@ -117,6 +116,8 @@ impl Scatter {
     /// | "Square" or "square" or "s"        | Square |
     /// | "Tick" or "tick" or "t"            | Tick   |
     /// | Any other &str                     | Circle |
+    #[allow(unknown_lints)]
+    #[allow(match_same_arms)]
     pub fn set_shape(mut self, shape_id: &str) -> Self {
         // TODO: Move this to draw and get rid of enum??
         self.shape = match shape_id {
@@ -147,7 +148,7 @@ impl utils::Drawable for Scatter {
         self.global_frame = canvas_global_frame.clone();
         self.data_frame = canvas_data_frame.clone();
 
-        for data_point in self.data_points.iter_mut() {
+        for data_point in &mut self.data_points {
             data_point.set_color_internal(self.color.as_srgba());
             data_point.set_shape(self.shape.clone());
             data_point.set_size(self.point_size);
@@ -156,7 +157,7 @@ impl utils::Drawable for Scatter {
     }
 
     fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
-        for data_point in self.data_points.iter() {
+        for data_point in &self.data_points {
             let canvas_x = utils::map_range(data_point.x_coord(),
                                             self.data_frame.left(), self.data_frame.right(),
                                             self.global_frame.left(), self.global_frame.right());

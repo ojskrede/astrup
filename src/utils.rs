@@ -2,6 +2,7 @@
 //!
 
 use std::cmp::Ordering;
+use std::f64;
 
 use cairo::Context;
 use palette::Srgba;
@@ -12,8 +13,7 @@ use shape;
 ///
 /// In this context it is mostly used to find min and max in data containers of f64.
 ///
-/// Thanks to
-/// https://stackoverflow.com/questions/28247990/how-to-do-a-binary-search-on-a-vec-of-floats/28248065#28248065
+/// Thanks to [stackoverflow](https://stackoverflow.com/questions/28247990/how-to-do-a-binary-search-on-a-vec-of-floats/28248065#28248065)
 #[derive(PartialEq,PartialOrd)]
 pub struct NonNan {
     val: f64,
@@ -239,7 +239,7 @@ pub fn round_nearest(number: f64, omagn: i32, nearest: f64) -> f64 {
 
 /// Map a number linearly from a reference system A to another reference system B.
 pub fn map_range(old_number: f64, old_min: f64, old_max: f64, new_min: f64, new_max: f64) -> f64 {
-    if old_min != old_max {
+    if (old_min - old_max).abs() > f64::EPSILON {
         ((old_number - old_min) / (old_max - old_min) * new_max +
          (old_max - old_number) / (old_max - old_min) * new_min)
     } else {
@@ -311,19 +311,15 @@ pub fn prettify(number: f64) -> String {
     let omagn = order_of_magnitude(number);
     if omagn > 2 || omagn < -2 {
         format!("{:>.2e}", number)
+    } else if omagn == 2 {
+        format!("{:>.0}", number)
+    } else if omagn == 1 {
+        format!("{:>.1}", number)
+    } else if omagn == 0 || omagn == -1 {
+        format!("{:>.2}", number)
+    } else if omagn == -2 {
+        format!("{:>.3}", number)
     } else {
-        if omagn == 2 {
-            format!("{:>.0}", number)
-        } else if omagn == 1 {
-            format!("{:>.1}", number)
-        } else if omagn == 0 {
-            format!("{:>.2}", number)
-        } else if omagn == -1 {
-            format!("{:>.2}", number)
-        } else if omagn == -2 {
-            format!("{:>.3}", number)
-        } else {
-            String::from("Invalid order of magnitude. Should be unreachable.")
-        }
+        String::from("Invalid order of magnitude. Should be unreachable.")
     }
 }

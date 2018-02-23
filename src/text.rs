@@ -93,6 +93,8 @@ impl Text {
     }
 
     /// Draw text
+    #[allow(unknown_lints)]
+    #[allow(too_many_arguments)]
     pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64, angle: f64,
                 left_gap: f64, right_gap: f64, bottom_gap: f64, top_gap: f64, line_width: f64) {
         // NOTE 1: This function assumes that we are using the default cairo Context coordinate
@@ -104,8 +106,8 @@ impl Text {
 
         cr.select_font_face(&self.font_family, self.font_slant, self.font_weight);
         let text_color = self.color.as_srgba();
-        cr.set_source_rgba(text_color.red as f64, text_color.green as f64,
-                           text_color.blue as f64, text_color.alpha as f64);
+        cr.set_source_rgba(f64::from(text_color.red), f64::from(text_color.green),
+                           f64::from(text_color.blue), f64::from(text_color.alpha));
 
         // Adjust font size
         cr.set_font_size(self.font_size);

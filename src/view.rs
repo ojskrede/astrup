@@ -62,18 +62,18 @@ impl View {
     }
 
     /// Add figures to be displayed
-    pub fn add(mut self, mut figure: Figure) -> Result<(Self), Error> {
+    pub fn add_figure(mut self, mut figure: Figure) -> Result<Self, Error> {
         figure.fit()?;
         self.figures.push(figure);
 
-        Ok((self))
+        Ok(self)
     }
 
     /// Display the figures on the screen. This must be called in order to display anything.
     pub fn show(self) {
         let figures = self.figures;
         self.application.connect_startup(move |app| {
-            for fig in figures.iter() {
+            for fig in &figures {
                 let window = ApplicationWindow::new(app);
                 let drawing_area = Box::new(DrawingArea::new)();
                 drawing_area.connect_draw(clone!(fig => move |_, cr| {

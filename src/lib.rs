@@ -5,9 +5,9 @@
 //!
 //! For alternative rust plotting libraries, see e.g.
 //!
-//! - [rustplotlib](https://github.com/ubnt-intrepid/rustplotlib)
-//! - [RustGnuplot](https://github.com/SiegeLord/RustGnuplot)
-//! - [dataplotlib](https://github.com/coder543/dataplotlib)
+//! - [`rustplotlib`](https://github.com/ubnt-intrepid/rustplotlib)
+//! - [`RustGnuplot`](https://github.com/SiegeLord/RustGnuplot)
+//! - [`dataplotlib`](https://github.com/coder543/dataplotlib)
 //!
 //! ## Example
 //!
@@ -49,14 +49,14 @@
 //!     let line8 = Line::new(&x_data, &y_data8);
 //!
 //!     // Add lines to a plot
-//!     let line_plot = Plot::new().add(&Chart::Line(line1))
-//!                                .add(&Chart::Line(line2))
-//!                                .add(&Chart::Line(line3))
-//!                                .add(&Chart::Line(line4))
-//!                                .add(&Chart::Line(line5))
-//!                                .add(&Chart::Line(line6))
-//!                                .add(&Chart::Line(line7))
-//!                                .add(&Chart::Line(line8))
+//!     let line_plot = Plot::new().add_chart(&Chart::Line(line1))
+//!                                .add_chart(&Chart::Line(line2))
+//!                                .add_chart(&Chart::Line(line3))
+//!                                .add_chart(&Chart::Line(line4))
+//!                                .add_chart(&Chart::Line(line5))
+//!                                .add_chart(&Chart::Line(line6))
+//!                                .add_chart(&Chart::Line(line7))
+//!                                .add_chart(&Chart::Line(line8))
 //!                                .set_y_min(-1.2)
 //!                                .set_local_frame(0.0, 0.7, 0.51, 1.0);
 //!
@@ -82,7 +82,7 @@
 //!     let y_data_2: Vec<f64> = (0..num_points)
 //!                              .map(|_| normal_4.ind_sample(&mut seeded_rng) as f64)
 //!                              .collect();
-//!     let scatter_1 = Scatter::new(&x_data_1, &y_data_1).set_color_html(HtmlColor::Lightskyblue)
+//!     let scatter_1 = Scatter::new(&x_data_1, &y_data_1).set_color_html(&HtmlColor::Lightskyblue)
 //!                                                       .set_point_size(0.002);
 //!     let scatter_2 = Scatter::new(&x_data_2, &y_data_2).set_color_rgba_u8(255, 69, 0, 200)
 //!                                                       .set_point_size(0.002);
@@ -93,12 +93,12 @@
 //!                                   .set_y_label("y")
 //!                                   .set_y_label_angle(0.0)
 //!                                   .set_title("Scatter plot")
-//!                                   .add(&Chart::Scatter(scatter_1))
-//!                                   .add(&Chart::Scatter(scatter_2));
+//!                                   .add_chart(&Chart::Scatter(scatter_1))
+//!                                   .add_chart(&Chart::Scatter(scatter_2));
 //!
 //!     // Add the plots to a figure, and save it
-//!     let fig = Figure::new().add(&line_plot)
-//!                            .add(&scatter_plot)
+//!     let fig = Figure::new().add_plot(&line_plot)
+//!                            .add_plot(&scatter_plot)
 //!                            .set_width(1000)
 //!                            .set_height(800)
 //!                            .set_border_thickness(0.001)
@@ -151,46 +151,47 @@
 //! These local coordinates will be on a grid *(0, 1) х (0, 1)* relative to the size of its parent
 //! structure size.
 //!
-//! #### [View](view/struct.View.html)
+//! #### [`View`](view/struct.View.html)
 //! Used to display figures on the screen. A View can have multiple figures, but if you do not need
 //! to display anything, you do not need to use it.
 //!
-//! #### [Figure](figure/struct.Figure.html)
+//! #### [`Figure`](figure/struct.Figure.html)
 //! The main structure, and can contain multiple plots. You can determine the size of the figure,
 //! and also save the figure as a `.png` image.
 //!
-//! #### [Plot](plot/struct.Plot.html)
+//! #### [`Plot`](plot/struct.Plot.html)
 //! A structure that holds the visual that is to be displayed. It contains a canvas (and can
 //! contain more, but this is rarely needed), and some space around the canvas, to make space for
 //! titles, legends, labels, and tick-labels.
 //!
-//! #### [Canvas](plot/struct.Canvas.html)
+//! #### [`Canvas`](plot/struct.Canvas.html)
 //! The structure where the charts are drawn on. It can contain multiple charts and multiple axes.
 //! Depending on the charts that are showed, different axes are placed at default.
 //!
-//! #### [Chart](chart/enum.Chart.html)
+//! #### [`Chart`](chart/enum.Chart.html)
 //! A struct that holds the different objects you want to use to display your data. Currently, the
 //! following charts are planned, sorted by an approximate implementation priority. There are still
 //! some hickups with the structure of the library that needs to be in order before the rest are
 //! implemented.
 //!
-//! | Variant       | Supported |
-//! | ------------- | --------- |
-//! | Scatter       | Partially |
-//! | Line          | Parially  |
-//! | Histogram     | No        |
-//! | MatrixHeatmap | No        |
-//! | Image         | No        |
-//! | FilledCurves  | No        |
-//! | BoxPlot       | No        |
-//! | PieChart      | No        |
+//! | Variant        | Supported |
+//! | -------------- | --------- |
+//! | Scatter chart  | Yes       |
+//! | Line chart     | Yes       |
+//! | Bar chart      | No        |
+//! | Histogram      | No        |
+//! | Matrix heatmap | No        |
+//! | Image          | No        |
+//! | Filled curves  | No        |
+//! | Box plot       | No        |
+//! | Pie chart      | No        |
 //!
-//! #### [Axis](axis/struct.Axis.html)
+//! #### [`Axis`](axis/struct.Axis.html)
 //! An axis is used to give context to the chart, as it displays a reference to the data points. It
 //! is intended that a single canvas can have multiple axes, but currently, it is the safest to
 //! only use the two default (ordinate and abcissa).
 //!
-//! #### [Mark](mark/struct.Mark.html)
+//! #### [`Mark`](mark/struct.Mark.html)
 //! A mark is the location on a axis where a data point reference can be placed. It is used
 //! internally by the library to determine the data range of an axis, but can be visualised through
 //! ticks and/or gridlines. Normally, one just want *< 10* marks on an axis (to reduce visual
@@ -211,12 +212,12 @@
 //! considered as ``soft suggestions'', as the above aestetic rules will overrule the exact
 //! suggestion.
 //!
-//! #### [Tick](mark/struct.Tick.html)
+//! #### [`Tick`](mark/struct.Tick.html)
 //! A small visualisation of the location of a mark, and is labeled with the data value of the
 //! mark. Currently, only one type of tick is supported, but minor and major ticks will be
 //! implemented sometime in the future.
 //!
-//! #### [GridLine](mark/struct.GridLine.html)
+//! #### [`GridLine`](mark/struct.GridLine.html)
 //! Much the same as a tick, but stretches across the whole canvas, perpendicular on the axis it
 //! belongs to.
 //!

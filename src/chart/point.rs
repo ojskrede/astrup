@@ -32,7 +32,7 @@ impl Point {
     pub fn new(x_coord: f64, y_coord: f64) -> Point {
         Point {
             coord: coord::Coord::with_coordinates(x_coord, y_coord),
-            color: color::Color::with_custom(color::CustomColor::Blue),
+            color: color::Color::with_custom(&color::CustomColor::Blue),
             is_color_updated: false,
             size: 0.003,
             shape: Shape::Circle,
@@ -105,8 +105,8 @@ impl utils::Drawable for Point {
 
     fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
         let point_color = self.color.as_srgba();
-        cr.set_source_rgba(point_color.red as f64, point_color.green as f64,
-                           point_color.blue as f64, point_color.alpha as f64);
+        cr.set_source_rgba(f64::from(point_color.red), f64::from(point_color.green),
+                           f64::from(point_color.blue), f64::from(point_color.alpha));
         match self.shape {
             // TODO: Scale size of circle and square
             Shape::Circle => cr.arc(self.coord.x(), self.coord.y(), self.size, 0., 2.0*PI),

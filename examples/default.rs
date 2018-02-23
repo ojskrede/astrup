@@ -9,12 +9,12 @@ use num_traits::float::Float;
 
 use astrup::{View, Figure, Plot, Chart, Line};
 
-/// Create curves on the form *an - a* where *a* is the unit circle. The parameter t_vec is assumed
+/// Create curves on the form *an - a* where *a* is the unit circle. The parameter `t_vec` is assumed
 /// to hold values in [0, 1].
 #[allow(dead_code)]
 fn unit_circles(n: f64) -> (Vec<f64>, Vec<f64>) {
     let num_elements = 1000;
-    let t_vec: Vec<f64> = (0..num_elements).map(|t| t as f64 / num_elements as f64).collect();
+    let t_vec: Vec<f64> = (0..num_elements).map(|t| f64::from(t) / f64::from(num_elements)).collect();
     let x_vec: Vec<f64> = t_vec.iter().map(|t| (2.0 * PI * n * t).cos() - (2.0 * PI * t).cos()).collect();
     let y_vec: Vec<f64> = t_vec.iter().map(|t| (2.0 * PI * n * t).sin() - (2.0 * PI * t).sin()).collect();
     (x_vec, y_vec)
@@ -40,7 +40,7 @@ fn fourier_series(num_terms: f64) -> (Vec<f64>, Vec<f64>) {
 /// Gaussian probability density function with mean = 0
 fn gaussian_pdf(std: f64) -> (Vec<f64>, Vec<f64>) {
     let num_elements = 1000;
-    let x_vec: Vec<f64> = (0..num_elements).map(|x| -2.0 * PI + 4.0 * PI * x as f64 / num_elements as f64).collect();
+    let x_vec: Vec<f64> = (0..num_elements).map(|x| -2.0 * PI + 4.0 * PI * f64::from(x) / f64::from(num_elements)).collect();
     let y_vec: Vec<f64> = x_vec.iter().map(|x| (- x * x / (2.0 * std * std)).exp() / (2.0 * PI * std * std).sqrt()).collect();
 
     (x_vec, y_vec)
@@ -63,16 +63,16 @@ fn main() {
     let line_7 = Line::new(&get_data(3.0).0, &get_data(3.0).1);
     let line_8 = Line::new(&get_data(4.0).0, &get_data(4.0).1);
 
-    let line_plot = Plot::new().add(&Chart::Line(line_1))
-                               .add(&Chart::Line(line_2))
-                               .add(&Chart::Line(line_3))
-                               .add(&Chart::Line(line_4))
-                               .add(&Chart::Line(line_5))
-                               .add(&Chart::Line(line_6))
-                               .add(&Chart::Line(line_7))
-                               .add(&Chart::Line(line_8));
+    let line_plot = Plot::new().add_chart(&Chart::Line(line_1))
+                               .add_chart(&Chart::Line(line_2))
+                               .add_chart(&Chart::Line(line_3))
+                               .add_chart(&Chart::Line(line_4))
+                               .add_chart(&Chart::Line(line_5))
+                               .add_chart(&Chart::Line(line_6))
+                               .add_chart(&Chart::Line(line_7))
+                               .add_chart(&Chart::Line(line_8));
 
-    let fig = Figure::new().add(&line_plot);
+    let fig = Figure::new().add_plot(&line_plot);
                            //.save("assets/default.png").expect("Could not save default.png");
 
     View::with_figure(fig).expect("Could not add figure to view")

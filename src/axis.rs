@@ -38,7 +38,7 @@ impl Axis {
             global_start: coord::Coord::new(),
             global_end: coord::Coord::new(),
             direction: coord::Coord::new(),
-            color: color::Color::with_custom(color::CustomColor::AxisLine),
+            color: color::Color::with_custom(&color::CustomColor::AxisLine),
             line_width: 0.0025,
             data_range: [0.0, 1.0],
             label: label,
@@ -47,7 +47,7 @@ impl Axis {
         }
     }
 
-    pub fn with_boundaries(start: coord::Coord, end: coord::Coord) -> Axis {
+    pub fn with_boundaries(start: &coord::Coord, end: &coord::Coord) -> Axis {
         let mut label = label::Label::new();
         label.set_color_internal(color::CustomColor::AxisLabel.as_srgba());
         Axis {
@@ -55,8 +55,8 @@ impl Axis {
             local_end: end.clone(),
             global_start: coord::Coord::new(),
             global_end: coord::Coord::new(),
-            direction: start.unit_direction_to(&end),
-            color: color::Color::with_custom(color::CustomColor::AxisLine),
+            direction: start.unit_direction_to(end),
+            color: color::Color::with_custom(&color::CustomColor::AxisLine),
             line_width: 0.0025,
             data_range: [0.0, 1.0],
             label: label,
@@ -128,56 +128,56 @@ impl Axis {
     }
 
     pub fn set_positive_tick_length(&mut self, val: f64) {
-        for mark in self.marks.iter_mut() {
+        for mark in &mut self.marks {
             mark.set_positive_tick_length(val);
         }
     }
 
     pub fn set_negative_tick_length(&mut self, val: f64) {
-        for mark in self.marks.iter_mut() {
+        for mark in &mut self.marks {
             mark.set_negative_tick_length(val);
         }
     }
 
     pub fn set_tick_color_internal(&mut self, color: Srgba) {
-        for mark in self.marks.iter_mut() {
+        for mark in &mut self.marks {
             mark.set_tick_color_internal(color);
         }
     }
 
     pub fn set_tick_label_font_size(&mut self, val: f64) {
-        for mark in self.marks.iter_mut() {
+        for mark in &mut self.marks {
             mark.set_font_size(val);
         }
     }
 
     pub fn set_tick_label_font_slant(&mut self, font_slant: FontSlant) {
-        for mark in self.marks.iter_mut() {
+        for mark in &mut self.marks {
             mark.set_font_slant(font_slant);
         }
     }
 
     pub fn set_tick_label_font_weight(&mut self, font_weight: FontWeight) {
-        for mark in self.marks.iter_mut() {
+        for mark in &mut self.marks {
             mark.set_font_weight(font_weight);
         }
     }
 
     pub fn set_tick_label_font_family(&mut self) {
         // TODO:
-        for mark in self.marks.iter_mut() {
+        for mark in &mut self.marks {
             mark.set_font_family();
         }
     }
 
     pub fn set_tick_label_color_internal(&mut self, color: Srgba) {
-        for mark in self.marks.iter_mut() {
+        for mark in &mut self.marks {
             mark.set_label_color_internal(color);
         }
     }
 
     pub fn set_tick_label_offset(&mut self, val: f64) {
-        for mark in self.marks.iter_mut() {
+        for mark in &mut self.marks {
             mark.set_label_offset(val);
         }
     }
@@ -185,7 +185,7 @@ impl Axis {
     /// Set the gaps around the tick label, for all tick labels on this axis. See the Label struct
     /// for reference.
     pub fn set_tick_label_frame_gaps(&mut self, left: f64, right: f64, bottom: f64, top: f64) {
-        for mark in self.marks.iter_mut() {
+        for mark in &mut self.marks {
             mark.set_label_frame_gaps(left, right, bottom, top);
         }
     }
@@ -210,7 +210,7 @@ impl Axis {
     /// figure frame.
     pub fn mark_coords(&self) -> Vec<coord::Coord> {
         let mut coords = Vec::<coord::Coord>::new();
-        for mark in self.marks.iter() {
+        for mark in &self.marks {
             coords.push(mark.global_coord());
         }
 
@@ -249,7 +249,7 @@ impl Axis {
         // Find for what k in (1, 2, 5) we shall round to the nearest ten power of
         let mut smallest_diff = f64::MAX;
         let mut round_number = 0f64;
-        for &i in [1.0, 2.0, 5.0].iter() {
+        for &i in &[1.0, 2.0, 5.0] {
             let nearest = utils::round_nearest(ca_dist, omagn, i);
             let diff = (ca_dist - nearest).abs();
             if diff < smallest_diff {
@@ -259,7 +259,7 @@ impl Axis {
         }
 
         let actual_min_point = utils::round_down(self.data_range[0], omagn, round_number);
-        let ca_max_point = *self.data_range.last().ok_or(err_msg("No final element"))?;
+        let ca_max_point = *self.data_range.last().ok_or_else(|| err_msg("No final element"))?;
         let mark_distance = utils::round_nearest(ca_dist, omagn, round_number);
 
         let mut data_locations = vec![actual_min_point];
@@ -274,7 +274,7 @@ impl Axis {
             }
         }
         let min_data = data_locations[0];
-        let max_data = *data_locations.last().ok_or(err_msg("No final element"))?;
+        let max_data = *data_locations.last().ok_or_else(|| err_msg("No final element"))?;
         for data_location in data_locations {
             let mark_x = utils::map_range(data_location, min_data, max_data,
                                           self.local_start.x(), self.local_end.x());
@@ -311,7 +311,7 @@ impl Axis {
 
         self.label.fit(canvas_frame);
 
-        for mark in self.marks.iter_mut() {
+        for mark in &mut self.marks {
             mark.set_tick_direction(&unit_perp_direction);
             let label_x = mark.local_x() + unit_perp_direction.x().abs() * mark.label_offset();
             let label_y = mark.local_y() + unit_perp_direction.y().abs() * mark.label_offset();
@@ -323,14 +323,14 @@ impl Axis {
     /// Draw axis on canvas.
     pub(crate) fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
         // Draw ticks and tick labels
-        for mark in self.marks.iter() {
+        for mark in &self.marks {
             mark.draw(cr, fig_rel_height, fig_rel_width);
         }
 
         // Draw axis line
         let line_color = self.color.as_srgba();
-        cr.set_source_rgba(line_color.red as f64, line_color.green as f64,
-                           line_color.blue as f64, line_color.alpha as f64);
+        cr.set_source_rgba(f64::from(line_color.red), f64::from(line_color.green),
+                           f64::from(line_color.blue), f64::from(line_color.alpha));
         cr.set_line_width(self.line_width * (self.direction.x().abs() * fig_rel_width +
                                              self.direction.y().abs() * fig_rel_height));
         cr.move_to(self.global_start.x(), self.global_start.y());

@@ -30,16 +30,15 @@ For alternative rust plotting libraries, see e.g.
 The table below lists, by priority, the planned chart variants. Currently, only simple scatter and
 line plots are implemented.
 
-| Variant        | Implemented |
-| -------------- | ----------- |
-| Scatter        | Partially   |
-| Line           | Partially   |
-| Histogram      | No          |
-| Matrix heatmap | No          |
-| Image          | No          |
-| Filled curve   | No          |
-| Box plot       | No          |
-| Pie charts     | No          |
+- [x] Scatter chart
+- [x] Line chart
+- [ ] Bar chart
+- [ ] Histogram
+- [ ] Matrix heatmap
+- [ ] Image
+- [ ] Filled curves
+- [ ] Box plot
+- [ ] Pie chart
 
 ## Example
 
@@ -81,14 +80,14 @@ fn main() {
     let line8 = Line::new(&x_data, &y_data8);
 
     // Add lines to a plot
-    let line_plot = Plot::new().add(&Chart::Line(line1))
-                               .add(&Chart::Line(line2))
-                               .add(&Chart::Line(line3))
-                               .add(&Chart::Line(line4))
-                               .add(&Chart::Line(line5))
-                               .add(&Chart::Line(line6))
-                               .add(&Chart::Line(line7))
-                               .add(&Chart::Line(line8))
+    let line_plot = Plot::new().add_chart(&Chart::Line(line1))
+                               .add_chart(&Chart::Line(line2))
+                               .add_chart(&Chart::Line(line3))
+                               .add_chart(&Chart::Line(line4))
+                               .add_chart(&Chart::Line(line5))
+                               .add_chart(&Chart::Line(line6))
+                               .add_chart(&Chart::Line(line7))
+                               .add_chart(&Chart::Line(line8))
                                .set_y_min(-1.2)
                                .set_local_frame(0.0, 0.7, 0.51, 1.0);
 
@@ -114,7 +113,7 @@ fn main() {
     let y_data_2: Vec<f64> = (0..num_points)
                              .map(|_| normal_4.ind_sample(&mut seeded_rng) as f64)
                              .collect();
-    let scatter_1 = Scatter::new(&x_data_1, &y_data_1).set_color_html(HtmlColor::Lightskyblue)
+    let scatter_1 = Scatter::new(&x_data_1, &y_data_1).set_color_html(&HtmlColor::Lightskyblue)
                                                       .set_point_size(0.002);
     let scatter_2 = Scatter::new(&x_data_2, &y_data_2).set_color_rgba_u8(255, 69, 0, 200)
                                                       .set_point_size(0.002);
@@ -125,12 +124,12 @@ fn main() {
                                   .set_y_label("y")
                                   .set_y_label_angle(0.0)
                                   .set_title("Scatter plot")
-                                  .add(&Chart::Scatter(scatter_1))
-                                  .add(&Chart::Scatter(scatter_2));
+                                  .add_chart(&Chart::Scatter(scatter_1))
+                                  .add_chart(&Chart::Scatter(scatter_2));
 
     // Add the plots to a figure, and save it
-    let fig = Figure::new().add(&line_plot)
-                           .add(&scatter_plot)
+    let fig = Figure::new().add_plot(&line_plot)
+                           .add_plot(&scatter_plot)
                            .set_width(1000)
                            .set_height(800)
                            .set_border_thickness(0.001)

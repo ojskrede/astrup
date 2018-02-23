@@ -30,7 +30,7 @@ fn collatz(init_val: u64) -> Vec<f64> {
         values.push(progression as f64);
     }
 
-    return values
+    values
 }
 
 fn main() {
@@ -43,7 +43,7 @@ fn main() {
     let x_data: Vec<f64> = (0u64..y_data.len() as u64).map(|x| x as f64).collect();
     let line = Line::new(&x_data, &y_data).set_color_rgba(0.9, 0.2, 0.2, 0.9);
 
-    let plot11 = Plot::new().add(&Chart::Line(line))
+    let plot11 = Plot::new().add_chart(&Chart::Line(line))
                             .set_local_frame(0.0, 0.49, 0.0, 0.69);
 
     // Plot 2
@@ -52,31 +52,31 @@ fn main() {
     let x_data: Vec<f64> = (0u64..y_data.len() as u64).map(|x| x as f64).collect();
     let line = Line::new(&x_data, &y_data).set_stroke_style(StrokeStyle::Dashed);
 
-    let plot12 = Plot::new().add(&Chart::Line(line))
+    let plot12 = Plot::new().add_chart(&Chart::Line(line))
                             .set_local_frame(0.5, 0.99, 0.3, 0.99);
 
-    let fig1 = Figure::new().add(&plot11)
-                            .add(&plot12);
+    let fig1 = Figure::new().add_plot(&plot11)
+                            .add_plot(&plot12);
 
     // Figure 2
 
-    let x_data = Array::from_iter((0..100).map(|x| (x as f64) * 2.0 * PI / 100.0));
+    let x_data = Array::from_iter((0..100).map(|x| (f64::from(x)) * 2.0 * PI / 100.0));
     let y_data1 = Array::from_iter((0..100).map(|i| x_data[i].sin()));
     let y_data2 = Array::from_iter((0..100).map(|i| (x_data[i] - PI / 2.0).sin()));
 
     let line1 = Line::new(&x_data, &y_data1);
     let line2 = Line::new(&x_data, &y_data2).set_color_rgba(0.9, 0.2, 0.2, 0.9);
 
-    let plot21 = Plot::new().add(&Chart::Line(line1))
-                            .add(&Chart::Line(line2))
+    let plot21 = Plot::new().add_chart(&Chart::Line(line1))
+                            .add_chart(&Chart::Line(line2))
                             .set_y_min(-1.2);
 
-    let fig2 = Figure::new().add(&plot21);
+    let fig2 = Figure::new().add_plot(&plot21);
                             //.save("assets/multiple_figures.png").expect("Could not save multiple_figures.png");
 
     // Display on screen
     View::with_figure(fig1).expect("Could not add fig1 to view")
-                           .add(fig2).expect("Could not add fig2 to view")
+                           .add_figure(fig2).expect("Could not add fig2 to view")
                            .show();
 }
 

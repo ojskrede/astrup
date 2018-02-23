@@ -33,7 +33,7 @@ impl Plot {
         title.set_font_size(0.02);
         Plot {
             title: title,
-            color: color::Color::with_custom(color::CustomColor::PlotBackground),
+            color: color::Color::with_custom(&color::CustomColor::PlotBackground),
             local_frame: local_frame,
             canvas: canvas::Canvas::new(),
         }
@@ -95,7 +95,7 @@ impl Plot {
     }
 
     /// Set the title color
-    pub fn set_title_color(mut self, color: color::CustomColor) -> Self {
+    pub fn set_title_color(mut self, color: &color::CustomColor) -> Self {
         self.title.set_color_internal(color.as_srgba());
         self
     }
@@ -129,7 +129,7 @@ impl Plot {
     }
 
     /// Set the title color
-    pub fn set_title_color_html(mut self, color: color::HtmlColor) -> Self {
+    pub fn set_title_color_html(mut self, color: &color::HtmlColor) -> Self {
         self.title.set_color_internal(color.as_srgba());
         self
     }
@@ -137,7 +137,7 @@ impl Plot {
     // ----------------- PLOT APPEARANCE ----------------------------------- //
 
     /// Set the background color
-    pub fn set_color(mut self, color: color::CustomColor) -> Self {
+    pub fn set_color(mut self, color: &color::CustomColor) -> Self {
         self.color.set_color_custom(color);
         self
     }
@@ -167,7 +167,7 @@ impl Plot {
     }
 
     /// Set the background color
-    pub fn set_color_html(mut self, color: color::HtmlColor) -> Self {
+    pub fn set_color_html(mut self, color: &color::HtmlColor) -> Self {
         self.color.set_color_html(color);
         self
     }
@@ -231,7 +231,7 @@ impl Plot {
     }
 
     /// Set the border color
-    pub fn set_border_color(mut self, color: color::CustomColor) -> Self {
+    pub fn set_border_color(mut self, color: &color::CustomColor) -> Self {
         self.local_frame.set_color_internal(color.as_srgba());
         self
     }
@@ -265,7 +265,7 @@ impl Plot {
     }
 
     /// Set the border color
-    pub fn set_border_color_html(mut self, color: color::HtmlColor) -> Self {
+    pub fn set_border_color_html(mut self, color: &color::HtmlColor) -> Self {
         self.local_frame.set_color_internal(color.as_srgba());
         self
     }
@@ -357,7 +357,7 @@ impl Plot {
     }
 
     /// Set the canvas background color
-    pub fn set_canvas_color(mut self, color: color::CustomColor) -> Self {
+    pub fn set_canvas_color(mut self, color: &color::CustomColor) -> Self {
         self.canvas.set_color_internal(color.as_srgba());
         self
     }
@@ -391,7 +391,7 @@ impl Plot {
     }
 
     /// Set the canvas background color
-    pub fn set_canvas_color_html(mut self, color: color::HtmlColor) -> Self {
+    pub fn set_canvas_color_html(mut self, color: &color::HtmlColor) -> Self {
         self.canvas.set_color_internal(color.as_srgba());
         self
     }
@@ -444,7 +444,7 @@ impl Plot {
     }
 
     /// Set the axes color
-    pub fn set_axes_color(mut self, color: color::CustomColor) -> Self {
+    pub fn set_axes_color(mut self, color: &color::CustomColor) -> Self {
         self.canvas.set_axes_color_internal(color.as_srgba());
         self
     }
@@ -478,7 +478,7 @@ impl Plot {
     }
 
     /// Set the axes color
-    pub fn set_axes_color_html(mut self, color: color::HtmlColor) -> Self {
+    pub fn set_axes_color_html(mut self, color: &color::HtmlColor) -> Self {
         self.canvas.set_axes_color_internal(color.as_srgba());
         self
     }
@@ -510,7 +510,7 @@ impl Plot {
     }
 
     /// Set the x label color
-    pub fn set_x_label_color(mut self, color: color::CustomColor) -> Self {
+    pub fn set_x_label_color(mut self, color: &color::CustomColor) -> Self {
         self.canvas.set_default_x_axis_label_color_internal(color.as_srgba());
         self
     }
@@ -544,7 +544,7 @@ impl Plot {
     }
 
     /// Set the x label color
-    pub fn set_x_label_color_html(mut self, color: color::HtmlColor) -> Self {
+    pub fn set_x_label_color_html(mut self, color: &color::HtmlColor) -> Self {
         self.canvas.set_default_x_axis_label_color_internal(color.as_srgba());
         self
     }
@@ -576,7 +576,7 @@ impl Plot {
     }
 
     /// Set the y label color
-    pub fn set_y_label_color(mut self, color: color::CustomColor) -> Self {
+    pub fn set_y_label_color(mut self, color: &color::CustomColor) -> Self {
         self.canvas.set_default_y_axis_label_color_internal(color.as_srgba());
         self
     }
@@ -610,7 +610,7 @@ impl Plot {
     }
 
     /// Set the y label color
-    pub fn set_y_label_color_html(mut self, color: color::HtmlColor) -> Self {
+    pub fn set_y_label_color_html(mut self, color: &color::HtmlColor) -> Self {
         self.canvas.set_default_y_axis_label_color_internal(color.as_srgba());
         self
     }
@@ -618,7 +618,7 @@ impl Plot {
     // ----------------- TICKS --------------------------------------------- //
 
     /// Set the tick color
-    pub fn set_tick_color(mut self, color: color::CustomColor) -> Self {
+    pub fn set_tick_color(mut self, color: &color::CustomColor) -> Self {
         self.canvas.set_tick_color_internal(color.as_srgba());
         self
     }
@@ -652,13 +652,13 @@ impl Plot {
     }
 
     /// Set the tick color
-    pub fn set_tick_color_html(mut self, color: color::HtmlColor) -> Self {
+    pub fn set_tick_color_html(mut self, color: &color::HtmlColor) -> Self {
         self.canvas.set_tick_color_internal(color.as_srgba());
         self
     }
 
     /// Set the tick label color
-    pub fn set_tick_label_color(mut self, color: color::CustomColor) -> Self {
+    pub fn set_tick_label_color(mut self, color: &color::CustomColor) -> Self {
         self.canvas.set_tick_label_color_internal(color.as_srgba());
         self
     }
@@ -692,7 +692,7 @@ impl Plot {
     }
 
     /// Set the tick label color
-    pub fn set_tick_label_color_html(mut self, color: color::HtmlColor) -> Self {
+    pub fn set_tick_label_color_html(mut self, color: &color::HtmlColor) -> Self {
         self.canvas.set_tick_label_color_internal(color.as_srgba());
         self
     }
@@ -745,7 +745,7 @@ impl Plot {
     }
 
     /// Set the grid line color
-    pub fn set_grid_color(mut self, color: color::CustomColor) -> Self {
+    pub fn set_grid_color(mut self, color: &color::CustomColor) -> Self {
         self.canvas.set_grid_color_internal(color.as_srgba());
         self
     }
@@ -779,7 +779,7 @@ impl Plot {
     }
 
     /// Set the grid line color
-    pub fn set_grid_color_html(mut self, color: color::HtmlColor) -> Self {
+    pub fn set_grid_color_html(mut self, color: &color::HtmlColor) -> Self {
         self.canvas.set_grid_color_internal(color.as_srgba());
         self
     }
@@ -824,7 +824,7 @@ impl Plot {
     // ----------------- GENERAL ------------------------------------------- //
 
     /// Add a chart to the plot
-    pub fn add(mut self, chart: &chart::Chart) -> Self {
+    pub fn add_chart(mut self, chart: &chart::Chart) -> Self {
         self.canvas.add_chart(chart.clone());
         self
     }
@@ -856,8 +856,8 @@ impl Plot {
 
         // Fill background
         let bg_color = self.color.as_srgba();
-        cr.set_source_rgba(bg_color.red as f64, bg_color.green as f64, bg_color.blue as f64,
-                           bg_color.alpha as f64);
+        cr.set_source_rgba(f64::from(bg_color.red), f64::from(bg_color.green),
+                           f64::from(bg_color.blue), f64::from(bg_color.alpha));
         cr.rectangle(self.local_frame.left(), self.local_frame.bottom(),
                      self.local_frame.width(), self.local_frame.height());
         cr.fill();
@@ -871,5 +871,10 @@ impl Plot {
         // Draw canvas
         self.canvas.draw(cr, fig_rel_height, fig_rel_width);
     }
+}
 
+impl Default for Plot {
+    fn default() -> Self {
+        Self::new()
+    }
 }

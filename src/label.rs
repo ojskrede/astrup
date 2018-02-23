@@ -8,7 +8,7 @@ use ::{shape, text, coord};
 
 /// ## Label
 ///
-/// A struct to hold a single label. Each label is some text, centered at (center_x, center_y), and
+/// A struct to hold a single label. Each label is some text, centered at `(center_x, center_y)`, and
 /// with a certain angle (with zero at horisontal, and increasing counterclockwise). Every label
 /// have a gap in each direction. This gap is currently only used to display a frame for debug
 /// reasons, but can be useful in the future for spacing.

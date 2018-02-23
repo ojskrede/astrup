@@ -1,8 +1,6 @@
 //! Example of survival function estimated with a Kaplan Meier Estimator
 //!
-//! The original dataset is from
-//!
-//! https://github.com/CamDavidsonPilon/lifelines/blob/master/lifelines/datasets/larynx.csv
+//! The original dataset was found [here](https://github.com/CamDavidsonPilon/lifelines/blob/master/lifelines/datasets/larynx.csv)
 //!
 //! The survival analysis is done with the lifelines python library.
 //!
@@ -43,26 +41,26 @@ fn missing_in_record(record: &SurvivalRecord) -> bool {
     record.stage == None || record.time == None || record.event == None || record.survival == None || record.ci_lower_95 == None || record.ci_upper_95 == None
 }
 
-fn extract_data(data: &Vec<SurvivalRecord>, stage: u8, event: u8)
+fn extract_data(data: &[SurvivalRecord], stage: u8, event: u8)
 -> (Vec<f64>, Vec<f64>, Vec<f64>, Vec<f64>) {
     let mut time = Vec::<f64>::new();
     let mut survival = Vec::<f64>::new();
     let mut lower_ci = Vec::<f64>::new();
     let mut upper_ci = Vec::<f64>::new();
     for record in data {
-        if !missing_in_record(&record) {
-            if record.stage.expect("Missing stage") == stage && record.event.expect("Missing event") == event {
+        if !missing_in_record(record) &&
+           record.stage.expect("Missing stage") == stage &&
+           record.event.expect("Missing event") == event {
                 time.push(record.time.expect("Missing time"));
                 survival.push(record.survival.expect("Missing survival"));
                 lower_ci.push(record.ci_lower_95.expect("Missing survival"));
                 upper_ci.push(record.ci_upper_95.expect("Missing survival"));
-            }
         }
     }
     (time, survival, lower_ci, upper_ci)
 }
 
-fn survival_charts(data: &Vec<SurvivalRecord>, stage: u8, red: f32, green: f32, blue: f32)
+fn survival_charts(data: &[SurvivalRecord], stage: u8, red: f32, green: f32, blue: f32)
 -> (Line, Scatter) {
     let (time, survival, _, _) = extract_data(data, stage, 1);
     let (cens_time, cens_survival, _, _) = extract_data(data, stage, 0);
@@ -75,7 +73,7 @@ fn survival_charts(data: &Vec<SurvivalRecord>, stage: u8, red: f32, green: f32, 
     (survival_line, censored)
 }
 
-fn ci_charts(data: &Vec<SurvivalRecord>, stage: u8, red: f32, green: f32, blue: f32)
+fn ci_charts(data: &[SurvivalRecord], stage: u8, red: f32, green: f32, blue: f32)
 -> (Line, Line) {
     let (time, _, lower_ci, upper_ci) = extract_data(data, stage, 1);
 
@@ -90,21 +88,21 @@ fn ci_charts(data: &Vec<SurvivalRecord>, stage: u8, red: f32, green: f32, blue: 
 
 fn main() {
     let analysis_fname = Path::new("assets/larynx_survival_estimate.csv");
-    match get_survival_data(&analysis_fname) {
+    match get_survival_data(analysis_fname) {
         Ok(data) => {
             let (surv_stage_1, cens_stage_1) = survival_charts(&data, 1, 224.0, 52.0, 11.0);
             let (surv_stage_2, cens_stage_2) = survival_charts(&data, 2, 23.0, 108.0, 190.0);
             let (surv_stage_3, cens_stage_3) = survival_charts(&data, 3, 255.0, 200.0, 14.0);
             let (surv_stage_4, cens_stage_4) = survival_charts(&data, 4, 34.0, 174.0, 51.0);
 
-            let survival_plot = Plot::new().add(&Chart::Line(surv_stage_1.clone()))
-                                           .add(&Chart::Scatter(cens_stage_1.clone()))
-                                           .add(&Chart::Line(surv_stage_2))
-                                           .add(&Chart::Scatter(cens_stage_2))
-                                           .add(&Chart::Line(surv_stage_3))
-                                           .add(&Chart::Scatter(cens_stage_3))
-                                           .add(&Chart::Line(surv_stage_4.clone()))
-                                           .add(&Chart::Scatter(cens_stage_4.clone()))
+            let survival_plot = Plot::new().add_chart(&Chart::Line(surv_stage_1.clone()))
+                                           .add_chart(&Chart::Scatter(cens_stage_1.clone()))
+                                           .add_chart(&Chart::Line(surv_stage_2))
+                                           .add_chart(&Chart::Scatter(cens_stage_2))
+                                           .add_chart(&Chart::Line(surv_stage_3))
+                                           .add_chart(&Chart::Scatter(cens_stage_3))
+                                           .add_chart(&Chart::Line(surv_stage_4.clone()))
+                                           .add_chart(&Chart::Scatter(cens_stage_4.clone()))
                                            .set_x_label("Time")
                                            .set_y_label("Survival")
                                            .set_local_frame(0.0, 1.0, 0.5, 1.0);
@@ -114,20 +112,20 @@ fn main() {
             //let (surv_stage_3, cens_stage_3) = survival_charts(&data, 3, 255.0, 200.0, 14.0);
             let (lower_stage_4, upper_stage_4) = ci_charts(&data, 4, 34.0, 174.0, 51.0);
 
-            let ci_plot = Plot::new().add(&Chart::Line(surv_stage_1))
-                                     .add(&Chart::Line(lower_stage_1))
-                                     .add(&Chart::Line(upper_stage_1))
-                                     .add(&Chart::Scatter(cens_stage_1))
-                                     .add(&Chart::Line(surv_stage_4))
-                                     .add(&Chart::Line(lower_stage_4))
-                                     .add(&Chart::Line(upper_stage_4))
-                                     .add(&Chart::Scatter(cens_stage_4))
+            let ci_plot = Plot::new().add_chart(&Chart::Line(surv_stage_1))
+                                     .add_chart(&Chart::Line(lower_stage_1))
+                                     .add_chart(&Chart::Line(upper_stage_1))
+                                     .add_chart(&Chart::Scatter(cens_stage_1))
+                                     .add_chart(&Chart::Line(surv_stage_4))
+                                     .add_chart(&Chart::Line(lower_stage_4))
+                                     .add_chart(&Chart::Line(upper_stage_4))
+                                     .add_chart(&Chart::Scatter(cens_stage_4))
                                      .set_x_label("Time")
                                      .set_y_label("Survival")
                                      .set_local_frame(0.0, 1.0, 0.0, 0.5);
 
-            let fig = Figure::new().add(&survival_plot)
-                                   .add(&ci_plot)
+            let fig = Figure::new().add_plot(&survival_plot)
+                                   .add_plot(&ci_plot)
                                    .set_height(1000)
                                    .set_width(1000);
                                    //.save("assets/kaplan_meier_survival.png").expect("Could not save kaplan_meier_survival.png");

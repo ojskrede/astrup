@@ -1,4 +1,4 @@
-//! Definition of the Mark, Tick, and GridLine structs.
+//! Definition of the `Mark`, `Tick`, and `GridLine` structs.
 //!
 
 use cairo::{Context, LineCap, FontWeight, FontSlant};
@@ -245,7 +245,7 @@ impl Tick {
     /// Create and return a new Tick
     pub fn new() -> Tick {
         Tick {
-            color: color::Color::with_custom(color::CustomColor::Tick),
+            color: color::Color::with_custom(&color::CustomColor::Tick),
             width: 0.0025,
             positive_length: 0.005,
             negative_length: 0.005,
@@ -333,8 +333,8 @@ impl Tick {
         cr.move_to(x_root, y_root);
         cr.set_line_cap(LineCap::Square);
         let tick_color = self.color.as_srgba();
-        cr.set_source_rgba(tick_color.red as f64, tick_color.green as f64,
-                           tick_color.blue as f64, tick_color.alpha as f64);
+        cr.set_source_rgba(f64::from(tick_color.red), f64::from(tick_color.green),
+                           f64::from(tick_color.blue), f64::from(tick_color.alpha));
 
         // Perpendicular on the tick direction
         let width = self.width * (self.direction.y().abs() * fig_rel_height +
@@ -358,9 +358,8 @@ impl Tick {
     }
 }
 
-/// ## GridLine
-///
 /// Indicator used by axis to serve as a reference for the displayed data
+///
 #[derive(Clone, Debug)]
 pub struct GridLine {
     global_start: coord::Coord,
@@ -379,7 +378,7 @@ impl GridLine {
             global_end: coord::Coord::new(),
             direction: coord::Coord::new(),
             width: 0.001,
-            color: color::Color::with_custom(color::CustomColor::GridLine),
+            color: color::Color::with_custom(&color::CustomColor::GridLine),
         }
     }
 
@@ -392,7 +391,7 @@ impl GridLine {
             global_start: start,
             global_end: end,
             width: 0.001,
-            color: color::Color::with_custom(color::CustomColor::GridLine),
+            color: color::Color::with_custom(&color::CustomColor::GridLine),
         }
     }
 
@@ -414,8 +413,8 @@ impl GridLine {
     /// Draw the grid line
     pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
         let line_color = self.color.as_srgba();
-        cr.set_source_rgba(line_color.red as f64, line_color.green as f64, line_color.blue as f64,
-                           line_color.alpha as f64);
+        cr.set_source_rgba(f64::from(line_color.red), f64::from(line_color.green),
+                           f64::from(line_color.blue), f64::from(line_color.alpha));
 
         let width = self.width * (self.direction.x().abs() * fig_rel_width +
                                   self.direction.y().abs() * fig_rel_height);

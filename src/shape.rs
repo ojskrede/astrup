@@ -221,8 +221,8 @@ impl Rectangle {
     pub fn draw(&self, cr: &Context, fig_rel_height: f64, fig_rel_width: f64) {
         if self.display_border {
             let border_color = self.color.as_srgba();
-            cr.set_source_rgba(border_color.red as f64, border_color.green as f64,
-                               border_color.blue as f64, border_color.alpha as f64);
+            cr.set_source_rgba(f64::from(border_color.red), f64::from(border_color.green),
+                               f64::from(border_color.blue), f64::from(border_color.alpha));
             // Move to bottom left corner
             cr.move_to(self.left, self.bottom);
             // Bottom left to bottom right
@@ -241,5 +241,11 @@ impl Rectangle {
             cr.stroke();
             cr.move_to(self.left, self.bottom); // Needed because of close_path() (See cairo-rs docs)
         }
+    }
+}
+
+impl Default for Rectangle {
+    fn default() -> Self {
+        Self::new()
     }
 }

@@ -13,7 +13,7 @@ use astrup::{View, Figure, Plot, Chart, Line};
 fn main() {
 
     // Create data contained in ndarray
-    let x_data = Array::from_iter((0..100).map(|x| (x as f64) * 2.0 * PI / 100.0));
+    let x_data = Array::from_iter((0..100).map(|x| (f64::from(x)) * 2.0 * PI / 100.0));
     let y_data1 = Array::from_iter((0..100).map(|i| x_data[i].sin()));
     let y_data2 = Array::from_iter((0..100).map(|i| (x_data[i] - PI / 2.0).sin()));
     let y_data3 = Array::from_iter((0..100).map(|i| (x_data[i] - PI / 3.0).sin()));
@@ -34,21 +34,21 @@ fn main() {
     let line8 = Line::new(&x_data, &y_data8);
 
     // Add lines to a plot
-    let line_plot = Plot::new().add(&Chart::Line(line1))
-                               .add(&Chart::Line(line2))
-                               .add(&Chart::Line(line3))
-                               .add(&Chart::Line(line4))
-                               .add(&Chart::Line(line5))
-                               .add(&Chart::Line(line6))
-                               .add(&Chart::Line(line7))
-                               .add(&Chart::Line(line8))
+    let line_plot = Plot::new().add_chart(&Chart::Line(line1))
+                               .add_chart(&Chart::Line(line2))
+                               .add_chart(&Chart::Line(line3))
+                               .add_chart(&Chart::Line(line4))
+                               .add_chart(&Chart::Line(line5))
+                               .add_chart(&Chart::Line(line6))
+                               .add_chart(&Chart::Line(line7))
+                               .add_chart(&Chart::Line(line8))
                                .set_title("Plot title")
                                .set_y_min(-1.2)
                                .set_y_label_angle(PI / 2.0)
                                .set_local_frame(0.0, 1.0, 0.0, 1.0);
 
     // Add the plots to a figure, and save it
-    let fig = Figure::new().add(&line_plot)
+    let fig = Figure::new().add_plot(&line_plot)
                            .set_width(1000)
                            .set_height(1000)
                            .set_title("Figure title")

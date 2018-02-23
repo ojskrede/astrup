@@ -36,7 +36,7 @@ impl Figure {
             window_title: String::from("Astrup"),
             height: 800,
             width: 1000,
-            color: color::Color::with_custom(color::CustomColor::FigureBackground),
+            color: color::Color::with_custom(&color::CustomColor::FigureBackground),
             local_frame: local_frame,
         }
     }
@@ -93,7 +93,7 @@ impl Figure {
     }
 
     /// Set the title color
-    pub fn set_title_color(mut self, color: color::CustomColor) -> Self {
+    pub fn set_title_color(mut self, color: &color::CustomColor) -> Self {
         self.title.set_color_internal(color.as_srgba());
         self
     }
@@ -127,7 +127,7 @@ impl Figure {
     }
 
     /// Set the title color
-    pub fn set_title_color_html(mut self, color: color::HtmlColor) -> Self {
+    pub fn set_title_color_html(mut self, color: &color::HtmlColor) -> Self {
         self.title.set_color_internal(color.as_srgba());
         self
     }
@@ -150,7 +150,7 @@ impl Figure {
     }
 
     /// Set the figure background color
-    pub fn set_color(mut self, color: color::CustomColor) -> Self {
+    pub fn set_color(mut self, color: &color::CustomColor) -> Self {
         self.color.set_color_custom(color);
         self
     }
@@ -180,7 +180,7 @@ impl Figure {
     }
 
     /// Set the figure background color
-    pub fn set_color_html(mut self, color: color::HtmlColor) -> Self {
+    pub fn set_color_html(mut self, color: &color::HtmlColor) -> Self {
         self.color.set_color_html(color);
         self
     }
@@ -206,7 +206,7 @@ impl Figure {
     }
 
     /// Set the figure border color
-    pub fn set_border_color(mut self, color: color::CustomColor) -> Self {
+    pub fn set_border_color(mut self, color: &color::CustomColor) -> Self {
         let color = color::Color::with_custom(color);
         self.local_frame.set_color_internal(color.as_srgba());
         self
@@ -241,7 +241,7 @@ impl Figure {
     }
 
     /// Set the figure border color
-    pub fn set_border_color_html(mut self, color: color::HtmlColor) -> Self {
+    pub fn set_border_color_html(mut self, color: &color::HtmlColor) -> Self {
         self.local_frame.set_color_internal(color.as_srgba());
         self
     }
@@ -253,12 +253,13 @@ impl Figure {
         self
     }
 
-    pub fn add(mut self, plot: &plot::Plot) -> Self {
+    /// Add plots to figure
+    pub fn add_plot(mut self, plot: &plot::Plot) -> Self {
         self.plots.push(plot.clone());
         self
     }
 
-    pub fn save(self, filename: &str) -> Result<(Self), Error> {
+    pub fn save(self, filename: &str) -> Result<Self, Error> {
         // Since both save() and show() can be called, and since all drawing is happening in both,
         // multiple calls to fit() will be made, and this can mess up things if we call it on self.
         // The simplest solution is to clone self. But one should perhaps make fit() idempotent?.
@@ -276,17 +277,14 @@ impl Figure {
         let mut file = File::create(filename)?;
         surface.write_to_png(&mut file)?;
 
-        Ok((self))
+        Ok(self)
     }
 
     pub(crate) fn fit(&mut self) -> Result<(), Error> {
         // TODO: Issue #13
         self.title.fit(&shape::Rectangle::new());
-        for plot in self.plots.iter_mut() {
-            let mut new_top = plot.top();
-            if self.title.content() != "" {
-                new_top = plot.top().min(0.93);
-            }
+        for plot in &mut self.plots {
+            let new_top = if self.title.content() == "" { plot.top() } else { plot.top().min(0.93) };
             plot.set_top_mut_ref(new_top);
             plot.fit()?;
         }
@@ -322,8 +320,8 @@ impl Figure {
         let relative_width = self.width() as f64 / self.height().max(self.width()) as f64;
 
         let color_srgb = self.color.as_srgba();
-        cr.set_source_rgba(color_srgb.red as f64, color_srgb.green as f64,
-                           color_srgb.blue as f64, color_srgb.alpha as f64);
+        cr.set_source_rgba(f64::from(color_srgb.red), f64::from(color_srgb.green),
+                           f64::from(color_srgb.blue), f64::from(color_srgb.alpha));
         cr.paint();
 
         // By default, the origin is in the top left corner, x is increasing to the right, and y is
@@ -337,8 +335,14 @@ impl Figure {
         // Frame border
         self.local_frame.draw(cr, relative_height, relative_width);
 
-        for plot in self.plots.iter() {
-            plot.draw(&cr, relative_height, relative_width);
+        for plot in &self.plots {
+            plot.draw(cr, relative_height, relative_width);
         }
+    }
+}
+
+impl Default for Figure {
+    fn default() -> Self {
+        Self::new()
     }
 }

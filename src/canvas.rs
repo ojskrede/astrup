@@ -52,13 +52,13 @@ impl Canvas {
         let mut local_frame = shape::Rectangle::with_boundaries(0.10, 0.95, 0.10, 0.95);
         local_frame.set_color_internal(color::CustomColor::CanvasBorder.as_srgba());
         Canvas {
-            color: color::Color::with_custom(color::CustomColor::CanvasBackground),
+            color: color::Color::with_custom(&color::CustomColor::CanvasBackground),
             local_frame: local_frame,
             global_frame: shape::Rectangle::new(),
             data_frame: shape::Rectangle::new(),
             user_data_frame: shape::Rectangle::new(),
             grid_width: 0.004,
-            grid_color: color::Color::with_custom(color::CustomColor::GridLine),
+            grid_color: color::Color::with_custom(&color::CustomColor::GridLine),
             grid: Vec::<mark::GridLine>::new(),
             display_horizontal_gridlines: true,
             display_vertical_gridlines: true,
@@ -173,38 +173,38 @@ impl Canvas {
 
     /// Set the color of all axes on the canvas
     pub fn set_axes_color_internal(&mut self, color: Srgba) {
-        for axis in self.axes.iter_mut() {
+        for axis in &mut self.axes {
             axis.set_color_internal(color);
         }
     }
 
     pub fn set_axes_line_width(&mut self, val: f64) {
-        for axis in self.axes.iter_mut() {
+        for axis in &mut self.axes {
             axis.set_line_width(val);
         }
     }
 
     pub fn set_axes_label_font_size(&mut self, val: f64) {
-        for axis in self.axes.iter_mut() {
+        for axis in &mut self.axes {
             axis.set_label_font_size(val);
         }
     }
 
     pub fn set_axes_label_font_slant(&mut self, font_slant: FontSlant) {
-        for axis in self.axes.iter_mut() {
+        for axis in &mut self.axes {
             axis.set_label_font_slant(font_slant);
         }
     }
 
     pub fn set_axes_label_font_weight(&mut self, font_weight: FontWeight) {
-        for axis in self.axes.iter_mut() {
+        for axis in &mut self.axes {
             axis.set_label_font_weight(font_weight);
         }
     }
 
     pub fn set_axes_label_font_family(&mut self) {
         // TODO:
-        for axis in self.axes.iter_mut() {
+        for axis in &mut self.axes {
             axis.set_label_font_family();
         }
     }
@@ -265,40 +265,40 @@ impl Canvas {
 
     /// Set tick color
     pub fn set_tick_color_internal(&mut self, color: Srgba) {
-        for axis in self.axes.iter_mut() {
+        for axis in &mut self.axes {
             axis.set_tick_color_internal(color);
         }
     }
 
     /// Set tick label color
     pub fn set_tick_label_color_internal(&mut self, color: Srgba) {
-        for axis in self.axes.iter_mut() {
+        for axis in &mut self.axes {
             axis.set_tick_label_color_internal(color);
         }
     }
 
     /// Set the tick font size
     pub fn set_tick_label_font_size(&mut self, val: f64) {
-        for axis in self.axes.iter_mut() {
+        for axis in &mut self.axes {
             axis.set_tick_label_font_size(val);
         }
     }
 
     pub fn set_tick_label_font_slant(&mut self, font_slant: FontSlant) {
-        for axis in self.axes.iter_mut() {
+        for axis in &mut self.axes {
             axis.set_tick_label_font_slant(font_slant);
         }
     }
 
     pub fn set_tick_label_font_weight(&mut self, font_weight: FontWeight) {
-        for axis in self.axes.iter_mut() {
+        for axis in &mut self.axes {
             axis.set_tick_label_font_weight(font_weight);
         }
     }
 
     pub fn set_tick_label_font_family(&mut self) {
         // TODO:
-        for axis in self.axes.iter_mut() {
+        for axis in &mut self.axes {
             axis.set_tick_label_font_family();
         }
     }
@@ -380,9 +380,9 @@ impl Canvas {
 
     /// Find the smallest data frame including all data points from all charts
     fn find_largest_chart_data_frame(&self) -> Option<shape::Rectangle> {
-        if self.charts.len() == 0 { return None }
+        if self.charts.is_empty() { return None }
         let mut largest_data_frame = shape::Rectangle::with_boundaries(f64::MAX, f64::MIN, f64::MAX, f64::MIN);
-        for chart in self.charts.iter() {
+        for chart in &self.charts {
             if chart.data_frame().left() < largest_data_frame.left() {
                 largest_data_frame.set_left(chart.data_frame().left());
             }
@@ -425,7 +425,7 @@ impl Canvas {
         if self.user_data_frame.is_top_updated() {
             return_this_data_frame.set_top(self.user_data_frame.top());
         }
-        return return_this_data_frame
+        return_this_data_frame
     }
 
     /// Sets a default horizontal and vertical axis. This is important in order to determine the
@@ -437,9 +437,9 @@ impl Canvas {
     /// solution to this.
     ///
     /// In the meantime, the possibility to not display the axes will have to suffice.
-    fn set_default_axes(&mut self, data_frame: shape::Rectangle) -> Result<(axis::Axis, axis::Axis), Error> {
-        let mut hor_axis = axis::Axis::with_boundaries(coord::Coord::with_coordinates(0.0, 0.0),
-                                                       coord::Coord::with_coordinates(1.0, 0.0));
+    fn set_default_axes(&mut self, data_frame: &shape::Rectangle) -> Result<(axis::Axis, axis::Axis), Error> {
+        let mut hor_axis = axis::Axis::with_boundaries(&coord::Coord::with_coordinates(0.0, 0.0),
+                                                       &coord::Coord::with_coordinates(1.0, 0.0));
         hor_axis.set_data_range(data_frame.left(), data_frame.right());
         hor_axis.compute_marks()?;
 
@@ -451,8 +451,8 @@ impl Canvas {
 
         hor_axis.set_label(&self.default_x_axis_label);
 
-        let mut ver_axis = axis::Axis::with_boundaries(coord::Coord::with_coordinates(0.0, 0.0),
-                                                       coord::Coord::with_coordinates(0.0, 1.0));
+        let mut ver_axis = axis::Axis::with_boundaries(&coord::Coord::with_coordinates(0.0, 0.0),
+                                                       &coord::Coord::with_coordinates(0.0, 1.0));
         ver_axis.set_data_range(data_frame.bottom(), data_frame.top());
         ver_axis.compute_marks()?;
 
@@ -493,7 +493,7 @@ impl Canvas {
         let data_frame = self.compute_data_frame();
 
         // Then we compute one horizontal and one vertical axis.
-        let (mut hor_axis, mut ver_axis) = self.set_default_axes(data_frame)?;
+        let (mut hor_axis, mut ver_axis) = self.set_default_axes(&data_frame)?;
 
         // We can now define our updated data_frame.
         // TODO: Ord for f64 equivalent
@@ -519,7 +519,7 @@ impl Canvas {
         if self.display_vertical_axis { axes.push(ver_axis); }
         self.axes = axes;
 
-        for chart in self.charts.iter_mut() {
+        for chart in &mut self.charts {
             chart.fit(&self.global_frame, &self.data_frame);
         }
 
@@ -531,22 +531,22 @@ impl Canvas {
 
         // Background
         let bg_color = self.color.as_srgba();
-        cr.set_source_rgba(bg_color.red as f64, bg_color.green as f64, bg_color.blue as f64,
-                           bg_color.alpha as f64);
+        cr.set_source_rgba(f64::from(bg_color.red), f64::from(bg_color.green),
+                           f64::from(bg_color.blue), f64::from(bg_color.alpha));
         cr.rectangle(self.global_frame.left(), self.global_frame.bottom(),
                      self.global_frame.width(), self.global_frame.height());
         cr.fill();
 
-        for gridline in self.grid.iter() {
+        for gridline in &self.grid {
             gridline.draw(cr, fig_rel_height, fig_rel_width);
         }
 
-        for axis in self.axes.iter() {
+        for axis in &self.axes {
             axis.draw(cr, fig_rel_height, fig_rel_width);
         }
 
         let mut color_generator = color::ChartColorGenerator::new();
-        for chart in self.charts.clone().iter_mut() {
+        for chart in &mut self.charts.clone() {
             if !chart.is_color_updated() {
                 let color = color_generator.next();
                 chart.set_color_internal(color.expect("Something wrong"));
