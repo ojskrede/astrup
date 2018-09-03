@@ -14,38 +14,19 @@ fn main() {
 
     // Create data contained in ndarray
     let x_data = Array::from_iter((0..100).map(|x| (f64::from(x)) * 2.0 * PI / 100.0));
-    let y_data1 = Array::from_iter((0..100).map(|i| x_data[i].sin()));
-    let y_data2 = Array::from_iter((0..100).map(|i| (x_data[i] - PI / 2.0).sin()));
-    let y_data3 = Array::from_iter((0..100).map(|i| (x_data[i] - PI / 3.0).sin()));
-    let y_data4 = Array::from_iter((0..100).map(|i| (x_data[i] - PI / 4.0).sin()));
-    let y_data5 = Array::from_iter((0..100).map(|i| (x_data[i] - PI / 5.0).sin()));
-    let y_data6 = Array::from_iter((0..100).map(|i| (x_data[i] - PI / 6.0).sin()));
-    let y_data7 = Array::from_iter((0..100).map(|i| (x_data[i] - PI / 7.0).sin()));
-    let y_data8 = Array::from_iter((0..100).map(|i| (x_data[i] - PI / 8.0).sin()));
-
-    // Plot lines
-    let line1 = Line::new(&x_data, &y_data1).set_color_rgba(-1.2, 1.4, 0.5, 233.0);
-    let line2 = Line::new(&x_data, &y_data2);
-    let line3 = Line::new(&x_data, &y_data3);
-    let line4 = Line::new(&x_data, &y_data4);
-    let line5 = Line::new(&x_data, &y_data5);
-    let line6 = Line::new(&x_data, &y_data6);
-    let line7 = Line::new(&x_data, &y_data7);
-    let line8 = Line::new(&x_data, &y_data8);
 
     // Add lines to a plot
-    let line_plot = Plot::new().add_chart(&Chart::Line(line1))
-                               .add_chart(&Chart::Line(line2))
-                               .add_chart(&Chart::Line(line3))
-                               .add_chart(&Chart::Line(line4))
-                               .add_chart(&Chart::Line(line5))
-                               .add_chart(&Chart::Line(line6))
-                               .add_chart(&Chart::Line(line7))
-                               .add_chart(&Chart::Line(line8))
-                               .set_title("Plot title")
-                               .set_y_min(-1.2)
-                               .set_y_label_angle(PI / 2.0)
-                               .set_local_frame(0.0, 1.0, 0.0, 1.0);
+    let mut line_plot = Plot::new();
+    line_plot.set_title("Plot title")
+             .set_y_min(-1.2)
+             .set_y_label_angle(PI / 2.0)
+             .set_local_frame(0.0, 1.0, 0.0, 1.0);
+
+    for denom in 1..9 {
+        let y_data = Array::from_iter((0..100).map(|i| (x_data[i] - PI / (denom as f64)).sin()));
+        let line = Line::new(&x_data, &y_data);
+        line_plot.add_chart(&Chart::Line(line));
+    }
 
     // Add the plots to a figure, and save it
     let fig = Figure::new().add_plot(&line_plot)

@@ -41,8 +41,8 @@ fn main() {
     let x_data: Vec<f64> = (0u64..y_data.len() as u64).map(|x| x as f64).collect();
     let line = Line::new(&x_data, &y_data).set_color_rgba(0.9, 0.2, 0.2, 0.9);
 
-    let plot11 = Plot::new()
-        .add_chart(&Chart::Line(line))
+    let mut plot11 = Plot::new();
+    plot11.add_chart(&Chart::Line(line))
         .set_local_frame(0.0, 0.49, 0.0, 0.69);
 
     // Plot 2
@@ -51,8 +51,8 @@ fn main() {
     let x_data: Vec<f64> = (0u64..y_data.len() as u64).map(|x| x as f64).collect();
     let line = Line::new(&x_data, &y_data).set_stroke_style(StrokeStyle::Dashed);
 
-    let plot12 = Plot::new()
-        .add_chart(&Chart::Line(line))
+    let mut plot12 = Plot::new();
+    plot12.add_chart(&Chart::Line(line))
         .set_local_frame(0.5, 0.99, 0.3, 0.99);
 
     let fig1 = Figure::new().add_plot(&plot11).add_plot(&plot12);
@@ -66,8 +66,8 @@ fn main() {
     let line1 = Line::new(&x_data, &y_data1);
     let line2 = Line::new(&x_data, &y_data2).set_color_rgba(0.9, 0.2, 0.2, 0.9);
 
-    let plot21 = Plot::new()
-        .add_chart(&Chart::Line(line1))
+    let mut plot21 = Plot::new();
+    plot21.add_chart(&Chart::Line(line1))
         .add_chart(&Chart::Line(line2))
         .set_y_min(-1.2);
 

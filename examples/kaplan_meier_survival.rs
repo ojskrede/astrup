@@ -108,8 +108,8 @@ fn main() {
             let (surv_stage_3, cens_stage_3) = survival_charts(&data, 3, 255.0, 200.0, 14.0);
             let (surv_stage_4, cens_stage_4) = survival_charts(&data, 4, 34.0, 174.0, 51.0);
 
-            let survival_plot = Plot::new()
-                .add_chart(&Chart::Line(surv_stage_1.clone()))
+            let mut survival_plot = Plot::new();
+            survival_plot.add_chart(&Chart::Line(surv_stage_1.clone()))
                 .add_chart(&Chart::Scatter(cens_stage_1.clone()))
                 .add_chart(&Chart::Line(surv_stage_2))
                 .add_chart(&Chart::Scatter(cens_stage_2))
@@ -126,8 +126,8 @@ fn main() {
             //let (surv_stage_3, cens_stage_3) = survival_charts(&data, 3, 255.0, 200.0, 14.0);
             let (lower_stage_4, upper_stage_4) = ci_charts(&data, 4, 34.0, 174.0, 51.0);
 
-            let ci_plot = Plot::new()
-                .add_chart(&Chart::Line(surv_stage_1))
+            let mut ci_plot = Plot::new();
+            ci_plot.add_chart(&Chart::Line(surv_stage_1))
                 .add_chart(&Chart::Line(lower_stage_1))
                 .add_chart(&Chart::Line(upper_stage_1))
                 .add_chart(&Chart::Scatter(cens_stage_1))

@@ -77,8 +77,8 @@ fn main() {
     let line_7 = Line::new(&get_data(3.0).0, &get_data(3.0).1);
     let line_8 = Line::new(&get_data(4.0).0, &get_data(4.0).1);
 
-    let line_plot = Plot::new()
-        .add_chart(&Chart::Line(line_1))
+    let mut line_plot = Plot::new();
+    line_plot.add_chart(&Chart::Line(line_1))
         .add_chart(&Chart::Line(line_2))
         .add_chart(&Chart::Line(line_3))
         .add_chart(&Chart::Line(line_4))

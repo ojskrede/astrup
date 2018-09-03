@@ -29,37 +29,19 @@
 //!     let num_samples = 1000;
 //!     let x_data =
 //!         Array::from_iter((0..num_samples).map(|x| -5.0 + 10.0 * (x as f64) / num_samples as f64));
-//!     let y_data1 = Array::from_iter((0..num_samples).map(|i| (x_data[i] - 0.0 * PI / 8.0).sin()));
-//!     let y_data2 = Array::from_iter((0..num_samples).map(|i| (x_data[i] - 1.0 * PI / 8.0).sin()));
-//!     let y_data3 = Array::from_iter((0..num_samples).map(|i| (x_data[i] - 2.0 * PI / 8.0).sin()));
-//!     let y_data4 = Array::from_iter((0..num_samples).map(|i| (x_data[i] - 3.0 * PI / 8.0).sin()));
-//!     let y_data5 = Array::from_iter((0..num_samples).map(|i| (x_data[i] - 4.0 * PI / 8.0).sin()));
-//!     let y_data6 = Array::from_iter((0..num_samples).map(|i| (x_data[i] - 5.0 * PI / 8.0).sin()));
-//!     let y_data7 = Array::from_iter((0..num_samples).map(|i| (x_data[i] - 6.0 * PI / 8.0).sin()));
-//!     let y_data8 = Array::from_iter((0..num_samples).map(|i| (x_data[i] - 7.0 * PI / 8.0).sin()));
 //!
-//!     // Plot lines
-//!     let line1 = Line::new(&x_data, &y_data1);
-//!     let line2 = Line::new(&x_data, &y_data2);
-//!     let line3 = Line::new(&x_data, &y_data3);
-//!     let line4 = Line::new(&x_data, &y_data4);
-//!     let line5 = Line::new(&x_data, &y_data5);
-//!     let line6 = Line::new(&x_data, &y_data6);
-//!     let line7 = Line::new(&x_data, &y_data7);
-//!     let line8 = Line::new(&x_data, &y_data8);
+//!     // Construct a line plot
+//!     let mut line_plot = Plot::new();
+//!     line_plot.set_y_min(-1.2)
+//!              .set_local_frame(0.0, 0.7, 0.51, 1.0);
 //!
-//!     // Add lines to a plot
-//!     let line_plot = Plot::new()
-//!         .add_chart(&Chart::Line(line1))
-//!         .add_chart(&Chart::Line(line2))
-//!         .add_chart(&Chart::Line(line3))
-//!         .add_chart(&Chart::Line(line4))
-//!         .add_chart(&Chart::Line(line5))
-//!         .add_chart(&Chart::Line(line6))
-//!         .add_chart(&Chart::Line(line7))
-//!         .add_chart(&Chart::Line(line8))
-//!         .set_y_min(-1.2)
-//!         .set_local_frame(0.0, 0.7, 0.51, 1.0);
+//!     // Create multiple lines and append them to the line plot
+//!     for shift in 0..8 {
+//!         let y_data = Array::from_iter((0..num_samples).map(|i| (x_data[i] - shift as f64 * PI / 8.0).sin()));
+//!
+//!         let line1 = Line::new(&x_data, &y_data);
+//!         line_plot.add_chart(&Chart::Line(line1));
+//!     }
 //!
 //!     // Create a seedable rng so that the scatter points are equal from run to run
 //!     let seed: Vec<usize> = vec![8, 8, 8, 8, 8, 8, 8, 8];
@@ -91,8 +73,8 @@
 //!         .set_point_size(0.002);
 //!
 //!     // Add scatter points to a new plot
-//!     let scatter_plot = Plot::new()
-//!         .set_local_frame(0.3, 1.0, 0.0, 0.49)
+//!     let mut scatter_plot = Plot::new();
+//!     scatter_plot.set_local_frame(0.3, 1.0, 0.0, 0.49)
 //!         .set_x_label("x")
 //!         .set_y_label("y")
 //!         .set_y_label_angle(0.0)
@@ -107,8 +89,8 @@
 //!         .set_width(1000)
 //!         .set_height(800)
 //!         .set_border_thickness(0.001)
-//!        # .save("target/doc/astrup/frontpage_example.png")
-//!        # .expect("Could not save doc frontpage_example.png")
+//!         .save("target/doc/astrup/frontpage_example.png")
+//!         .expect("Could not save doc frontpage_example.png")
 //!         .save("assets/frontpage_example.png")
 //!         .expect("Could not save frontpage_example.png");
 //!
