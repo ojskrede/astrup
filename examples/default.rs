@@ -87,7 +87,8 @@ fn main() {
         .add_chart(&Chart::Line(line_7))
         .add_chart(&Chart::Line(line_8));
 
-    let fig = Figure::new().add_plot(&line_plot);
+    let mut fig = Figure::new();
+    fig.add_plot(&line_plot);
     //.save("assets/default.png").expect("Could not save default.png");
 
     View::with_figure(fig)

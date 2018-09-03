@@ -14,7 +14,7 @@ use rand::{SeedableRng, StdRng};
 use astrup::{Chart, Figure, HtmlColor, Line, Plot, Scatter, View};
 
 fn main() {
-    // Create data contained in ndarray
+    // Create data and collect them in an ndarray array
     let num_samples = 1000;
     let x_data =
         Array::from_iter((0..num_samples).map(|x| -5.0 + 10.0 * (x as f64) / num_samples as f64));
@@ -36,7 +36,7 @@ fn main() {
     let seed: Vec<usize> = vec![8, 8, 8, 8, 8, 8, 8, 8];
     let mut seeded_rng: StdRng = SeedableRng::from_seed(seed.as_slice());
 
-    // Create scatter points
+    // Create scatter points to be plotted
     let normal_1 = Normal::new(-3.0, 1.0);
     let normal_2 = Normal::new(0.0, 2.0);
     let normal_3 = Normal::new(3.0, 2.0);
@@ -54,34 +54,34 @@ fn main() {
     let y_data_2: Vec<f64> = (0..num_points)
         .map(|_| normal_4.ind_sample(&mut seeded_rng) as f64)
         .collect();
-    let scatter_1 = Scatter::new(&x_data_1, &y_data_1)
-        .set_color_html(&HtmlColor::Lightskyblue)
-        .set_point_size(0.002);
-    let scatter_2 = Scatter::new(&x_data_2, &y_data_2)
-        .set_color_rgba_u8(255, 69, 0, 200)
-        .set_point_size(0.002);
+    let mut scatter_1 = Scatter::new(&x_data_1, &y_data_1);
+    scatter_1.set_color_html(&HtmlColor::Lightskyblue)
+             .set_point_size(0.002);
+    let mut scatter_2 = Scatter::new(&x_data_2, &y_data_2);
+    scatter_2.set_color_rgba_u8(255, 69, 0, 200)
+             .set_point_size(0.002);
 
-    // Add scatter points to a new plot
+    // Create a scatter plot
     let mut scatter_plot = Plot::new();
     scatter_plot.set_local_frame(0.3, 1.0, 0.0, 0.49)
-        .set_x_label("x")
-        .set_y_label("y")
-        .set_y_label_angle(0.0)
-        .set_title("Scatter plot")
-        .add_chart(&Chart::Scatter(scatter_1))
-        .add_chart(&Chart::Scatter(scatter_2));
+                .set_x_label("x")
+                .set_y_label("y")
+                .set_y_label_angle(0.0)
+                .set_title("Scatter plot")
+                .add_chart(&Chart::Scatter(scatter_1))
+                .add_chart(&Chart::Scatter(scatter_2));
 
     // Add the plots to a figure, and save it
-    let fig = Figure::new()
-        .add_plot(&line_plot)
-        .add_plot(&scatter_plot)
-        .set_width(1000)
-        .set_height(800)
-        .set_border_thickness(0.001)
-        .save("target/doc/astrup/frontpage_example.png")
-        .expect("Could not save doc frontpage_example.png")
-        .save("assets/frontpage_example.png")
-        .expect("Could not save frontpage_example.png");
+    let mut fig = Figure::new();
+    fig.add_plot(&line_plot)
+       .add_plot(&scatter_plot)
+       .set_width(1000)
+       .set_height(800)
+       .set_border_thickness(0.001)
+       .save("target/doc/astrup/frontpage_example.png")
+       .expect("Could not save doc frontpage_example.png")
+       .save("assets/frontpage_example.png")
+       .expect("Could not save frontpage_example.png");
 
     // Display the result on screen
     View::with_figure(fig)

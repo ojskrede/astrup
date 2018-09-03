@@ -75,28 +75,28 @@ fn survival_charts(
     let (time, survival, _, _) = extract_data(data, stage, 1);
     let (cens_time, cens_survival, _, _) = extract_data(data, stage, 0);
 
-    let survival_line = Line::new(&time, &survival)
-        .set_color_rgb(red / 255.0, green / 255.0, blue / 255.0)
-        .set_line_style(LineStyle::RightStair);
-    let censored = Scatter::new(&cens_time, &cens_survival)
-        .set_color_rgb(red / 255.0, green / 255.0, blue / 255.0)
-        .set_point_size(0.01)
-        .set_shape("tick");
+    let mut survival_line = Line::new(&time, &survival);
+    survival_line.set_color_rgb(red / 255.0, green / 255.0, blue / 255.0)
+                 .set_line_style(LineStyle::RightStair);
+    let mut censored = Scatter::new(&cens_time, &cens_survival);
+    censored.set_color_rgb(red / 255.0, green / 255.0, blue / 255.0)
+            .set_point_size(0.01)
+            .set_shape("tick");
     (survival_line, censored)
 }
 
 fn ci_charts(data: &[SurvivalRecord], stage: u8, red: f32, green: f32, blue: f32) -> (Line, Line) {
     let (time, _, lower_ci, upper_ci) = extract_data(data, stage, 1);
 
-    let lower_line = Line::new(&time, &lower_ci)
-        .set_color_rgb(red / 255.0, green / 255.0, blue / 255.0)
-        .set_line_style(LineStyle::RightStair)
-        .set_stroke_style(StrokeStyle::Dotted);
-    let upper_line = Line::new(&time, &upper_ci)
-        .set_color_rgb(red / 255.0, green / 255.0, blue / 255.0)
-        .set_line_style(LineStyle::RightStair)
-        .set_stroke_style(StrokeStyle::Dotted);
-    (lower_line, upper_line)
+    let mut lower_line = Line::new(&time, &lower_ci);
+    lower_line.set_color_rgb(red / 255.0, green / 255.0, blue / 255.0)
+              .set_line_style(LineStyle::RightStair)
+              .set_stroke_style(StrokeStyle::Dotted);
+    let mut upper_line = Line::new(&time, &upper_ci);
+    upper_line.set_color_rgb(red / 255.0, green / 255.0, blue / 255.0)
+              .set_line_style(LineStyle::RightStair)
+              .set_stroke_style(StrokeStyle::Dotted);
+    (lower_line.clone(), upper_line.clone())
 }
 
 fn main() {
@@ -110,16 +110,16 @@ fn main() {
 
             let mut survival_plot = Plot::new();
             survival_plot.add_chart(&Chart::Line(surv_stage_1.clone()))
-                .add_chart(&Chart::Scatter(cens_stage_1.clone()))
-                .add_chart(&Chart::Line(surv_stage_2))
-                .add_chart(&Chart::Scatter(cens_stage_2))
-                .add_chart(&Chart::Line(surv_stage_3))
-                .add_chart(&Chart::Scatter(cens_stage_3))
-                .add_chart(&Chart::Line(surv_stage_4.clone()))
-                .add_chart(&Chart::Scatter(cens_stage_4.clone()))
-                .set_x_label("Time")
-                .set_y_label("Survival")
-                .set_local_frame(0.0, 1.0, 0.5, 1.0);
+                         .add_chart(&Chart::Scatter(cens_stage_1.clone()))
+                         .add_chart(&Chart::Line(surv_stage_2))
+                         .add_chart(&Chart::Scatter(cens_stage_2))
+                         .add_chart(&Chart::Line(surv_stage_3))
+                         .add_chart(&Chart::Scatter(cens_stage_3))
+                         .add_chart(&Chart::Line(surv_stage_4.clone()))
+                         .add_chart(&Chart::Scatter(cens_stage_4.clone()))
+                         .set_x_label("Time")
+                         .set_y_label("Survival")
+                         .set_local_frame(0.0, 1.0, 0.5, 1.0);
 
             let (lower_stage_1, upper_stage_1) = ci_charts(&data, 1, 224.0, 52.0, 11.0);
             //let (surv_stage_2, cens_stage_2) = survival_charts(&data, 2, 23.0, 108.0, 190.0);
@@ -128,22 +128,22 @@ fn main() {
 
             let mut ci_plot = Plot::new();
             ci_plot.add_chart(&Chart::Line(surv_stage_1))
-                .add_chart(&Chart::Line(lower_stage_1))
-                .add_chart(&Chart::Line(upper_stage_1))
-                .add_chart(&Chart::Scatter(cens_stage_1))
-                .add_chart(&Chart::Line(surv_stage_4))
-                .add_chart(&Chart::Line(lower_stage_4))
-                .add_chart(&Chart::Line(upper_stage_4))
-                .add_chart(&Chart::Scatter(cens_stage_4))
-                .set_x_label("Time")
-                .set_y_label("Survival")
-                .set_local_frame(0.0, 1.0, 0.0, 0.5);
+                   .add_chart(&Chart::Line(lower_stage_1))
+                   .add_chart(&Chart::Line(upper_stage_1))
+                   .add_chart(&Chart::Scatter(cens_stage_1))
+                   .add_chart(&Chart::Line(surv_stage_4))
+                   .add_chart(&Chart::Line(lower_stage_4))
+                   .add_chart(&Chart::Line(upper_stage_4))
+                   .add_chart(&Chart::Scatter(cens_stage_4))
+                   .set_x_label("Time")
+                   .set_y_label("Survival")
+                   .set_local_frame(0.0, 1.0, 0.0, 0.5);
 
-            let fig = Figure::new()
-                .add_plot(&survival_plot)
-                .add_plot(&ci_plot)
-                .set_height(1000)
-                .set_width(1000);
+            let mut fig = Figure::new();
+            fig.add_plot(&survival_plot)
+               .add_plot(&ci_plot)
+               .set_height(1000)
+               .set_width(1000);
             //.save("assets/kaplan_meier_survival.png").expect("Could not save kaplan_meier_survival.png");
 
             match View::with_figure(fig) {

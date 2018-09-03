@@ -24,17 +24,20 @@ fn main() {
 
     for denom in 1..9 {
         let y_data = Array::from_iter((0..100).map(|i| (x_data[i] - PI / (denom as f64)).sin()));
-        let line = Line::new(&x_data, &y_data);
+        let mut line = Line::new(&x_data, &y_data);
+        line.set_color_rgb(0.1, 0.2, 0.3);
+
         line_plot.add_chart(&Chart::Line(line));
     }
 
     // Add the plots to a figure, and save it
-    let fig = Figure::new().add_plot(&line_plot)
-                           .set_width(1000)
-                           .set_height(1000)
-                           .set_title("Figure title")
-                           .set_border_thickness(0.01);
-                           //.save("development_example.png").expect("Could not save devel example");
+    let mut fig = Figure::new();
+    fig.add_plot(&line_plot)
+       .set_width(1000)
+       .set_height(1000)
+       .set_title("Figure title")
+       .set_border_thickness(0.01);
+       //.save("development_example.png").expect("Could not save devel example");
 
     // Display the result on screen
     View::with_figure(fig).expect("Could not add figure to view")

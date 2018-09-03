@@ -39,7 +39,8 @@ fn main() {
     let init_val: u64 = 123;
     let y_data: Vec<f64> = collatz(init_val);
     let x_data: Vec<f64> = (0u64..y_data.len() as u64).map(|x| x as f64).collect();
-    let line = Line::new(&x_data, &y_data).set_color_rgba(0.9, 0.2, 0.2, 0.9);
+    let mut line = Line::new(&x_data, &y_data);
+    line.set_color_rgba(0.9, 0.2, 0.2, 0.9);
 
     let mut plot11 = Plot::new();
     plot11.add_chart(&Chart::Line(line))
@@ -49,13 +50,16 @@ fn main() {
     let init_val: u64 = 237;
     let y_data: Vec<f64> = collatz(init_val);
     let x_data: Vec<f64> = (0u64..y_data.len() as u64).map(|x| x as f64).collect();
-    let line = Line::new(&x_data, &y_data).set_stroke_style(StrokeStyle::Dashed);
+    let mut line = Line::new(&x_data, &y_data);
+    line.set_stroke_style(StrokeStyle::Dashed);
 
     let mut plot12 = Plot::new();
     plot12.add_chart(&Chart::Line(line))
         .set_local_frame(0.5, 0.99, 0.3, 0.99);
 
-    let fig1 = Figure::new().add_plot(&plot11).add_plot(&plot12);
+    let mut fig1 = Figure::new();
+    fig1.add_plot(&plot11)
+        .add_plot(&plot12);
 
     // Figure 2
 
@@ -64,14 +68,16 @@ fn main() {
     let y_data2 = Array::from_iter((0..100).map(|i| (x_data[i] - PI / 2.0).sin()));
 
     let line1 = Line::new(&x_data, &y_data1);
-    let line2 = Line::new(&x_data, &y_data2).set_color_rgba(0.9, 0.2, 0.2, 0.9);
+    let mut line2 = Line::new(&x_data, &y_data2);
+    line2.set_color_rgba(0.9, 0.2, 0.2, 0.9);
 
     let mut plot21 = Plot::new();
     plot21.add_chart(&Chart::Line(line1))
         .add_chart(&Chart::Line(line2))
         .set_y_min(-1.2);
 
-    let fig2 = Figure::new().add_plot(&plot21);
+    let mut fig2 = Figure::new();
+    fig2.add_plot(&plot21);
     //.save("assets/multiple_figures.png").expect("Could not save multiple_figures.png");
 
     // Display on screen

@@ -20,6 +20,12 @@ pub struct Figure {
     local_frame: shape::Rectangle,
 }
 
+impl Default for Figure {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Figure {
     pub fn new() -> Figure {
         let mut local_frame = shape::Rectangle::new();
@@ -43,42 +49,42 @@ impl Figure {
     // ----------------- FIGURE TITLE -------------------------------------- //
 
     /// Set figure title
-    pub fn set_title(mut self, title: &str) -> Self {
+    pub fn set_title(&mut self, title: &str) -> &mut Self {
         self.title.set_content(title);
         self
     }
 
     /// Set figure title font size
-    pub fn set_title_font_size(mut self, val: f64) -> Self {
+    pub fn set_title_font_size(&mut self, val: f64) -> &mut Self {
         self.title.set_font_size(val);
         self
     }
 
     /// Set figure title font slant
-    pub fn set_title_font_slant(mut self, font_slant: FontSlant) -> Self {
+    pub fn set_title_font_slant(&mut self, font_slant: FontSlant) -> &mut Self {
         self.title.set_font_slant(font_slant);
         self
     }
 
-    pub fn set_title_font_weight(mut self, font_weight: FontWeight) -> Self {
+    pub fn set_title_font_weight(&mut self, font_weight: FontWeight) -> &mut Self {
         self.title.set_font_weight(font_weight);
         self
     }
 
-    pub fn set_title_font_family(mut self) -> Self {
+    pub fn set_title_font_family(&mut self) -> &mut Self {
         // TODO:
         self.title.set_font_family();
         self
     }
 
     /// Set the angle of the figure title
-    pub fn set_title_angle(mut self, val: f64) -> Self {
+    pub fn set_title_angle(&mut self, val: f64) -> &mut Self {
         self.title.set_angle(val);
         self
     }
 
     /// Set the location of the figure title, relative to the figure frame
-    pub fn set_title_centroid(mut self, x_coord: f64, y_coord: f64) -> Self {
+    pub fn set_title_centroid(&mut self, x_coord: f64, y_coord: f64) -> &mut Self {
         self.title.set_centroid(x_coord, y_coord);
         self
     }
@@ -86,47 +92,47 @@ impl Figure {
     /// Set gaps around figure title.
     ///
     /// NOTE: This has currently no visible effect
-    pub fn set_title_frame_gaps(mut self, left: f64, right: f64, bottom: f64, top: f64) -> Self {
+    pub fn set_title_frame_gaps(&mut self, left: f64, right: f64, bottom: f64, top: f64) -> &mut Self {
         self.title.set_frame_gaps(left, right, bottom, top);
         self
     }
 
     /// Set the title color
-    pub fn set_title_color(mut self, color: &color::CustomColor) -> Self {
+    pub fn set_title_color(&mut self, color: &color::CustomColor) -> &mut Self {
         self.title.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the title color
-    pub fn set_title_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
+    pub fn set_title_color_rgb(&mut self, red: f32, green: f32, blue: f32) -> &mut Self {
         let color = color::Color::with_rgb(red, green, blue);
         self.title.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the title color
-    pub fn set_title_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
+    pub fn set_title_color_rgba(&mut self, red: f32, green: f32, blue: f32, alpha: f32) -> &mut Self {
         let color = color::Color::with_rgba(red, green, blue, alpha);
         self.title.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the title color
-    pub fn set_title_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
+    pub fn set_title_color_rgb_u8(&mut self, red: u8, green: u8, blue: u8) -> &mut Self {
         let color = color::Color::with_rgb_u8(red, green, blue);
         self.title.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the title color
-    pub fn set_title_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
+    pub fn set_title_color_rgba_u8(&mut self, red: u8, green: u8, blue: u8, alpha: u8) -> &mut Self {
         let color = color::Color::with_rgba_u8(red, green, blue, alpha);
         self.title.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the title color
-    pub fn set_title_color_html(mut self, color: &color::HtmlColor) -> Self {
+    pub fn set_title_color_html(&mut self, color: &color::HtmlColor) -> &mut Self {
         self.title.set_color_internal(color.as_srgba());
         self
     }
@@ -138,48 +144,48 @@ impl Figure {
 
     // ----------------- APPEARANCE ---------------------------------------- //
 
-    pub fn set_height(mut self, val: usize) -> Self {
+    pub fn set_height(&mut self, val: usize) -> &mut Self {
         self.height = val;
         self
     }
 
-    pub fn set_width(mut self, val: usize) -> Self {
+    pub fn set_width(&mut self, val: usize) -> &mut Self {
         self.width = val;
         self
     }
 
     /// Set the figure background color
-    pub fn set_color(mut self, color: &color::CustomColor) -> Self {
+    pub fn set_color(&mut self, color: &color::CustomColor) -> &mut Self {
         self.color.set_color_custom(color);
         self
     }
 
     /// Set the figure background color
-    pub fn set_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
+    pub fn set_color_rgb(&mut self, red: f32, green: f32, blue: f32) -> &mut Self {
         self.color.set_color_rgb(red, green, blue);
         self
     }
 
     /// Set the figure background color
-    pub fn set_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
+    pub fn set_color_rgba(&mut self, red: f32, green: f32, blue: f32, alpha: f32) -> &mut Self {
         self.color.set_color_rgba(red, green, blue, alpha);
         self
     }
 
     /// Set the figure background color
-    pub fn set_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
+    pub fn set_color_rgb_u8(&mut self, red: u8, green: u8, blue: u8) -> &mut Self {
         self.color.set_color_rgb_u8(red, green, blue);
         self
     }
 
     /// Set the figure background color
-    pub fn set_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
+    pub fn set_color_rgba_u8(&mut self, red: u8, green: u8, blue: u8, alpha: u8) -> &mut Self {
         self.color.set_color_rgba_u8(red, green, blue, alpha);
         self
     }
 
     /// Set the figure background color
-    pub fn set_color_html(mut self, color: &color::HtmlColor) -> Self {
+    pub fn set_color_html(&mut self, color: &color::HtmlColor) -> &mut Self {
         self.color.set_color_html(color);
         self
     }
@@ -199,66 +205,66 @@ impl Figure {
     }
 
     /// Whether or not to display a border around the figure
-    pub fn display_border(mut self, val: bool) -> Self {
+    pub fn display_border(&mut self, val: bool) -> &mut Self {
         self.local_frame.display_border(val);
         self
     }
 
     /// Set the figure border color
-    pub fn set_border_color(mut self, color: &color::CustomColor) -> Self {
+    pub fn set_border_color(&mut self, color: &color::CustomColor) -> &mut Self {
         let color = color::Color::with_custom(color);
         self.local_frame.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the figure border color
-    pub fn set_border_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
+    pub fn set_border_color_rgb(&mut self, red: f32, green: f32, blue: f32) -> &mut Self {
         let color = color::Color::with_rgb(red, green, blue);
         self.local_frame.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the figure border color
-    pub fn set_border_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
+    pub fn set_border_color_rgba(&mut self, red: f32, green: f32, blue: f32, alpha: f32) -> &mut Self {
         let color = color::Color::with_rgba(red, green, blue, alpha);
         self.local_frame.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the figure border color
-    pub fn set_border_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
+    pub fn set_border_color_rgb_u8(&mut self, red: u8, green: u8, blue: u8) -> &mut Self {
         let color = color::Color::with_rgb_u8(red, green, blue);
         self.local_frame.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the figure border color
-    pub fn set_border_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
+    pub fn set_border_color_rgba_u8(&mut self, red: u8, green: u8, blue: u8, alpha: u8) -> &mut Self {
         let color = color::Color::with_rgba_u8(red, green, blue, alpha);
         self.local_frame.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the figure border color
-    pub fn set_border_color_html(mut self, color: &color::HtmlColor) -> Self {
+    pub fn set_border_color_html(&mut self, color: &color::HtmlColor) -> &mut Self {
         self.local_frame.set_color_internal(color.as_srgba());
         self
     }
 
     /// Set the line width of the border around the figure
-    pub fn set_border_thickness(mut self, val: f64) -> Self {
+    pub fn set_border_thickness(&mut self, val: f64) -> &mut Self {
         self.local_frame.display_border(true);
         self.local_frame.set_border_thickness(val);
         self
     }
 
     /// Add plots to figure
-    pub fn add_plot(mut self, plot: &plot::Plot) -> Self {
+    pub fn add_plot(&mut self, plot: &plot::Plot) -> &mut Self {
         self.plots.push(plot.clone());
         self
     }
 
-    pub fn save(self, filename: &str) -> Result<Self, Error> {
+    pub fn save(&mut self, filename: &str) -> Result<&mut Self, Error> {
         // Since both save() and show() can be called, and since all drawing is happening in both,
         // multiple calls to fit() will be made, and this can mess up things if we call it on self.
         // The simplest solution is to clone self. But one should perhaps make fit() idempotent?.
@@ -345,11 +351,5 @@ impl Figure {
         for plot in &self.plots {
             plot.draw(cr, relative_height, relative_width);
         }
-    }
-}
-
-impl Default for Figure {
-    fn default() -> Self {
-        Self::new()
     }
 }

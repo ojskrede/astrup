@@ -24,6 +24,12 @@ pub struct Rectangle {
     border_thickness: f64,
 }
 
+impl Default for Rectangle {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Rectangle {
     /// Return a new, default frame.
     pub fn new() -> Rectangle {
@@ -245,11 +251,5 @@ impl Rectangle {
             cr.stroke();
             cr.move_to(self.left, self.bottom); // Needed because of close_path() (See cairo-rs docs)
         }
-    }
-}
-
-impl Default for Rectangle {
-    fn default() -> Self {
-        Self::new()
     }
 }

@@ -155,86 +155,86 @@ impl Line {
     }
 
     /// Set the line color
-    pub fn set_color(mut self, color: &color::CustomColor) -> Self {
+    pub fn set_color(&mut self, color: &color::CustomColor) -> &mut Self {
         self.color.set_color_custom(color);
         self.is_color_updated = true;
         self
     }
 
     /// Set the line color
-    pub fn set_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
+    pub fn set_color_rgb(&mut self, red: f32, green: f32, blue: f32) -> &mut Self {
         self.color.set_color_rgb(red, green, blue);
         self.is_color_updated = true;
         self
     }
 
     /// Set the line color
-    pub fn set_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
+    pub fn set_color_rgba(&mut self, red: f32, green: f32, blue: f32, alpha: f32) -> &mut Self {
         self.color.set_color_rgba(red, green, blue, alpha);
         self.is_color_updated = true;
         self
     }
 
     /// Set the line color
-    pub fn set_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
+    pub fn set_color_rgb_u8(&mut self, red: u8, green: u8, blue: u8) -> &mut Self {
         self.color.set_color_rgb_u8(red, green, blue);
         self.is_color_updated = true;
         self
     }
 
     /// Set the line color
-    pub fn set_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
+    pub fn set_color_rgba_u8(&mut self, red: u8, green: u8, blue: u8, alpha: u8) -> &mut Self {
         self.color.set_color_rgba_u8(red, green, blue, alpha);
         self.is_color_updated = true;
         self
     }
 
     /// Set the line color
-    pub fn set_color_html(mut self, color: &color::HtmlColor) -> Self {
+    pub fn set_color_html(&mut self, color: &color::HtmlColor) -> &mut Self {
         self.color.set_color_html(color);
         self.is_color_updated = true;
         self
     }
 
     /// Set the line width
-    pub fn set_line_width(mut self, val: f64) -> Self {
+    pub fn set_line_width(&mut self, val: f64) -> &mut Self {
         self.line_width = val;
         self
     }
 
     /// Set the style of the line. Plain, left stair, or right stair.
-    pub fn set_line_style(mut self, style: LineStyle) -> Self {
+    pub fn set_line_style(&mut self, style: LineStyle) -> &mut Self {
         self.line_style = style;
         self
     }
 
     /// Set the stroke style of the line
-    pub fn set_stroke_style(mut self, style: StrokeStyle) -> Self {
+    pub fn set_stroke_style(&mut self, style: StrokeStyle) -> &mut Self {
         self.stroke_style = style;
         self.dash_pattern = DashPattern::with_style(&self.stroke_style);
         self
     }
 
     /// Set the length of the ``on duration'' of a dash in a dash line
-    pub fn set_dash_on_length(mut self, val: f64) -> Self {
+    pub fn set_dash_on_length(&mut self, val: f64) -> &mut Self {
         self.dash_pattern.set_on_length(val);
         self
     }
 
     /// Set the length of the ``off duration'' of a dash in a dash line
-    pub fn set_dash_off_length(mut self, val: f64) -> Self {
+    pub fn set_dash_off_length(&mut self, val: f64) -> &mut Self {
         self.dash_pattern.set_off_length(val);
         self
     }
 
     /// Set the offset of the line dash pattern
-    pub fn set_dash_offset(mut self, val: f64) -> Self {
+    pub fn set_dash_offset(&mut self, val: f64) -> &mut Self {
         self.dash_pattern.set_offset(val);
         self
     }
 
     /// Set the line cap of the line dash pattern
-    pub fn set_line_cap(mut self, cap: LineCap) -> Self {
+    pub fn set_line_cap(&mut self, cap: LineCap) -> &mut Self {
         self.dash_pattern.set_line_cap(cap);
         self
     }

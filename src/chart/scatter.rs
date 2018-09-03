@@ -71,49 +71,49 @@ impl Scatter {
     }
 
     /// Set the point color
-    pub fn set_color(mut self, color: &color::CustomColor) -> Self {
+    pub fn set_color(&mut self, color: &color::CustomColor) -> &mut Self {
         self.color.set_color_custom(color);
         self.is_color_updated = true;
         self
     }
 
     /// Set the point color
-    pub fn set_color_rgb(mut self, red: f32, green: f32, blue: f32) -> Self {
+    pub fn set_color_rgb(&mut self, red: f32, green: f32, blue: f32) -> &mut Self {
         self.color.set_color_rgb(red, green, blue);
         self.is_color_updated = true;
         self
     }
 
     /// Set the point color
-    pub fn set_color_rgba(mut self, red: f32, green: f32, blue: f32, alpha: f32) -> Self {
+    pub fn set_color_rgba(&mut self, red: f32, green: f32, blue: f32, alpha: f32) -> &mut Self {
         self.color.set_color_rgba(red, green, blue, alpha);
         self.is_color_updated = true;
         self
     }
 
     /// Set the point color
-    pub fn set_color_rgb_u8(mut self, red: u8, green: u8, blue: u8) -> Self {
+    pub fn set_color_rgb_u8(&mut self, red: u8, green: u8, blue: u8) -> &mut Self {
         self.color.set_color_rgb_u8(red, green, blue);
         self.is_color_updated = true;
         self
     }
 
     /// Set the point color
-    pub fn set_color_rgba_u8(mut self, red: u8, green: u8, blue: u8, alpha: u8) -> Self {
+    pub fn set_color_rgba_u8(&mut self, red: u8, green: u8, blue: u8, alpha: u8) -> &mut Self {
         self.color.set_color_rgba_u8(red, green, blue, alpha);
         self.is_color_updated = true;
         self
     }
 
     /// Set the point color
-    pub fn set_color_html(mut self, color: &color::HtmlColor) -> Self {
+    pub fn set_color_html(&mut self, color: &color::HtmlColor) -> &mut Self {
         self.color.set_color_html(color);
         self.is_color_updated = true;
         self
     }
 
     /// Set the scatter point size
-    pub fn set_point_size(mut self, size: f64) -> Self {
+    pub fn set_point_size(&mut self, size: f64) -> &mut Self {
         self.point_size = size;
         self
     }
@@ -130,7 +130,7 @@ impl Scatter {
     /// | Any other &str                     | Circle |
     #[allow(unknown_lints)]
     #[allow(match_same_arms)]
-    pub fn set_shape(mut self, shape_id: &str) -> Self {
+    pub fn set_shape(&mut self, shape_id: &str) -> &mut Self {
         // TODO: Move this to draw and get rid of enum??
         self.shape = match shape_id {
             "Circle" | "circle" | "c" | "o" => chart::point::Shape::Circle,
